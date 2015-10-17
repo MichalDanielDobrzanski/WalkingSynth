@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">WalkingSynth</string>
+    <string name="stop_btn_text">STOP</string>
+    <string name="start_btn_text">START</string>
+
+    <string name="accel_mag">|V|</string>
+    <string name="accel_grav">\u0394g</string>
+    <string name="step_detect">steps</string>
+
+</resources>

@@ -1,5 +1,6 @@
 package com.dobi.walkingsynth;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,8 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AccelerometerDetector implements SensorEventListener {
 
     private static final String TAG = "AccelDetector";
-    private static final int ACC_MAGNITUDE = 0;
-    private static final int ACC_GRAV_DIFF = 1;
 
     private SensorManager mSensorManager;
     private Sensor mAccel;
@@ -34,7 +33,8 @@ public class AccelerometerDetector implements SensorEventListener {
     private GraphicalView mView;
     private AccelerometerGraph mGraph;
 
-    public AccelerometerDetector() {
+    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, int option) {
+        mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mAccel.getResolution()
@@ -43,7 +43,10 @@ public class AccelerometerDetector implements SensorEventListener {
         } else {
             Log.d(TAG, "Failure! No accelerometer.");
         }
-        mCurrentOption = ACC_MAGNITUDE;
+        mCurrentOption = option;
+        // get graph handles
+        mView = view;
+        mGraph = graph;
     }
 
     public void startDetector() {
@@ -62,15 +65,10 @@ public class AccelerometerDetector implements SensorEventListener {
         mCurrentOption = o;
     }
 
-    public void getGraphHandles(GraphicalView gv, AccelerometerGraph ag) {
-        mView = gv;
-        mGraph = ag;
-    }
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
-        if (mCurrentOption == ACC_MAGNITUDE) {
+        if (mCurrentOption == Constants.ACC_MAGNITUDE) {
             // In this example, alpha is calculated as t / (t + dT),
             // where t is the low-pass filter's time-constant and
             // dT is the event delivery rate.
@@ -92,7 +90,7 @@ public class AccelerometerDetector implements SensorEventListener {
                     linear_acceleration[0] * linear_acceleration[0] +
                             linear_acceleration[1] * linear_acceleration[1] +
                             linear_acceleration[2] * linear_acceleration[2]);
-        } else if (mCurrentOption == ACC_GRAV_DIFF) {
+        } else if (mCurrentOption == Constants.ACC_GRAV_DIFF) {
             mAccelResult = (
                     event.values[0] * event.values[0] +
                             event.values[1] * event.values[1] +

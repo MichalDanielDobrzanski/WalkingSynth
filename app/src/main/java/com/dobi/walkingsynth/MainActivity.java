@@ -9,23 +9,31 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 
 import org.achartengine.GraphicalView;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Ma";
+    private static final int MAX_OFFSET = 30;
+
     private int mCurrentOption;
     // accelerometer fields
     private AccelerometerDetector mAccelDetector;
     // graph fields
     private static GraphicalView mView;
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
+    private int mOffset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // initial graph option
+        mOffset = 0;
+        mCurrentOption = Constants.ACC_MAGNITUDE;
 
         // UI default setup
         LinearLayout mainLayout = (LinearLayout)findViewById(R.id.activity_main_layout);
@@ -40,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCurrentOption = (mCurrentOption + 1) % 2;
+                mCurrentOption = (mCurrentOption + 1) % Constants.SERIES_COUNT;
                 mAccelDetector.setOption(mCurrentOption);
                 switch (mCurrentOption) {
                     case Constants.ACC_MAGNITUDE:
@@ -49,13 +57,35 @@ public class MainActivity extends AppCompatActivity {
                     case Constants.ACC_GRAV_DIFF:
                         selectButton.setText(R.string.accel_grav);
                         break;
+                    case Constants.ACC_ALL:
+                        selectButton.setText(R.string.accel_all);
+                        mAccelGraph.addNewSeries();
+                        break;
                 }
             }
         });
 
-        mCurrentOption = Constants.ACC_MAGNITUDE;
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
+        seekBar.setMax(MAX_OFFSET);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mOffset = progress;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         // initialize accererometer
+        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,mCurrentOption);
     }
 

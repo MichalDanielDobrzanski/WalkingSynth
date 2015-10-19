@@ -14,24 +14,31 @@ public class AccelerometerGraph {
 
     // how many points in a graph frame
     private static final int GRAPH_RESOLUTION = 150;
+    private static final String TITLE = "Accelerometer data";
 
     private GraphicalView view;
 
-    private TimeSeries dataset = new TimeSeries("Accelerometer data");
+    private TimeSeries[] datasets = new TimeSeries[Constants.SERIES_COUNT];
+    private int datasetsCount = 1;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     private XYSeriesRenderer renderer = new XYSeriesRenderer();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 
-    public AccelerometerGraph() {
-        // add single data set to multiple data set
-        mDataset.addSeries(dataset);
-
-        renderer.setColor(Color.RED);
+    private void customizeSeries(int color) {
+        renderer.setColor(color);
         renderer.setPointStyle(PointStyle.CIRCLE);
         renderer.setFillPoints(true);
+        // add single renderer to multiple renderer
+        mRenderer.addSeriesRenderer(renderer);
+    }
 
-        // enable zoom
+    public AccelerometerGraph() {
+        // add single data set to multiple data set
+        datasets[0] = new TimeSeries(TITLE + 1);
+        mDataset.addSeries(datasets[0]);
+
+        // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
         mRenderer.setYAxisMin(0);
@@ -40,22 +47,36 @@ public class AccelerometerGraph {
         mRenderer.setBackgroundColor(Color.WHITE);
         mRenderer.setApplyBackgroundColor(true);
 
-        // add single renderer to multiple renderer
-        mRenderer.addSeriesRenderer(renderer);
+        customizeSeries(Color.RED);
     }
 
-    public void addNewPoint(double t, double v) {
-        // moving plot
-        if (t > 20)
-            dataset.add(t,v);
-        if (t > GRAPH_RESOLUTION)
-            dataset.remove(0);
-        // scaling Y
+    public void addNewPoint(double t, double[] v) {
+        for (int i = 0; i < datasetsCount; ++i) {
+            // moving plot
+            if (t > 20)
+                datasets[i].add(t, v[i]);
+            if (t > GRAPH_RESOLUTION)
+                datasets[i].remove(0);
+            // scaling
+        }
+    }
 
+    public void addNewSeries() {
+        if (datasetsCount <= Constants.SERIES_COUNT) {
+            datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
+            // add another data set to multiple data set
+            mDataset.addSeries(datasets[datasetsCount]);
+            datasetsCount += 1;
+            customizeSeries(Color.BLUE);
+        } else {
+            throw new ArrayIndexOutOfBoundsException();
+        }
     }
 
     public void clear() {
-        dataset.clear();
+        for (TimeSeries ts : datasets) {
+            ts.clear();
+        }
     }
 
 //    public void setProperties(){
@@ -84,7 +105,6 @@ public class AccelerometerGraph {
 //        renderer3.setColor(Color.BLUE);
 //        renderer.addSeriesRenderer(renderer3);
 //    }
-
 
     public GraphicalView getView(Context context){
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);

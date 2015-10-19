@@ -17,21 +17,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AccelerometerDetector implements SensorEventListener {
 
     private static final String TAG = "AccelDetector";
+    public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
 
     private SensorManager mSensorManager;
     private Sensor mAccel;
 
-    // accelerometer fields
     private int mCurrentOption;
-    public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
-    private double mAccelResult;
+    private double[] mAccelResult = new double[Constants.SERIES_COUNT];
     private long mAccelCount;
-
     // graph handles
     private GraphicalView mView;
     private AccelerometerGraph mGraph;
+
+    private void calcMagnitudeVector(SensorEvent event, int order) {
+        // In this example, alpha is calculated as t / (t + dT),
+        // where t is the low-pass filter's time-constant and
+        // dT is the event delivery rate.
+        final float alpha = 0.9f;
+
+        // Isolate the force of gravity with the low-pass filter.
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+        // Remove the gravity contribution with the high-pass filter.
+        linear_acceleration[0] = event.values[0] - gravity[0];
+        linear_acceleration[1] = event.values[1] - gravity[1];
+        linear_acceleration[2] = event.values[2] - gravity[2];
+        //Log.d(TAG,"Acc: x=" + linear_acceleration[0] + " y=" + linear_acceleration[1] + " z=" + linear_acceleration[2]);
+
+        // get magnitude/length/norm of a vector
+        mAccelResult[order] = Math.sqrt(
+                linear_acceleration[0] * linear_acceleration[0] +
+                linear_acceleration[1] * linear_acceleration[1] +
+                linear_acceleration[2] * linear_acceleration[2]);
+    }
+
+    private void calcGravityDiff(SensorEvent event, int order) {
+        mAccelResult[order] = (
+                event.values[0] * event.values[0] +
+                event.values[1] * event.values[1] +
+                event.values[2] * event.values[2]) /
+                (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+    }
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, int option) {
         mSensorManager = sensorManager;
@@ -54,7 +84,7 @@ public class AccelerometerDetector implements SensorEventListener {
         if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
-        mAccelCount = 0;
+        //mAccelCount = 0;
     }
 
     public void stopDetector() {
@@ -69,36 +99,15 @@ public class AccelerometerDetector implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
         if (mCurrentOption == Constants.ACC_MAGNITUDE) {
-            // In this example, alpha is calculated as t / (t + dT),
-            // where t is the low-pass filter's time-constant and
-            // dT is the event delivery rate.
-            final float alpha = 0.9f;
-
-            // Isolate the force of gravity with the low-pass filter.
-            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-
-            // Remove the gravity contribution with the high-pass filter.
-            linear_acceleration[0] = event.values[0] - gravity[0];
-            linear_acceleration[1] = event.values[1] - gravity[1];
-            linear_acceleration[2] = event.values[2] - gravity[2];
-            //Log.d(TAG,"Acc: x=" + linear_acceleration[0] + " y=" + linear_acceleration[1] + " z=" + linear_acceleration[2]);
-
-            // get magnitude/length/norm of a vector
-            mAccelResult = Math.sqrt(
-                    linear_acceleration[0] * linear_acceleration[0] +
-                            linear_acceleration[1] * linear_acceleration[1] +
-                            linear_acceleration[2] * linear_acceleration[2]);
+            calcMagnitudeVector(event,0);
         } else if (mCurrentOption == Constants.ACC_GRAV_DIFF) {
-            mAccelResult = (
-                    event.values[0] * event.values[0] +
-                            event.values[1] * event.values[1] +
-                            event.values[2] * event.values[2]) /
-                    (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+            calcGravityDiff(event,0);
+        } else if (mCurrentOption == Constants.ACC_ALL) {
+            calcMagnitudeVector(event,0);
+            calcGravityDiff(event, 1);
         }
         mAccelCount += 1;
-        Log.d(TAG, "Vec: x= " + mAccelResult + " C=" + mAccelCount);
+        Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
 
         // update graph
         mGraph.addNewPoint(mAccelCount, mAccelResult);

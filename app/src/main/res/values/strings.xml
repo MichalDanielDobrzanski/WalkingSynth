@@ -5,6 +5,7 @@
 
     <string name="accel_mag">|V|</string>
     <string name="accel_grav">\u0394g</string>
+    <string name="accel_all">ALL</string>
     <string name="step_detect">steps</string>
 
 </resources>

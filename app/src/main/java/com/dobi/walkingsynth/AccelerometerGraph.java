@@ -25,19 +25,16 @@ public class AccelerometerGraph {
     private XYSeriesRenderer renderer = new XYSeriesRenderer();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 
-    private void customizeSeries(int color) {
-        renderer.setColor(color);
-        renderer.setPointStyle(PointStyle.CIRCLE);
-        renderer.setFillPoints(true);
-        // add single renderer to multiple renderer
-        mRenderer.addSeriesRenderer(renderer);
-    }
+    private int[] mOffset = new int[Constants.SERIES_COUNT];
 
     public AccelerometerGraph() {
         // add single data set to multiple data set
         datasets[0] = new TimeSeries(TITLE + 1);
         mDataset.addSeries(datasets[0]);
-
+        renderer.setColor(Color.RED);
+        renderer.setPointStyle(PointStyle.CIRCLE);
+        renderer.setFillPoints(true);
+        mRenderer.addSeriesRenderer(renderer);
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
@@ -46,19 +43,24 @@ public class AccelerometerGraph {
         mRenderer.setMarginsColor(Color.WHITE);
         mRenderer.setBackgroundColor(Color.WHITE);
         mRenderer.setApplyBackgroundColor(true);
-
-        customizeSeries(Color.RED);
+        // add single renderer to multiple renderer
+        mRenderer.setClickEnabled(false);
+        mRenderer.setPanEnabled(false, false);
+        mRenderer.setZoomEnabled(false, false);
     }
 
     public void addNewPoint(double t, double[] v) {
         for (int i = 0; i < datasetsCount; ++i) {
             // moving plot
             if (t > 20)
-                datasets[i].add(t, v[i]);
+                datasets[i].add(t, v[i] + mOffset[i]);
             if (t > GRAPH_RESOLUTION)
                 datasets[i].remove(0);
-            // scaling
         }
+    }
+
+    public void addOffset(int i, int v) {
+        mOffset[i] = v;
     }
 
     public void addNewSeries() {
@@ -67,7 +69,12 @@ public class AccelerometerGraph {
             // add another data set to multiple data set
             mDataset.addSeries(datasets[datasetsCount]);
             datasetsCount += 1;
-            customizeSeries(Color.BLUE);
+            // create new renderer
+            XYSeriesRenderer renderer = new XYSeriesRenderer();
+            renderer.setColor(Color.BLUE);
+            renderer.setPointStyle(PointStyle.CIRCLE);
+            renderer.setFillPoints(true);
+            mRenderer.addSeriesRenderer(renderer);
         } else {
             throw new ArrayIndexOutOfBoundsException();
         }

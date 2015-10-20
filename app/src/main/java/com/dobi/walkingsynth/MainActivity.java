@@ -36,12 +36,12 @@ public class MainActivity extends AppCompatActivity {
         mCurrentOption = Constants.ACC_MAGNITUDE;
 
         // UI default setup
-        LinearLayout mainLayout = (LinearLayout)findViewById(R.id.activity_main_layout);
         mView = mAccelGraph.getView(this);
         mView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
-        mainLayout.addView(mView);
+        LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
+        graphLayout.addView(mView);
 
         final Button selectButton = (Button)findViewById(R.id.select_button);
         selectButton.setText(R.string.accel_mag);
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mOffset = progress;
+                mAccelGraph.addOffset(1,progress);
             }
 
             @Override

@@ -13,8 +13,6 @@ import android.widget.ToggleButton;
 
 import org.achartengine.GraphicalView;
 
-import java.util.EnumSet;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MActivity";
@@ -73,17 +71,17 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         LinearLayout layout = (LinearLayout)findViewById(R.id.buttons_layout);
-        for (int i = 0; i < Constants.OPTIONS.length; ++i) {
+        for (int i = 0; i < AccOptions.OPTIONS.length; ++i) {
             final ToggleButton btn = new ToggleButton(this);
-            btn.setTextOn(Constants.OPTIONS[i]);
-            btn.setTextOff(Constants.OPTIONS[i]);
+            btn.setTextOn(AccOptions.OPTIONS[i]);
+            btn.setTextOff(AccOptions.OPTIONS[i]);
             btn.setLayoutParams(params);
             btn.setChecked(true);
             final int opt = i; // convert to flag convention
             btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mAccelDetector.setCurrentOption(Constants.AccOptions.values()[opt]);
+                    mAccelDetector.setCurrentOption(AccOptions.AccOptions.values()[opt]);
                 }
             });
             layout.addView(btn);

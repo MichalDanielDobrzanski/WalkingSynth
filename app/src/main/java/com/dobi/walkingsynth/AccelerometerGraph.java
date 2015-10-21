@@ -18,14 +18,14 @@ public class AccelerometerGraph {
 
     private GraphicalView view;
 
-    private TimeSeries[] datasets = new TimeSeries[Constants.SERIES_COUNT];
+    private TimeSeries[] datasets = new TimeSeries[AccOptions.size];
     private int datasetsCount = 1;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     private XYSeriesRenderer renderer = new XYSeriesRenderer();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 
-    private int[] mOffset = new int[Constants.SERIES_COUNT];
+    private int[] mOffset = new int[AccOptions.size];
 
     public AccelerometerGraph() {
         // add single data set to multiple data set
@@ -64,7 +64,7 @@ public class AccelerometerGraph {
     }
 
     public void addNewSeries() {
-        if (datasetsCount <= Constants.SERIES_COUNT) {
+        if (datasetsCount <= AccOptions.size) {
             datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
             // add another data set to multiple data set
             mDataset.addSeries(datasets[datasetsCount]);

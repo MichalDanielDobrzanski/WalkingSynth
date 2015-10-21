@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mAccelDetector.setCurrentOption(opt,isChecked);
+                    mAccelDetector.setVisibility(opt, isChecked);
                 }
             });
             layout.addView(btn);

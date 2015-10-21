@@ -22,7 +22,7 @@ public class AccelerometerGraph {
     private int datasetsCount = 1;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
-    private XYSeriesRenderer renderer = new XYSeriesRenderer();
+    private XYSeriesRenderer[] renderer = new XYSeriesRenderer[AccOptions.size];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 
     private int[] mOffset = new int[AccOptions.size];
@@ -31,10 +31,11 @@ public class AccelerometerGraph {
         // add single data set to multiple data set
         datasets[0] = new TimeSeries(TITLE + 1);
         mDataset.addSeries(datasets[0]);
-        renderer.setColor(Color.RED);
-        renderer.setPointStyle(PointStyle.CIRCLE);
-        renderer.setFillPoints(true);
-        mRenderer.addSeriesRenderer(renderer);
+        renderer[0] = new XYSeriesRenderer();
+        renderer[0].setColor(Color.RED);
+        renderer[0].setPointStyle(PointStyle.CIRCLE);
+        renderer[0].setFillPoints(true);
+        mRenderer.addSeriesRenderer(renderer[0]);
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
@@ -47,6 +48,16 @@ public class AccelerometerGraph {
         mRenderer.setClickEnabled(false);
         mRenderer.setPanEnabled(false, false);
         mRenderer.setZoomEnabled(false, false);
+
+        datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
+        // add another data set to multiple data set
+        mDataset.addSeries(datasets[datasetsCount]);
+        datasetsCount += 1;
+        renderer[1] = new XYSeriesRenderer();
+        renderer[1].setColor(Color.BLUE);
+        renderer[1].setPointStyle(PointStyle.CIRCLE);
+        renderer[1].setFillPoints(true);
+        mRenderer.addSeriesRenderer(renderer[1]);
     }
 
     public void addNewPoint(double t, double[] v) {
@@ -59,26 +70,39 @@ public class AccelerometerGraph {
         }
     }
 
+
+    public void setVisibility(int opt, boolean show) {
+        //AccOptions option = AccOptions.values()[opt];
+        if (show) {
+            // show current option
+            renderer[opt].setColor(Color.BLUE);
+            // show current option
+        } else {
+            renderer[opt].setColor(Color.TRANSPARENT);
+        }
+        view.repaint();
+    }
+
     public void addOffset(int i, int v) {
         mOffset[i] = v;
     }
 
-    public void addNewSeries() {
-        if (datasetsCount <= AccOptions.size) {
-            datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
-            // add another data set to multiple data set
-            mDataset.addSeries(datasets[datasetsCount]);
-            datasetsCount += 1;
-            // create new renderer
-            XYSeriesRenderer renderer = new XYSeriesRenderer();
-            renderer.setColor(Color.BLUE);
-            renderer.setPointStyle(PointStyle.CIRCLE);
-            renderer.setFillPoints(true);
-            mRenderer.addSeriesRenderer(renderer);
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-    }
+//    public void addNewSeries() {
+//        if (datasetsCount <= AccOptions.size) {
+//            datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
+//            // add another data set to multiple data set
+//            mDataset.addSeries(datasets[datasetsCount]);
+//            datasetsCount += 1;
+//            // create new renderer
+//            XYSeriesRenderer renderer = new XYSeriesRenderer();
+//            renderer.setColor(Color.BLUE);
+//            renderer.setPointStyle(PointStyle.CIRCLE);
+//            renderer.setFillPoints(true);
+//            mRenderer.addSeriesRenderer(renderer);
+//        } else {
+//            throw new ArrayIndexOutOfBoundsException();
+//        }
+//    }
 
     public void clear() {
         for (TimeSeries ts : datasets) {

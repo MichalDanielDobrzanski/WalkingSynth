@@ -1,24 +1,25 @@
 package com.dobi.walkingsynth;
 
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.ToggleButton;
 
 import org.achartengine.GraphicalView;
 
+import java.util.EnumSet;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "Ma";
+    private static final String TAG = "MActivity";
     private static final int MAX_OFFSET = 30;
 
-    private int mCurrentOption;
     // accelerometer fields
     private AccelerometerDetector mAccelDetector;
     // graph fields
@@ -33,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
         // initial graph option
         mOffset = 0;
-        mCurrentOption = Constants.ACC_MAGNITUDE;
 
         // UI default setup
         mView = mAccelGraph.getView(this);
@@ -43,27 +43,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
         graphLayout.addView(mView);
 
-        final Button selectButton = (Button)findViewById(R.id.select_button);
-        selectButton.setText(R.string.accel_mag);
-        selectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCurrentOption = (mCurrentOption + 1) % Constants.SERIES_COUNT;
-                mAccelDetector.setOption(mCurrentOption);
-                switch (mCurrentOption) {
-                    case Constants.ACC_MAGNITUDE:
-                        selectButton.setText(R.string.accel_mag);
-                        break;
-                    case Constants.ACC_GRAV_DIFF:
-                        selectButton.setText(R.string.accel_grav);
-                        break;
-                    case Constants.ACC_ALL:
-                        selectButton.setText(R.string.accel_all);
-                        mAccelGraph.addNewSeries();
-                        break;
-                }
-            }
-        });
+        createButtons();
 
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(MAX_OFFSET);
@@ -86,7 +66,28 @@ public class MainActivity extends AppCompatActivity {
 
         // initialize accererometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,mCurrentOption);
+        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph);
+    }
+
+    private void createButtons() {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LinearLayout layout = (LinearLayout)findViewById(R.id.buttons_layout);
+        for (int i = 0; i < Constants.OPTIONS.length; ++i) {
+            final ToggleButton btn = new ToggleButton(this);
+            btn.setTextOn(Constants.OPTIONS[i]);
+            btn.setTextOff(Constants.OPTIONS[i]);
+            btn.setLayoutParams(params);
+            btn.setChecked(true);
+            final int opt = i; // convert to flag convention
+            btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mAccelDetector.setCurrentOption(Constants.AccOptions.values()[opt]);
+                }
+            });
+            layout.addView(btn);
+        }
     }
 
     @Override

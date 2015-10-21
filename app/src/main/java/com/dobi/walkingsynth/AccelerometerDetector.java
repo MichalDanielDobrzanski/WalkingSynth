@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth;
 
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,8 +7,6 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 import org.achartengine.GraphicalView;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by dobi on 17.10.15.
@@ -22,7 +19,7 @@ public class AccelerometerDetector implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mAccel;
 
-    private int mCurrentOption;
+    private Constants.AccOptions mCurrentOptions;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[Constants.SERIES_COUNT];
@@ -63,7 +60,8 @@ public class AccelerometerDetector implements SensorEventListener {
                 (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
     }
 
-    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, int option) {
+    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
+        mCurrentOptions = Constants.AccOptions.MAGNITUDE;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -73,7 +71,6 @@ public class AccelerometerDetector implements SensorEventListener {
         } else {
             Log.d(TAG, "Failure! No accelerometer.");
         }
-        mCurrentOption = option;
         // get graph handles
         mView = view;
         mGraph = graph;
@@ -91,23 +88,21 @@ public class AccelerometerDetector implements SensorEventListener {
         mSensorManager.unregisterListener(this,mAccel);
     }
 
-    public void setOption(int o) {
-        mCurrentOption = o;
+    public void setCurrentOption(Constants.AccOptions options) {
+        mCurrentOptions = options;
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
-        if (mCurrentOption == Constants.ACC_MAGNITUDE) {
+        //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
+        if (mCurrentOptions.equals(Constants.AccOptions.MAGNITUDE)) {
             calcMagnitudeVector(event,0);
-        } else if (mCurrentOption == Constants.ACC_GRAV_DIFF) {
-            calcGravityDiff(event,0);
-        } else if (mCurrentOption == Constants.ACC_ALL) {
-            calcMagnitudeVector(event,0);
-            calcGravityDiff(event, 1);
+        } else if (mCurrentOptions.equals(Constants.AccOptions.GRAV_DIFF)) {
+            calcGravityDiff(event, 0);
         }
         mAccelCount += 1;
-        Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
+        //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
 
         // update graph
         mGraph.addNewPoint(mAccelCount, mAccelResult);

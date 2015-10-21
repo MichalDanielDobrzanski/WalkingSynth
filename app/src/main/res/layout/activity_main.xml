@@ -12,20 +12,36 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/control_layout"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false">
 
-        <Button
+        <LinearLayout
+            android:id="@+id/buttons_layout"
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/select_button" />
+            android:layout_height="match_parent" />
 
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/offset_seekBar"
             android:layout_gravity="center_vertical" />
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/info_layout"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

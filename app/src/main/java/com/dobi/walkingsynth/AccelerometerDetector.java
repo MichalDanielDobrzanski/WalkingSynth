@@ -19,10 +19,10 @@ public class AccelerometerDetector implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mAccel;
 
-    private AccOptions.AccOptions mCurrentOptions;
+    private AccOptions mCurrentOptions;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
-    private double[] mAccelResult = new double[AccOptions.AccOptions.size];
+    private double[] mAccelResult = new double[AccOptions.size];
     private long mAccelCount;
     // graph handles
     private GraphicalView mView;
@@ -61,7 +61,7 @@ public class AccelerometerDetector implements SensorEventListener {
     }
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
-        mCurrentOptions = AccOptions.AccOptions.MAGNITUDE;
+        mCurrentOptions = AccOptions.MAGNITUDE;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -88,7 +88,7 @@ public class AccelerometerDetector implements SensorEventListener {
         mSensorManager.unregisterListener(this,mAccel);
     }
 
-    public void setCurrentOption(AccOptions.AccOptions options) {
+    public void setCurrentOption(AccOptions options) {
         mCurrentOptions = options;
     }
 
@@ -96,9 +96,9 @@ public class AccelerometerDetector implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
         //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
-        if (mCurrentOptions.equals(AccOptions.AccOptions.MAGNITUDE)) {
+        if (mCurrentOptions.equals(AccOptions.MAGNITUDE)) {
             calcMagnitudeVector(event,0);
-        } else if (mCurrentOptions.equals(AccOptions.AccOptions.GRAV_DIFF)) {
+        } else if (mCurrentOptions.equals(AccOptions.GRAV_DIFF)) {
             calcGravityDiff(event, 0);
         }
         mAccelCount += 1;

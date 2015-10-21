@@ -25,8 +25,8 @@ public class AccelerometerDetector implements SensorEventListener {
     private double[] mAccelResult = new double[AccOptions.size];
     private long mAccelCount;
     // graph handles
-    private GraphicalView mView;
-    private AccelerometerGraph mGraph;
+    private GraphicalView mGraphView;
+    private AccelerometerGraph mAccGraph;
 
     private void calcMagnitudeVector(SensorEvent event, int order) {
         // In this example, alpha is calculated as t / (t + dT),
@@ -72,8 +72,9 @@ public class AccelerometerDetector implements SensorEventListener {
             Log.d(TAG, "Failure! No accelerometer.");
         }
         // get graph handles
-        mView = view;
-        mGraph = graph;
+        mGraphView = view;
+        mAccGraph = graph;
+        mAccGraph.addNewSeries();
     }
 
     public void startDetector() {
@@ -88,25 +89,22 @@ public class AccelerometerDetector implements SensorEventListener {
         mSensorManager.unregisterListener(this,mAccel);
     }
 
-    public void setCurrentOption(AccOptions options) {
-        mCurrentOptions = options;
+    public void setCurrentOption(int opt, boolean isChecked) {
+        //mCurrentOptions = AccOptions.values()[opt];
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
         //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
-        if (mCurrentOptions.equals(AccOptions.MAGNITUDE)) {
-            calcMagnitudeVector(event,0);
-        } else if (mCurrentOptions.equals(AccOptions.GRAV_DIFF)) {
-            calcGravityDiff(event, 0);
-        }
+        calcMagnitudeVector(event,0);
+        calcGravityDiff(event, 1);
         mAccelCount += 1;
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
 
         // update graph
-        mGraph.addNewPoint(mAccelCount, mAccelResult);
-        mView.repaint();
+        mAccGraph.addNewPoint(mAccelCount, mAccelResult);
+        mGraphView.repaint();
     }
 
     @Override

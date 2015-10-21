@@ -16,15 +16,12 @@ public class AccelerometerDetector implements SensorEventListener {
     private static final String TAG = "AccelDetector";
     public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
 
-    private SensorManager mSensorManager;
-    private Sensor mAccel;
-
-    private AccOptions mCurrentOptions;
+    private long mAccelCount;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[AccOptions.size];
-    private long mAccelCount;
-    // graph handles
+    private SensorManager mSensorManager;
+    private Sensor mAccel;
     private GraphicalView mGraphView;
     private AccelerometerGraph mAccGraph;
 
@@ -61,7 +58,6 @@ public class AccelerometerDetector implements SensorEventListener {
     }
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
-        mCurrentOptions = AccOptions.MAGNITUDE;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -74,7 +70,6 @@ public class AccelerometerDetector implements SensorEventListener {
         // get graph handles
         mGraphView = view;
         mAccGraph = graph;
-        mAccGraph.addNewSeries();
     }
 
     public void startDetector() {
@@ -89,8 +84,9 @@ public class AccelerometerDetector implements SensorEventListener {
         mSensorManager.unregisterListener(this,mAccel);
     }
 
-    public void setCurrentOption(int opt, boolean isChecked) {
-        //mCurrentOptions = AccOptions.values()[opt];
+    public void setVisibility(int opt, boolean show) {
+        mAccGraph.setVisibility(opt,show);
+
     }
 
     @Override

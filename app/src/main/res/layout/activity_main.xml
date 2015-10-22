@@ -47,7 +47,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/step_textView"
-                android:text="Steps count:" />
+                android:text="@string/steps_count" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/thresh_val"
+                android:id="@+id/threshval_textView" />
         </LinearLayout>
 
     </LinearLayout>

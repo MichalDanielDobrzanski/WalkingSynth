@@ -7,5 +7,7 @@
     <string name="accel_grav">\u0394g</string>
     <string name="accel_all">ALL</string>
     <string name="step_detect">steps</string>
+    <string name="steps_count">Steps count:</string>
+    <string name="thresh_val">Thresh val:</string>
 
 </resources>

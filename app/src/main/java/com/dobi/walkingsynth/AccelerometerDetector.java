@@ -1,5 +1,6 @@
 package com.dobi.walkingsynth;
 
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,6 +19,7 @@ public class AccelerometerDetector implements SensorEventListener {
     private static final String TAG = "AccelDetector";
     public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
 
+    private double mThresh = AccelerometerGraph.THRESH_INIT;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[AccOptions.size];
@@ -28,8 +30,10 @@ public class AccelerometerDetector implements SensorEventListener {
     private AccelerometerGraph mAccelGraph;
     private GraphicalView mGraphView;
     private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
+    private SharedPreferences mPreferences;
 
-    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
+    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, SharedPreferences prefs) {
+        mPreferences = prefs;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -98,6 +102,12 @@ public class AccelerometerDetector implements SensorEventListener {
         final double alpha = 0.1;
         mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult[i];
         mLastAccelResult[i] = mAccelResult[i];
+    }
+
+    private void saveThreshold() {
+        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+        preferencesEditor.putFloat(AccelerometerGraph.THRESH,(float)mThresh);
+        preferencesEditor.apply();
     }
 
     /**

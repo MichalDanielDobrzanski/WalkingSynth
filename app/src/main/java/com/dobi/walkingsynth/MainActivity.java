@@ -1,6 +1,8 @@
 package com.dobi.walkingsynth;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import org.achartengine.GraphicalView;
@@ -17,19 +20,24 @@ import org.achartengine.GraphicalView;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MActivity";
-    private static final int MAX_OFFSET = 30;
 
+    private static final String PREFERENCES_NAME = "ValuesSet";
+    private static final int MAX_OFFSET = 30;
+    private SharedPreferences preferences;
     // accelerometer fields
-    private AccelerometerDetector mAccelDetector;
-    // graph fields
-    private static GraphicalView mView;
-    private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
     private int mOffset;
+    private AccelerometerDetector mAccelDetector;
+    private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
+    private static GraphicalView mView;
+    private TextView mThreshValTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // config prefs
+        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
         // initial graph option
         mOffset = 0;
@@ -60,7 +68,9 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mAccelGraph.addOffset(1,progress);
+                mAccelGraph.setThresholdVal(progress);
+                //mAccelGraph.addOffset(1,progress);
+                mThreshValTextView.setText(Integer.toString(progress));
             }
 
             @Override
@@ -73,10 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
+        mThreshValTextView.setText(Integer.toString(AccelerometerGraph.THRESH_INIT));
 
-        // initialize accererometer
+        // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph);
+        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,preferences);
     }
 
     private void createButtons() {

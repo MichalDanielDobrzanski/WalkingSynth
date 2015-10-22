@@ -79,59 +79,20 @@ public class AccelerometerGraph {
         view.repaint();
     }
 
+    public void initialize() {
+        mPointsCount = 0;
+    }
+
     public void addOffset(int i, int v) {
         mOffset[i] = v;
     }
 
-//    public void addNewSeries() {
-//        if (datasetsCount <= AccOptions.size) {
-//            datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
-//            // add another data set to multiple data set
-//            mDataset.addSeries(datasets[datasetsCount]);
-//            datasetsCount += 1;
-//            // create new renderer
-//            XYSeriesRenderer renderer = new XYSeriesRenderer();
-//            renderer.setColor(Color.BLUE);
-//            renderer.setPointStyle(PointStyle.CIRCLE);
-//            renderer.setFillPoints(true);
-//            mRenderer.addSeriesRenderer(renderer);
-//        } else {
-//            throw new ArrayIndexOutOfBoundsException();
-//        }
-//    }
 
     public void clear() {
-        for (TimeSeries ts : datasets) {
-            ts.clear();
-        }
-    }
-
-//    public void setProperties(){
-//
-//        //renderer.setClickEnabled(ClickEnabled);
-//        renderer.setBackgroundColor(Color.WHITE);
-//        renderer.setMarginsColor(Color.WHITE);
-//
-//        renderer.setApplyBackgroundColor(true);
-//        if(greater < 100){
-//            renderer.setXAxisMax(100);
-//        }else{
-//            renderer.setXAxisMin(greater-100);
-//            renderer.setXAxisMax(greater);
+//        for (TimeSeries ts : datasets) {
+//            ts.clear();
 //        }
-//        renderer.setChartTitle("AccelerometerData");
-//
-//        renderer.setAxesColor(Color.BLACK);
-//        XYSeriesRenderer renderer1 = new XYSeriesRenderer();
-//        renderer1.setColor(Color.RED);
-//        renderer.addSeriesRenderer(renderer1);
-//        XYSeriesRenderer renderer2 = new XYSeriesRenderer();
-//        renderer2.setColor(Color.GREEN);
-//        renderer.addSeriesRenderer(renderer2);
-//        XYSeriesRenderer renderer3 = new XYSeriesRenderer();
-//        renderer3.setColor(Color.BLUE);
-//        renderer.addSeriesRenderer(renderer3);
-//    }
+    }
 
     public GraphicalView getView(Context context){
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);

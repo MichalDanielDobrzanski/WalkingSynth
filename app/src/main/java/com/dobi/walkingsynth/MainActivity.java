@@ -5,7 +5,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -45,9 +44,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // handle the click event on the chart
                 if (mAccelGraph.isPainting)
-                    mAccelGraph.freeze(false);
-                else
-                    mAccelGraph.freeze(true);
+                    mAccelGraph.isPainting(false);
+                else {
+                    mAccelGraph.isPainting(true);
+                }
             }
         });
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);

@@ -57,19 +57,19 @@ public class AccelerometerGraph {
     }
 
     public void addNewPoints(double t, double[] v) {
-        if (isPainting) {
-            for (int i = 0; i < datasetsCount; ++i) {
-                // moving plot
-                //if (t > 20)
-                datasets[i].add(t, v[i] + mOffset[i]);
-                if (mPointsCount > GRAPH_RESOLUTION)
-                    datasets[i].remove(0);
-            }
-            ++mPointsCount;
+        for (int i = 0; i < datasetsCount; ++i) {
+            // moving plot
+            //if (t > 20)
+            datasets[i].add(t, v[i] + mOffset[i]);
+            if (mPointsCount > GRAPH_RESOLUTION)
+                datasets[i].remove(0);
         }
+        if (isPainting)
+            view.repaint();
+        ++mPointsCount;
     }
 
-    public void freeze(boolean v) {
+    public void isPainting(boolean v) {
         isPainting = v;
     }
 
@@ -86,6 +86,7 @@ public class AccelerometerGraph {
     }
 
     public void initialize() {
+        // reset the point counter
         mPointsCount = 0;
     }
 

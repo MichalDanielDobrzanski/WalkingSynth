@@ -23,14 +23,14 @@ public class AccelerometerGraph {
     private int datasetsCount = 2;
     private double mThreshVal = THRESH_INIT;
     private TimeSeries mThreshold;
-    private TimeSeries[] mSeries = new TimeSeries[AccOptions.size];
-    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccOptions.size];
+    private TimeSeries[] mSeries = new TimeSeries[AccelOptions.size];
+    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelOptions.size];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     public boolean isPainting = true;
     private int mPointsCount = 0;
-    private int[] mOffset = new int[AccOptions.size];
+    private int[] mOffset = new int[AccelOptions.size];
 
     public AccelerometerGraph() {
         // add single data set to multiple data set
@@ -99,7 +99,7 @@ public class AccelerometerGraph {
     }
 
     public void setVisibility(int opt, boolean show) {
-        //AccOptions option = AccOptions.values()[opt];
+        //AccelOptions option = AccelOptions.values()[opt];
         if (show) {
             // show current option
             mRenderers[opt].setColor(Color.BLUE);

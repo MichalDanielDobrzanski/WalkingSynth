@@ -106,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         LinearLayout layout = (LinearLayout)findViewById(R.id.buttons_layout);
-        for (int i = 0; i < AccOptions.OPTIONS.length; ++i) {
+        for (int i = 0; i < AccelOptions.OPTIONS.length; ++i) {
             final ToggleButton btn = new ToggleButton(this);
-            btn.setTextOn(AccOptions.OPTIONS[i]);
-            btn.setTextOff(AccOptions.OPTIONS[i]);
+            btn.setTextOn(AccelOptions.OPTIONS[i]);
+            btn.setTextOff(AccelOptions.OPTIONS[i]);
             btn.setLayoutParams(params);
             btn.setChecked(true);
             final int opt = i; // convert to flag convention

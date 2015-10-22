@@ -8,6 +8,8 @@ import android.util.Log;
 
 import org.achartengine.GraphicalView;
 
+import java.util.Date;
+
 /**
  * Created by dobi on 17.10.15.
  */
@@ -20,12 +22,33 @@ public class AccelerometerDetector implements SensorEventListener {
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[AccOptions.size];
+    private double mLastOne;
     private SensorManager mSensorManager;
     private Sensor mAccel;
     private GraphicalView mGraphView;
     private AccelerometerGraph mAccGraph;
+    private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
 
-    private void calcMagnitudeVector(SensorEvent event, int order) {
+    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
+        mSensorManager = sensorManager;
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+            mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mAccel.getResolution()
+                    + " Max range: " + mAccel.getMaximumRange()
+                    + "\n Time interval: " + mAccel.getMinDelay() / 1000 + "ms.");
+        } else {
+            Log.d(TAG, "Failure! No accelerometer.");
+        }
+        // get graph handles
+        mGraphView = view;
+        mAccGraph = graph;
+        // set filter
+        mFiltersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+        mFiltersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+        mFiltersCascade[2] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+    }
+
+    private void calcFilterGravity(SensorEvent event) {
         // In this example, alpha is calculated as t / (t + dT),
         // where t is the low-pass filter's time-constant and
         // dT is the event delivery rate.
@@ -35,6 +58,9 @@ public class AccelerometerDetector implements SensorEventListener {
         gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
         gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
         gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+    }
+
+    private void calcMagnitudeVector(SensorEvent event, int order) {
 
         // Remove the gravity contribution with the high-pass filter.
         linear_acceleration[0] = event.values[0] - gravity[0];
@@ -57,20 +83,22 @@ public class AccelerometerDetector implements SensorEventListener {
                 (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
     }
 
-    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
-        mSensorManager = sensorManager;
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-            mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mAccel.getResolution()
-                    + " Max range: " + mAccel.getMaximumRange()
-                    + "\n Time interval: " + mAccel.getMinDelay() / 1000 + "ms.");
-        } else {
-            Log.d(TAG, "Failure! No accelerometer.");
-        }
-        // get graph handles
-        mGraphView = view;
-        mAccGraph = graph;
+    private void calcKalmanDeriv(SensorEvent event, int order) {
+        mAccelResult[order] = filter(mAccelResult[order]);
+        //mAccelResult[order] = Math.abs(mAccelResult[order] - mLastOne);
+        //mLastOne = mAccelResult[order];
     }
+
+    /**
+     * Smoothes the signal from accelerometer
+     */
+    private double filter(double measurement){
+        double f1 = mFiltersCascade[0].correct(measurement);
+        double f2 = mFiltersCascade[1].correct(f1);
+        double f3 = mFiltersCascade[2].correct(f2);
+        return f3;
+    }
+
 
     public void startDetector() {
         // just starts just the accelerometer. It doesn't update the UI.
@@ -93,12 +121,14 @@ public class AccelerometerDetector implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
         //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
-        calcMagnitudeVector(event,0);
-        calcGravityDiff(event, 1);
+        calcMagnitudeVector(event, 0); // |V|
+        //calcKalmanDeriv(event,0);
+        calcGravityDiff(event, 1); // delta G
+        // process timestamp
         mAccelCount += 1;
-        //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
-
+        //mAccelCount = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
         // update graph
+        Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
         mAccGraph.addNewPoint(mAccelCount, mAccelResult);
         mGraphView.repaint();
     }

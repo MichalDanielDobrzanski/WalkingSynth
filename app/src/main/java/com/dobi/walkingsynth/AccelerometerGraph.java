@@ -19,7 +19,7 @@ public class AccelerometerGraph {
     private GraphicalView view;
 
     private TimeSeries[] datasets = new TimeSeries[AccOptions.size];
-    private int datasetsCount = 1;
+    private int datasetsCount = 2;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     private XYSeriesRenderer[] renderer = new XYSeriesRenderer[AccOptions.size];
@@ -29,18 +29,21 @@ public class AccelerometerGraph {
 
     public AccelerometerGraph() {
         // add single data set to multiple data set
-        datasets[0] = new TimeSeries(TITLE + 1);
-        mDataset.addSeries(datasets[0]);
-        renderer[0] = new XYSeriesRenderer();
+        for (int i = 0; i < datasetsCount; i++) {
+            datasets[i] = new TimeSeries(TITLE + (i + 1));
+            mDataset.addSeries(datasets[i]);
+            renderer[i] = new XYSeriesRenderer();
+            renderer[i].setPointStyle(PointStyle.CIRCLE);
+            renderer[i].setFillPoints(true);
+            mRenderer.addSeriesRenderer(renderer[i]);
+        }
         renderer[0].setColor(Color.RED);
-        renderer[0].setPointStyle(PointStyle.CIRCLE);
-        renderer[0].setFillPoints(true);
-        mRenderer.addSeriesRenderer(renderer[0]);
+        renderer[1].setColor(Color.BLUE);
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
         mRenderer.setYAxisMin(0);
-        mRenderer.setYAxisMax(10);
+        mRenderer.setYAxisMax(20);
         mRenderer.setMarginsColor(Color.WHITE);
         mRenderer.setBackgroundColor(Color.WHITE);
         mRenderer.setApplyBackgroundColor(true);
@@ -48,16 +51,6 @@ public class AccelerometerGraph {
         mRenderer.setClickEnabled(false);
         mRenderer.setPanEnabled(false, false);
         mRenderer.setZoomEnabled(false, false);
-
-        datasets[datasetsCount] = new TimeSeries(TITLE + (mDataset.getSeriesCount() + 1));
-        // add another data set to multiple data set
-        mDataset.addSeries(datasets[datasetsCount]);
-        datasetsCount += 1;
-        renderer[1] = new XYSeriesRenderer();
-        renderer[1].setColor(Color.BLUE);
-        renderer[1].setPointStyle(PointStyle.CIRCLE);
-        renderer[1].setFillPoints(true);
-        mRenderer.addSeriesRenderer(renderer[1]);
     }
 
     public void addNewPoint(double t, double[] v) {

@@ -21,13 +21,13 @@ public class AccelerometerDetector implements SensorEventListener {
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[AccOptions.size];
+    private double[] mLastAccelResult = new double[AccOptions.size];
     private double mLastOne;
     private SensorManager mSensorManager;
     private Sensor mAccel;
     private AccelerometerGraph mAccelGraph;
     private GraphicalView mGraphView;
     private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
-    private double mLastAccelResult;
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
         mSensorManager = sensorManager;
@@ -83,16 +83,21 @@ public class AccelerometerDetector implements SensorEventListener {
                 (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
     }
 
-    private void calcKalmanDeriv(int i) {
+    private void calcKalman(int i) {
         mAccelResult[i] = filter(mAccelResult[i]);
         //mAccelResult[i] = Math.abs(mAccelResult[i] - mLastOne);
         //mLastOne = mAccelResult[i];
     }
 
+    private void calcDeriv(int i) {
+        mAccelResult[i] = Math.abs(mAccelResult[i] - mLastAccelResult[i]);
+        mLastAccelResult[i] = mAccelResult[i];
+    }
+
     private void calcExpMovAvg(int i) {
         final double alpha = 0.1;
-        mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult;
-        mLastAccelResult = mAccelResult[i];
+        mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult[i];
+        mLastAccelResult[i] = mAccelResult[i];
     }
 
     /**
@@ -128,8 +133,10 @@ public class AccelerometerDetector implements SensorEventListener {
         //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
         calcMagnitudeVector(event, 0); // |V|
         calcExpMovAvg(0);
-        //calcKalmanDeriv(0);
-        calcMagnitudeVector(event,1);
+
+        calcMagnitudeVector(event, 1);
+        calcKalman(1);
+        //calcDeriv(1);
         //calcGravityDiff(event, 1); // delta G
 
         // process timestamp
@@ -137,7 +144,6 @@ public class AccelerometerDetector implements SensorEventListener {
         // update graph with value and timestamp
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventTime);
         mAccelGraph.addNewPoints(eventTime, mAccelResult);
-        mGraphView.repaint();
     }
 
     @Override

@@ -25,6 +25,7 @@ public class AccelerometerGraph {
     private XYSeriesRenderer[] renderer = new XYSeriesRenderer[AccOptions.size];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 
+    public boolean isPainting = true;
     private int mPointsCount = 0;
     private int[] mOffset = new int[AccOptions.size];
 
@@ -50,22 +51,27 @@ public class AccelerometerGraph {
         mRenderer.setApplyBackgroundColor(true);
         // add single renderer to multiple renderer
         mRenderer.setXLabels(0);
-        mRenderer.setClickEnabled(false);
+        mRenderer.setClickEnabled(true);
         mRenderer.setPanEnabled(false, false);
         mRenderer.setZoomEnabled(false, false);
     }
 
     public void addNewPoints(double t, double[] v) {
-        for (int i = 0; i < datasetsCount; ++i) {
-            // moving plot
-            //if (t > 20)
+        if (isPainting) {
+            for (int i = 0; i < datasetsCount; ++i) {
+                // moving plot
+                //if (t > 20)
                 datasets[i].add(t, v[i] + mOffset[i]);
-            if (mPointsCount > GRAPH_RESOLUTION)
-                datasets[i].remove(0);
+                if (mPointsCount > GRAPH_RESOLUTION)
+                    datasets[i].remove(0);
+            }
+            ++mPointsCount;
         }
-        ++mPointsCount;
     }
 
+    public void freeze(boolean v) {
+        isPainting = v;
+    }
 
     public void setVisibility(int opt, boolean show) {
         //AccOptions option = AccOptions.values()[opt];

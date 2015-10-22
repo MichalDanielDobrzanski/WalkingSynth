@@ -21,16 +21,11 @@ public class AccelerometerDetector implements SensorEventListener {
 
     private int mStepCount = 0;
     private double mThresh = AccelerometerGraph.THRESH_INIT;
-    private double[] gravity = new double[3];
-    private double[] linear_acceleration = new double[3];
-    private double[] mAccelResult = new double[AccOptions.size];
-    private double[] mLastAccelResult = new double[AccOptions.size];
-    private double mLastOne;
+    private double[] mAccelResult = new double[AccelOptions.size];
     private SensorManager mSensorManager;
     private Sensor mAccel;
     private AccelerometerGraph mAccelGraph;
     private GraphicalView mGraphView;
-    private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
     private SharedPreferences mPreferences;
 
     private OnStepCountChangeListener mStepListener;
@@ -54,66 +49,11 @@ public class AccelerometerDetector implements SensorEventListener {
         // get graph handles
         mGraphView = view;
         mAccelGraph = graph;
-        // set filter
-        mFiltersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
-        mFiltersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
-        mFiltersCascade[2] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
     }
 
-    private void calcFilterGravity(SensorEvent event) {
-        // In this example, alpha is calculated as t / (t + dT),
-        // where t is the low-pass filter's time-constant and
-        // dT is the event delivery rate.
-        final float alpha = 0.9f;
-
-        // Isolate the force of gravity with the low-pass filter.
-        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-    }
-
-    private void calcMagnitudeVector(SensorEvent event, int i) {
-
-        // Remove the gravity contribution with the high-pass filter.
-        linear_acceleration[0] = event.values[0] - gravity[0];
-        linear_acceleration[1] = event.values[1] - gravity[1];
-        linear_acceleration[2] = event.values[2] - gravity[2];
-        //Log.d(TAG,"Acc: x=" + linear_acceleration[0] + " y=" + linear_acceleration[1] + " z=" + linear_acceleration[2]);
-
-        // get magnitude/length/norm of a vector
-        mAccelResult[i] = Math.sqrt(
-                linear_acceleration[0] * linear_acceleration[0] +
-                linear_acceleration[1] * linear_acceleration[1] +
-                linear_acceleration[2] * linear_acceleration[2]);
-    }
-
-    private void calcGravityDiff(SensorEvent event, int i) {
-        mAccelResult[i] = (
-                event.values[0] * event.values[0] +
-                event.values[1] * event.values[1] +
-                event.values[2] * event.values[2]) /
-                (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-    }
-
-    private void calcKalman(int i) {
-        mAccelResult[i] = filter(mAccelResult[i]);
-        //mAccelResult[i] = Math.abs(mAccelResult[i] - mLastOne);
-        //mLastOne = mAccelResult[i];
-    }
-
-    private void calcDeriv(int i) {
-        mAccelResult[i] = Math.abs(mAccelResult[i] - mLastAccelResult[i]);
-        mLastAccelResult[i] = mAccelResult[i];
-    }
-
-    private void calcExpMovAvg(int i) {
-        final double alpha = 0.1;
-        mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult[i];
-        mLastAccelResult[i] = mAccelResult[i];
-    }
-
-    private void detectStep(int i) {
-        if (mAccelResult[i] > mAccelGraph.getThresholdVal()) {
+    private void detectStep(int i,long event) {
+        if (SignalAlgorithms.detectStep(i, mThresh)) {
+            SignalAlgorithms.isActiveCounter = false;
             ++mStepCount;
             if (mStepListener != null)
                 mStepListener.onStepCountChange(mStepCount);
@@ -124,16 +64,6 @@ public class AccelerometerDetector implements SensorEventListener {
         SharedPreferences.Editor preferencesEditor = mPreferences.edit();
         preferencesEditor.putFloat(AccelerometerGraph.THRESH,(float)mThresh);
         preferencesEditor.apply();
-    }
-
-    /**
-     * Smoothes the signal from accelerometer
-     */
-    private double filter(double measurement){
-        double f1 = mFiltersCascade[0].correct(measurement);
-        double f2 = mFiltersCascade[1].correct(f1);
-        double f3 = mFiltersCascade[2].correct(f2);
-        return f3;
     }
 
 
@@ -157,20 +87,17 @@ public class AccelerometerDetector implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         // handle accelerometer data
         //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
-        calcMagnitudeVector(event, 0); // |V|
-        calcExpMovAvg(0);
-
-        calcMagnitudeVector(event, 1);
-        calcKalman(1);
-        detectStep(1);
-        //calcDeriv(1);
-        //calcGravityDiff(event, 1); // delta G
-
+        SignalAlgorithms.sendEvent(event);
+        mAccelResult[0] = SignalAlgorithms.calcMagnitudeVector(0); // |V|
+        mAccelResult[0] = SignalAlgorithms.calcExpMovAvg(0);
+        mAccelResult[1] = SignalAlgorithms.calcMagnitudeVector(1);
         // process timestamp
         final long eventTime = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
         // update graph with value and timestamp
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventTime);
         mAccelGraph.addNewPoints(eventTime, mAccelResult);
+        //step detection
+        detectStep(1, eventTime);
     }
 
     @Override

@@ -5,6 +5,8 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -38,6 +40,16 @@ public class MainActivity extends AppCompatActivity {
         mView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
+        mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // handle the click event on the chart
+                if (mAccelGraph.isPainting)
+                    mAccelGraph.freeze(false);
+                else
+                    mAccelGraph.freeze(true);
+            }
+        });
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
         graphLayout.addView(mView);
 

@@ -125,11 +125,11 @@ public class AccelerometerDetector implements SensorEventListener {
         //calcKalmanDeriv(event,0);
         calcGravityDiff(event, 1); // delta G
         // process timestamp
-        mAccelCount += 1;
-        //mAccelCount = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
+        //mAccelCount += 1;
+        mAccelCount = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
         // update graph
         Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
-        mAccGraph.addNewPoint(mAccelCount, mAccelResult);
+        mAccGraph.addNewPoints(mAccelCount, mAccelResult);
         mGraphView.repaint();
     }
 

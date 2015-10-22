@@ -18,15 +18,14 @@ public class AccelerometerDetector implements SensorEventListener {
     private static final String TAG = "AccelDetector";
     public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
 
-    private long mAccelCount;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private double[] mAccelResult = new double[AccOptions.size];
     private double mLastOne;
     private SensorManager mSensorManager;
     private Sensor mAccel;
+    private AccelerometerGraph mAccelGraph;
     private GraphicalView mGraphView;
-    private AccelerometerGraph mAccGraph;
     private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph) {
@@ -41,7 +40,7 @@ public class AccelerometerDetector implements SensorEventListener {
         }
         // get graph handles
         mGraphView = view;
-        mAccGraph = graph;
+        mAccelGraph = graph;
         // set filter
         mFiltersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
         mFiltersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
@@ -105,7 +104,7 @@ public class AccelerometerDetector implements SensorEventListener {
         if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
-        //mAccelCount = 0;
+        mAccelGraph.initialize();
     }
 
     public void stopDetector() {
@@ -113,7 +112,7 @@ public class AccelerometerDetector implements SensorEventListener {
     }
 
     public void setVisibility(int opt, boolean show) {
-        mAccGraph.setVisibility(opt,show);
+        mAccelGraph.setVisibility(opt, show);
 
     }
 
@@ -125,11 +124,10 @@ public class AccelerometerDetector implements SensorEventListener {
         //calcKalmanDeriv(event,0);
         calcGravityDiff(event, 1); // delta G
         // process timestamp
-        //mAccelCount += 1;
-        mAccelCount = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
+        final long eventTime = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
         // update graph
-        Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + mAccelCount);
-        mAccGraph.addNewPoints(mAccelCount, mAccelResult);
+        Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventTime);
+        mAccelGraph.addNewPoints(eventTime, mAccelResult);
         mGraphView.repaint();
     }
 

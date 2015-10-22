@@ -12,18 +12,21 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 public class AccelerometerGraph {
 
-    // how many points in a graph frame
+    public static final int THRESH_INIT = 12;
+    public static final String THRESH = "Thresh";
+
     private static final int GRAPH_RESOLUTION = 150;
     private static final String TITLE = "Accelerometer data";
 
     private GraphicalView view;
 
-    private TimeSeries[] datasets = new TimeSeries[AccOptions.size];
     private int datasetsCount = 2;
-    private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
-
-    private XYSeriesRenderer[] renderer = new XYSeriesRenderer[AccOptions.size];
+    private double mThreshVal = THRESH_INIT;
+    private TimeSeries mMeasLine;
+    private TimeSeries[] mSeries = new TimeSeries[AccOptions.size];
+    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccOptions.size];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
+    private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     public boolean isPainting = true;
     private int mPointsCount = 0;
@@ -32,15 +35,17 @@ public class AccelerometerGraph {
     public AccelerometerGraph() {
         // add single data set to multiple data set
         for (int i = 0; i < datasetsCount; i++) {
-            datasets[i] = new TimeSeries(TITLE + (i + 1));
-            mDataset.addSeries(datasets[i]);
-            renderer[i] = new XYSeriesRenderer();
-            renderer[i].setPointStyle(PointStyle.CIRCLE);
-            renderer[i].setFillPoints(true);
-            mRenderer.addSeriesRenderer(renderer[i]);
+            mSeries[i] = new TimeSeries(TITLE + (i + 1));
+            mDataset.addSeries(mSeries[i]);
+            mRenderers[i] = new XYSeriesRenderer();
+            mRenderers[i].setPointStyle(PointStyle.CIRCLE);
+            mRenderers[i].setFillPoints(true);
+            mRenderer.addSeriesRenderer(mRenderers[i]);
         }
-        renderer[0].setColor(Color.RED);
-        renderer[1].setColor(Color.BLUE);
+        mRenderers[0].setColor(Color.RED);
+        mRenderers[1].setColor(Color.BLUE);
+        // add measurement line
+        addThresholdLine();
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
@@ -49,7 +54,6 @@ public class AccelerometerGraph {
         mRenderer.setMarginsColor(Color.WHITE);
         mRenderer.setBackgroundColor(Color.WHITE);
         mRenderer.setApplyBackgroundColor(true);
-        // add single renderer to multiple renderer
         mRenderer.setXLabels(0);
         mRenderer.setClickEnabled(true);
         mRenderer.setPanEnabled(false, false);
@@ -59,14 +63,35 @@ public class AccelerometerGraph {
     public void addNewPoints(double t, double[] v) {
         for (int i = 0; i < datasetsCount; ++i) {
             // moving plot
-            //if (t > 20)
-            datasets[i].add(t, v[i] + mOffset[i]);
-            if (mPointsCount > GRAPH_RESOLUTION)
-                datasets[i].remove(0);
+            mSeries[i].add(t, v[i] + mOffset[i]);
+            mMeasLine.add(t, mThreshVal);
+            if (mPointsCount > GRAPH_RESOLUTION) {
+                mSeries[i].remove(0);
+                mMeasLine.remove(0);
+            }
         }
         if (isPainting)
             view.repaint();
         ++mPointsCount;
+    }
+
+    public void setThresholdVal(double v) {
+        mThreshVal = v;
+    }
+
+    public double getThresholdVal() {
+        return mThreshVal;
+    }
+
+
+    public void addThresholdLine() {
+        mMeasLine = new TimeSeries(THRESH);
+        mDataset.addSeries(mMeasLine);
+        XYSeriesRenderer renderer = new XYSeriesRenderer();
+        renderer.setLineWidth(2f);
+        renderer.setColor(Color.BLACK);
+        mRenderer.addSeriesRenderer(renderer);
+
     }
 
     public void isPainting(boolean v) {
@@ -77,10 +102,10 @@ public class AccelerometerGraph {
         //AccOptions option = AccOptions.values()[opt];
         if (show) {
             // show current option
-            renderer[opt].setColor(Color.BLUE);
+            mRenderers[opt].setColor(Color.BLUE);
             // show current option
         } else {
-            renderer[opt].setColor(Color.TRANSPARENT);
+            mRenderers[opt].setColor(Color.TRANSPARENT);
         }
         view.repaint();
     }
@@ -96,7 +121,7 @@ public class AccelerometerGraph {
 
 
     public void clear() {
-//        for (TimeSeries ts : datasets) {
+//        for (TimeSeries ts : mSeries) {
 //            ts.clear();
 //        }
     }

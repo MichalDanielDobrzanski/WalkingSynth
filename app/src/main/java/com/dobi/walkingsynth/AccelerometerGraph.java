@@ -22,7 +22,7 @@ public class AccelerometerGraph {
 
     private int datasetsCount = 2;
     private double mThreshVal = THRESH_INIT;
-    private TimeSeries mMeasLine;
+    private TimeSeries mThreshold;
     private TimeSeries[] mSeries = new TimeSeries[AccOptions.size];
     private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccOptions.size];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
@@ -64,10 +64,10 @@ public class AccelerometerGraph {
         for (int i = 0; i < datasetsCount; ++i) {
             // moving plot
             mSeries[i].add(t, v[i] + mOffset[i]);
-            mMeasLine.add(t, mThreshVal);
+            mThreshold.add(t, mThreshVal);
             if (mPointsCount > GRAPH_RESOLUTION) {
                 mSeries[i].remove(0);
-                mMeasLine.remove(0);
+                mThreshold.remove(0);
             }
         }
         if (isPainting)
@@ -85,8 +85,8 @@ public class AccelerometerGraph {
 
 
     public void addThresholdLine() {
-        mMeasLine = new TimeSeries(THRESH);
-        mDataset.addSeries(mMeasLine);
+        mThreshold = new TimeSeries(THRESH);
+        mDataset.addSeries(mThreshold);
         XYSeriesRenderer renderer = new XYSeriesRenderer();
         renderer.setLineWidth(2f);
         renderer.setColor(Color.BLACK);

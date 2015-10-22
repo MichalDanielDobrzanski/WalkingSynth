@@ -19,6 +19,7 @@ public class AccelerometerDetector implements SensorEventListener {
     private static final String TAG = "AccelDetector";
     public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
 
+    private int mStepCount = 0;
     private double mThresh = AccelerometerGraph.THRESH_INIT;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
@@ -32,7 +33,14 @@ public class AccelerometerDetector implements SensorEventListener {
     private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
     private SharedPreferences mPreferences;
 
+    private OnStepCountChangeListener mStepListener;
+    public void setStepCountChangeListener(OnStepCountChangeListener listener) {
+        mStepListener = listener;
+    }
+
+
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, SharedPreferences prefs) {
+        mStepListener = null;
         mPreferences = prefs;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
@@ -104,6 +112,14 @@ public class AccelerometerDetector implements SensorEventListener {
         mLastAccelResult[i] = mAccelResult[i];
     }
 
+    private void detectStep(int i) {
+        if (mAccelResult[i] > mAccelGraph.getThresholdVal()) {
+            ++mStepCount;
+            if (mStepListener != null)
+                mStepListener.onStepCountChange(mStepCount);
+        }
+    }
+
     private void saveThreshold() {
         SharedPreferences.Editor preferencesEditor = mPreferences.edit();
         preferencesEditor.putFloat(AccelerometerGraph.THRESH,(float)mThresh);
@@ -130,7 +146,7 @@ public class AccelerometerDetector implements SensorEventListener {
     }
 
     public void stopDetector() {
-        mSensorManager.unregisterListener(this,mAccel);
+        mSensorManager.unregisterListener(this, mAccel);
     }
 
     public void setVisibility(int opt, boolean show) {
@@ -146,6 +162,7 @@ public class AccelerometerDetector implements SensorEventListener {
 
         calcMagnitudeVector(event, 1);
         calcKalman(1);
+        detectStep(1);
         //calcDeriv(1);
         //calcGravityDiff(event, 1); // delta G
 

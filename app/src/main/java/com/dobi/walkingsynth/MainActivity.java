@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
     private static GraphicalView mView;
     private TextView mThreshValTextView;
+    private TextView mStepCountTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mAccelGraph.setThresholdVal(progress);
                 //mAccelGraph.addOffset(1,progress);
-                mThreshValTextView.setText(Integer.toString(progress));
+                mThreshValTextView.setText(mThreshValTextView.getText() + Integer.toString(progress));
             }
 
             @Override
@@ -83,12 +84,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        // get text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
         mThreshValTextView.setText(Integer.toString(AccelerometerGraph.THRESH_INIT));
+        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
+        mStepCountTextView.setText(Integer.toString(0));
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,preferences);
+        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
+            @Override
+            public void onStepCountChange(int v) {
+                mStepCountTextView.setText(Integer.toString(v));
+            }
+        });
     }
 
     private void createButtons() {

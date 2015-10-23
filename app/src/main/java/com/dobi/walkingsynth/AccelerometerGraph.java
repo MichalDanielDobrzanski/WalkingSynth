@@ -10,31 +10,33 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
+/**
+ * Plotting accelerometer processed data.
+ */
 public class AccelerometerGraph {
 
+    // threshold:
     public static final int THRESH_INIT = 12;
-    public static final String THRESH = "Thresh";
-
-    private static final int GRAPH_RESOLUTION = 150;
-    private static final String TITLE = "Accelerometer data";
-
-    private GraphicalView view;
-
-    private int datasetsCount = 2;
+    private static final String THRESH = "Thresh";
     private double mThreshVal = THRESH_INIT;
     private TimeSeries mThreshold;
-    private TimeSeries[] mSeries = new TimeSeries[AccelOptions.size];
-    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelOptions.size];
+    // accelerometer signals:
+    private static final String TITLE = "Accelerometer data";
+    private TimeSeries[] mSeries = new TimeSeries[AccelerometerSignals.count];
+    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelerometerSignals.count];
+    // whole graph:
+    private static final int GRAPH_RESOLUTION = 150;
+    private GraphicalView view;
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     public boolean isPainting = true;
     private int mPointsCount = 0;
-    private int[] mOffset = new int[AccelOptions.size];
+    private int[] mOffset = new int[AccelerometerSignals.count];
 
     public AccelerometerGraph() {
         // add single data set to multiple data set
-        for (int i = 0; i < datasetsCount; i++) {
+        for (int i = 0; i < AccelerometerSignals.count; i++) {
             mSeries[i] = new TimeSeries(TITLE + (i + 1));
             mDataset.addSeries(mSeries[i]);
             mRenderers[i] = new XYSeriesRenderer();
@@ -45,7 +47,7 @@ public class AccelerometerGraph {
         mRenderers[0].setColor(Color.RED);
         mRenderers[1].setColor(Color.BLUE);
         // add measurement line
-        addThresholdLine();
+        addThresholdGraph();
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
@@ -60,8 +62,13 @@ public class AccelerometerGraph {
         mRenderer.setZoomEnabled(false, false);
     }
 
+    /**
+     * Update all graphs on the View.
+     * @param t time argument
+     * @param v values array
+     */
     public void addNewPoints(double t, double[] v) {
-        for (int i = 0; i < datasetsCount; ++i) {
+        for (int i = 0; i < AccelerometerSignals.count; ++i) {
             // moving plot
             mSeries[i].add(t, v[i] + mOffset[i]);
             mThreshold.add(t, mThreshVal);
@@ -76,6 +83,7 @@ public class AccelerometerGraph {
     }
 
     public void setThresholdVal(double v) {
+
         mThreshVal = v;
     }
 
@@ -84,22 +92,28 @@ public class AccelerometerGraph {
     }
 
 
-    public void addThresholdLine() {
+    /**
+     * Adds threshold configuration for plotting.
+     */
+    private void addThresholdGraph() {
         mThreshold = new TimeSeries(THRESH);
         mDataset.addSeries(mThreshold);
         XYSeriesRenderer renderer = new XYSeriesRenderer();
         renderer.setLineWidth(2f);
         renderer.setColor(Color.BLACK);
         mRenderer.addSeriesRenderer(renderer);
-
     }
 
+    /**
+     * Stoping and resuming plot repainting.
+     * @param v do painting or not
+     */
     public void isPainting(boolean v) {
         isPainting = v;
     }
 
     public void setVisibility(int opt, boolean show) {
-        //AccelOptions option = AccelOptions.values()[opt];
+        //AccelerometerSignals option = AccelerometerSignals.values()[opt];
         if (show) {
             // show current option
             mRenderers[opt].setColor(Color.BLUE);

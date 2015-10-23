@@ -9,19 +9,21 @@ import android.util.Log;
 
 import org.achartengine.GraphicalView;
 
-import java.util.Date;
-
 /**
- * Created by dobi on 17.10.15.
+ * Configuring accelerometer and handling its results.
  */
 public class AccelerometerDetector implements SensorEventListener {
 
     private static final String TAG = "AccelDetector";
-    public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_UI;
+    /**
+     * Suggested periods:
+     * DELAY_UI: T ~= 60ms => f = 16,6Hz
+     * DELAY_GAME: T ~= 20ms => f = 50Hz
+     */
+    public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
     private int mStepCount = 0;
-    private double mThresh = AccelerometerGraph.THRESH_INIT;
-    private double[] mAccelResult = new double[AccelOptions.size];
+    private double[] mAccelResult = new double[AccelerometerSignals.count];
     private SensorManager mSensorManager;
     private Sensor mAccel;
     private AccelerometerGraph mAccelGraph;
@@ -32,7 +34,6 @@ public class AccelerometerDetector implements SensorEventListener {
     public void setStepCountChangeListener(OnStepCountChangeListener listener) {
         mStepListener = listener;
     }
-
 
     public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, SharedPreferences prefs) {
         mStepListener = null;
@@ -50,22 +51,6 @@ public class AccelerometerDetector implements SensorEventListener {
         mGraphView = view;
         mAccelGraph = graph;
     }
-
-    private void detectStep(int i,long event) {
-        if (SignalAlgorithms.detectStep(i, mThresh)) {
-            SignalAlgorithms.isActiveCounter = false;
-            ++mStepCount;
-            if (mStepListener != null)
-                mStepListener.onStepCountChange(mStepCount);
-        }
-    }
-
-    private void saveThreshold() {
-        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
-        preferencesEditor.putFloat(AccelerometerGraph.THRESH,(float)mThresh);
-        preferencesEditor.apply();
-    }
-
 
     public void startDetector() {
         // just starts just the accelerometer. It doesn't update the UI.
@@ -85,19 +70,23 @@ public class AccelerometerDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+
         // handle accelerometer data
-        //Log.d(TAG,"sens changed: " + mCurrentOptions.toString());
-        SignalAlgorithms.sendEvent(event);
-        mAccelResult[0] = SignalAlgorithms.calcMagnitudeVector(0); // |V|
-        mAccelResult[0] = SignalAlgorithms.calcExpMovAvg(0);
-        mAccelResult[1] = SignalAlgorithms.calcMagnitudeVector(1);
-        // process timestamp
-        final long eventTime = (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
-        // update graph with value and timestamp
+        AccelerometerProcessing.setEvent(event);
+        mAccelResult[0] = AccelerometerProcessing.calcMagnitudeVector(0);
+        mAccelResult[0] = AccelerometerProcessing.calcExpMovAvg(0);
+        mAccelResult[1] = AccelerometerProcessing.calcMagnitudeVector(1);
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventTime);
-        mAccelGraph.addNewPoints(eventTime, mAccelResult);
+
+        // update graph with value and timestamp
+        mAccelGraph.addNewPoints(AccelerometerProcessing.getEventTime(), mAccelResult);
+
         //step detection
-        detectStep(1, eventTime);
+        if (AccelerometerProcessing.stepDetected(1)) {
+            ++mStepCount;
+            if (mStepListener != null)
+                mStepListener.onStepCountChange(mStepCount);
+        }
     }
 
     @Override

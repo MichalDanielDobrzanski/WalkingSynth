@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mAccelGraph.setThresholdVal(progress);
                 //mAccelGraph.addOffset(1,progress);
-                mThreshValTextView.setText(mThreshValTextView.getText() + Integer.toString(progress));
+                mThreshValTextView.setText(String.valueOf(progress));
             }
 
             @Override
@@ -87,9 +87,9 @@ public class MainActivity extends AppCompatActivity {
 
         // get text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        mThreshValTextView.setText(Integer.toString(AccelerometerGraph.THRESH_INIT));
+        mThreshValTextView.setText(String.valueOf(AccelerometerGraph.THRESH_INIT));
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
-        mStepCountTextView.setText(Integer.toString(0));
+        mStepCountTextView.setText(String.valueOf(0));
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
             @Override
             public void onStepCountChange(int v) {
-                mStepCountTextView.setText(Integer.toString(v));
+                mStepCountTextView.setText(String.valueOf(v));
             }
         });
     }
@@ -106,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         LinearLayout layout = (LinearLayout)findViewById(R.id.buttons_layout);
-        for (int i = 0; i < AccelOptions.OPTIONS.length; ++i) {
+        for (int i = 0; i < AccelerometerSignals.OPTIONS.length; ++i) {
             final ToggleButton btn = new ToggleButton(this);
-            btn.setTextOn(AccelOptions.OPTIONS[i]);
-            btn.setTextOff(AccelOptions.OPTIONS[i]);
+            btn.setTextOn(AccelerometerSignals.OPTIONS[i]);
+            btn.setTextOff(AccelerometerSignals.OPTIONS[i]);
             btn.setLayoutParams(params);
             btn.setChecked(true);
             final int opt = i; // convert to flag convention

@@ -15,6 +15,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.dobi.walkingsynth.csound.BaseCsoundActivity;
+import com.dobi.walkingsynth.csound.CsoundMusician;
+
 import org.achartengine.GraphicalView;
 
 import java.text.DecimalFormat;
@@ -22,17 +25,14 @@ import java.text.DecimalFormat;
 /**
  * Starting point. Sets the whole UI.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseCsoundActivity {
 
     private static final String TAG = "MActivity";
 
     private static final String PREFERENCES_NAME = "ValuesSet";
     private SharedPreferences preferences;
-    // accelerometer fields
-    private int mOffset;
     private AccelerometerDetector mAccelDetector;
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
-    private static GraphicalView mView;
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
 
@@ -44,15 +44,12 @@ public class MainActivity extends AppCompatActivity {
         // config prefs
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
-        // initial graph option
-        mOffset = 0;
-
         // UI default setup
-        mView = mAccelGraph.getView(this);
-        mView.setLayoutParams(new LinearLayout.LayoutParams(
+        GraphicalView view = mAccelGraph.getView(this);
+        view.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
-        mView.setOnClickListener(new View.OnClickListener() {
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // handle the click event on the chart
@@ -64,14 +61,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
-        graphLayout.addView(mView);
+        graphLayout.addView(view);
 
         // dynamic button creation
         createButtons();
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,preferences);
+        mAccelDetector = new AccelerometerDetector(sensorManager, view, mAccelGraph,preferences);
         mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
             @Override
             public void onStepCountChange(int v) {

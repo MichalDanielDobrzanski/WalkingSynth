@@ -7,6 +7,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.dobi.walkingsynth.csound.CsoundMusician;
+
 import org.achartengine.GraphicalView;
 
 /**
@@ -73,19 +75,29 @@ public class AccelerometerDetector implements SensorEventListener {
 
         // handle accelerometer data
         AccelerometerProcessing.setEvent(event);
+        final long eventTime = AccelerometerProcessing.getEventTime();
+
         mAccelResult[0] = AccelerometerProcessing.calcMagnitudeVector(0);
         mAccelResult[0] = AccelerometerProcessing.calcExpMovAvg(0);
         mAccelResult[1] = AccelerometerProcessing.calcMagnitudeVector(1);
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventTime);
 
         // update graph with value and timestamp
-        mAccelGraph.addNewPoints(AccelerometerProcessing.getEventTime(), mAccelResult);
+        mAccelGraph.addNewPoints(eventTime, mAccelResult);
 
-        //step detection
+        // step detection
         if (AccelerometerProcessing.stepDetected(1)) {
-            ++mStepCount;
+            // step is found!
+
+            // notify musician
+            CsoundMusician.addNewBeatTime(eventTime);
+
+            // notify UI
             if (mStepListener != null)
                 mStepListener.onStepCountChange(mStepCount);
+
+            //increase count
+            ++mStepCount;
         }
     }
 

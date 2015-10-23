@@ -14,7 +14,7 @@ import org.achartengine.GraphicalView;
  */
 public class AccelerometerDetector implements SensorEventListener {
 
-    private static final String TAG = "AccelDetector";
+    private static final String TAG = AccelerometerDetector.class.getSimpleName();
     /**
      * Suggested periods:
      * DELAY_UI: T ~= 60ms => f = 16,6Hz

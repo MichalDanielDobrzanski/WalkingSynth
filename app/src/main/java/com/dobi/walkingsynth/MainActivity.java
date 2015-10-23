@@ -17,12 +17,16 @@ import android.widget.ToggleButton;
 
 import org.achartengine.GraphicalView;
 
+import java.text.DecimalFormat;
+
+/**
+ * Starting point. Sets the whole UI.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MActivity";
 
     private static final String PREFERENCES_NAME = "ValuesSet";
-    private static final int MAX_OFFSET = 30;
     private SharedPreferences preferences;
     // accelerometer fields
     private int mOffset;
@@ -62,16 +66,30 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
         graphLayout.addView(mView);
 
+        // dynamic button creation
         createButtons();
 
+        // initialize accelerometer
+        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,preferences);
+        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
+            @Override
+            public void onStepCountChange(int v) {
+                mStepCountTextView.setText(String.valueOf(v));
+            }
+        });
+
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
-        seekBar.setMax(MAX_OFFSET);
+        seekBar.setMax(200);
+        seekBar.setProgress(seekBar.getMax() / 2);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mAccelGraph.setThresholdVal(progress);
-                //mAccelGraph.addOffset(1,progress);
-                mThreshValTextView.setText(String.valueOf(progress));
+                AccelerometerProcessing.setThreshold(progress);
+                // add display formatting
+                final DecimalFormat df = new DecimalFormat("#.##");
+                mThreshValTextView.setText(
+                        String.valueOf(df.format(AccelerometerProcessing.getThreshold())));
             }
 
             @Override
@@ -90,16 +108,6 @@ public class MainActivity extends AppCompatActivity {
         mThreshValTextView.setText(String.valueOf(AccelerometerGraph.THRESH_INIT));
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
-
-        // initialize accelerometer
-        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager,mView, mAccelGraph,preferences);
-        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
-            @Override
-            public void onStepCountChange(int v) {
-                mStepCountTextView.setText(String.valueOf(v));
-            }
-        });
     }
 
     private void createButtons() {

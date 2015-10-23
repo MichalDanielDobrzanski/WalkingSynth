@@ -2,6 +2,7 @@ package com.dobi.walkingsynth;
 
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -9,6 +10,8 @@ import java.util.Date;
  * Computing and processing accelerometer data.
  */
 public class AccelerometerProcessing {
+
+    private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
     private static final int INACTIVE_PERIODS = 7;
     private static int mInactiveCounter = 0;
@@ -31,12 +34,23 @@ public class AccelerometerProcessing {
         mEvent = e;
     }
 
-    public static void setThreshold(double v) {
-        mThreshold = v;
-    }
-
+    /**
+     * Get event time.
+     * @see <a href="http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp">To miliseconds.</a>
+     * @return time in milliseconds
+     */
     public static long getEventTime() {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
+    }
+
+    public static void setThreshold(double v) {
+        final double change = (v / 100) - 1;
+        // TODO!
+        Log.d(TAG, "Change: " + change + " Thresh: " + mThreshold);
+    }
+
+    public static double getThreshold() {
+        return mThreshold;
     }
 
     /**

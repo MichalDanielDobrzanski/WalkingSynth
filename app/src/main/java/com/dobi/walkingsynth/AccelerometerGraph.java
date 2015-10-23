@@ -1,6 +1,7 @@
 package com.dobi.walkingsynth;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -14,6 +15,8 @@ import org.achartengine.renderer.XYSeriesRenderer;
  * Plotting accelerometer processed data.
  */
 public class AccelerometerGraph {
+
+    private static final String TAG = AccelerometerGraph.class.getSimpleName();
 
     // threshold:
     public static final int THRESH_INIT = 12;
@@ -71,7 +74,7 @@ public class AccelerometerGraph {
         for (int i = 0; i < AccelerometerSignals.count; ++i) {
             // moving plot
             mSeries[i].add(t, v[i] + mOffset[i]);
-            mThreshold.add(t, mThreshVal);
+            mThreshold.add(t, AccelerometerProcessing.getThreshold());
             if (mPointsCount > GRAPH_RESOLUTION) {
                 mSeries[i].remove(0);
                 mThreshold.remove(0);
@@ -82,15 +85,9 @@ public class AccelerometerGraph {
         ++mPointsCount;
     }
 
-    public void setThresholdVal(double v) {
-
-        mThreshVal = v;
-    }
-
     public double getThresholdVal() {
         return mThreshVal;
     }
-
 
     /**
      * Adds threshold configuration for plotting.

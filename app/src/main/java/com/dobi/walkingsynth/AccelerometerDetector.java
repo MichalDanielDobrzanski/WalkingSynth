@@ -99,15 +99,9 @@ public class AccelerometerDetector implements SensorEventListener {
         if (AccelerometerProcessing.stepDetected(1)) {
             // step is found!
 
-            // notify musician
-            CsoundMusician.addNewBeatTime(eventTime);
-
-            // notify UI
+            // notify potential listeners
             if (mStepListener != null)
-                mStepListener.onStepCountChange(mStepCount);
-
-            //increase count
-            ++mStepCount;
+                mStepListener.onStepCountChange(eventTime);
         }
     }
 

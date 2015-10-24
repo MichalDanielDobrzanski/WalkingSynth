@@ -33,6 +33,11 @@ public class AccelerometerDetector implements SensorEventListener {
     private SharedPreferences mPreferences;
 
     private OnStepCountChangeListener mStepListener;
+
+    /**
+     * Listener setting for Step Detected event
+     * @param listener a listener.
+     */
     public void setStepCountChangeListener(OnStepCountChangeListener listener) {
         mStepListener = listener;
     }
@@ -66,8 +71,13 @@ public class AccelerometerDetector implements SensorEventListener {
         mSensorManager.unregisterListener(this, mAccel);
     }
 
-    public void setVisibility(int opt, boolean show) {
-        mAccelGraph.setVisibility(opt, show);
+    /**
+     * Shows/hides particular signal
+     * @param i index of a signal
+     * @param show shown/hidden
+     */
+    public void setVisibility(int i, boolean show) {
+        mAccelGraph.setVisibility(i, show);
     }
 
     @Override

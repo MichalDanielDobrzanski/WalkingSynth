@@ -17,7 +17,8 @@ public class AccelerometerProcessing {
     private static int mInactiveCounter = 0;
     public static boolean isActiveCounter = true;
     // dynamic variables
-    private static double mThreshold = AccelerometerGraph.THRESH_INIT;
+    public static final int THRESH_INIT = 12;
+    private static double mThreshold = THRESH_INIT;
     private static double[] mAccelResult = new double[AccelerometerSignals.count];
     private static double[] mLastAccelResult = new double[AccelerometerSignals.count];
     private static SensorEvent mEvent;
@@ -44,7 +45,8 @@ public class AccelerometerProcessing {
     }
 
     public static void setThreshold(double v) {
-        final double change = (v / 100) - 1;
+        final double change = (v + 90) / 100;
+        mThreshold = THRESH_INIT * change;
         // TODO!
         Log.d(TAG, "Change: " + change + " Thresh: " + mThreshold);
     }
@@ -145,7 +147,6 @@ public class AccelerometerProcessing {
      * When the value is over the threshold, the step is found and the algorithm sleeps for
      * the specified distance which is {@link #INACTIVE_PERIODS this }.
      * @param i signal identifier.
-     * @param thresh
      * @return step found / not found
      */
     public static boolean stepDetected(int i) {

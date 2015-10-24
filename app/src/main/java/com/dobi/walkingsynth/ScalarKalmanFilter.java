@@ -4,6 +4,7 @@ package com.dobi.walkingsynth;
  * Created by dobi on 21.10.15.
  */
 public final class ScalarKalmanFilter {
+
     private double mX0; // predicted state
     private double mP0; // predicted covariance
     private double mF; // factor of real value to previous real value

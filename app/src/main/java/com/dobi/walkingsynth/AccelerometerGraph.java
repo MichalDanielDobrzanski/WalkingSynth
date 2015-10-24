@@ -19,9 +19,7 @@ public class AccelerometerGraph {
     private static final String TAG = AccelerometerGraph.class.getSimpleName();
 
     // threshold:
-    public static final int THRESH_INIT = 12;
     private static final String THRESH = "Thresh";
-    private double mThreshVal = THRESH_INIT;
     private TimeSeries mThreshold;
     // accelerometer signals:
     private static final String TITLE = "Accelerometer data";
@@ -83,10 +81,6 @@ public class AccelerometerGraph {
         if (isPainting)
             view.repaint();
         ++mPointsCount;
-    }
-
-    public double getThresholdVal() {
-        return mThreshVal;
     }
 
     /**

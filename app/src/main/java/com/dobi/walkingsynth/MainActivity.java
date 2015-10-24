@@ -77,8 +77,8 @@ public class MainActivity extends BaseCsoundActivity {
         });
 
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
-        seekBar.setMax(200);
-        seekBar.setProgress(seekBar.getMax() / 2);
+        seekBar.setMax(130 - 90);
+        seekBar.setProgress((int)AccelerometerProcessing.getThreshold());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -102,7 +102,7 @@ public class MainActivity extends BaseCsoundActivity {
 
         // get text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        mThreshValTextView.setText(String.valueOf(AccelerometerGraph.THRESH_INIT));
+        mThreshValTextView.setText(String.valueOf(AccelerometerProcessing.getThreshold()));
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
     }

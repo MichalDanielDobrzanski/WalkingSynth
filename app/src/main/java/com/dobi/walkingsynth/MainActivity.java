@@ -15,7 +15,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.dobi.walkingsynth.csound.BaseCsoundActivity;
 import com.dobi.walkingsynth.csound.CsoundMusician;
 
 import org.achartengine.GraphicalView;
@@ -25,16 +24,18 @@ import java.text.DecimalFormat;
 /**
  * Starting point. Sets the whole UI.
  */
-public class MainActivity extends BaseCsoundActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MActivity";
 
     private static final String PREFERENCES_NAME = "ValuesSet";
     private SharedPreferences preferences;
+    private int mStepCount = 0;
     private AccelerometerDetector mAccelDetector;
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
+    private CsoundMusician mCsoundMusician;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +72,16 @@ public class MainActivity extends BaseCsoundActivity {
         mAccelDetector = new AccelerometerDetector(sensorManager, view, mAccelGraph,preferences);
         mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
             @Override
-            public void onStepCountChange(int v) {
-                mStepCountTextView.setText(String.valueOf(v));
+            public void onStepCountChange(long v) {
+                ++mStepCount;
+                mStepCountTextView.setText(String.valueOf(mStepCount));
+                mCsoundMusician.onStep(v);
             }
         });
-
+        // seek bar configuration
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(130 - 90);
-        seekBar.setProgress((int)AccelerometerProcessing.getThreshold());
+        seekBar.setProgress((int) AccelerometerProcessing.getThreshold());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -99,12 +102,13 @@ public class MainActivity extends BaseCsoundActivity {
 
             }
         });
-
-        // get text views
+        // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
         mThreshValTextView.setText(String.valueOf(AccelerometerProcessing.getThreshold()));
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
+        // configure csound
+        mCsoundMusician = new CsoundMusician(getResources(),getCacheDir());
     }
 
     private void createButtons() {
@@ -139,7 +143,6 @@ public class MainActivity extends BaseCsoundActivity {
         super.onResume();
         Log.d(TAG, "onResume register Listeners");
         mAccelDetector.startDetector();
-
     }
 
     @Override
@@ -147,5 +150,12 @@ public class MainActivity extends BaseCsoundActivity {
         super.onPause();
         Log.d(TAG, "onPause UNregister Listeners");
         mAccelDetector.stopDetector();
+        mStepCount = 0;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCsoundMusician.destroy();
     }
 }

@@ -30,6 +30,8 @@ public class CsoundMusician implements CsoundObjListener, CsoundBinding {
     private Resources resources;
     private File cacheDir;
 
+    private int mStepCount = 0;
+
     public CsoundMusician(Resources res, File cDir) {
         resources = res;
         cacheDir = cDir;
@@ -51,9 +53,10 @@ public class CsoundMusician implements CsoundObjListener, CsoundBinding {
      * @param v eventTime value
      */
     public void onStep(long eventTime) {
+        ++mStepCount;
         Log.d(TAG,"onStep");
         csoundObj.sendScore(String.format(
-                "i3 0 0.25 100"));
+                "i3.%d 0 0.25 100",mStepCount));
     }
 
 

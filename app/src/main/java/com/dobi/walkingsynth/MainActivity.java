@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        // instantiate Musicnalyzer
+        // instantiate music analyzer
         mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);

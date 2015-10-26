@@ -16,7 +16,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     private static final int MAX_TEMPO = 240;
     private int mStepCount = 0;
     private long mLastEventTime = 0;
-    private int mTempo = 0;
+    private int mTempo = MIN_TEMPO;
 
     public MusicAnalyzer(Resources res, File cDir) {
         super(res, cDir);

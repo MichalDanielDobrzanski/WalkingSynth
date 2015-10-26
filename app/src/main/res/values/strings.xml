@@ -9,5 +9,6 @@
     <string name="step_detect">steps</string>
     <string name="steps_count">Steps count:</string>
     <string name="thresh_val">Thresh val:</string>
+    <string name="tempo_val">Tempo:</string>
 
 </resources>

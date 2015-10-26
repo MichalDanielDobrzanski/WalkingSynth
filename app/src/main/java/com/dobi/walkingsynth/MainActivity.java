@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
+    private TextView mTempoValTextView;
     private MusicAnalyzer mMusicAnalyzer;
 
     @Override
@@ -76,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
                 ++mStepCount;
                 mStepCountTextView.setText(String.valueOf(mStepCount));
                 mMusicAnalyzer.onStep(eventMsecTime);
+                mTempoValTextView.setText(
+                        String.valueOf(mMusicAnalyzer.getTempo()));
             }
         });
         // seek bar configuration
@@ -102,13 +105,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        // instantiate Musicnalyzer
+        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
         mThreshValTextView.setText(String.valueOf(AccelerometerProcessing.getThreshold()));
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
-        // configure csound
-        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
+        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
+        mTempoValTextView.setText(String.valueOf(mMusicAnalyzer.getTempo()));
     }
 
     private void createButtons() {

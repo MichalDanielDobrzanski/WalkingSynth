@@ -43,7 +43,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:weightSum="4">
+            android:weightSum="6">
 
             <TextView
                 android:layout_weight="1"
@@ -68,6 +68,18 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/threshval_textView" />
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/tempo_val" />
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tempoval_textView" />
 
         </LinearLayout>
 

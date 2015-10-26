@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.csound;
+package com.dobi.walkingsynth.music;
 
 import android.content.res.Resources;
 import android.os.Handler;
@@ -7,7 +7,6 @@ import android.util.Log;
 import com.csounds.CsoundObj;
 import com.csounds.CsoundObjListener;
 import com.csounds.bindings.CsoundBinding;
-import com.dobi.walkingsynth.OnStepCountChangeListener;
 import com.dobi.walkingsynth.R;
 
 import java.io.BufferedReader;
@@ -18,11 +17,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Creating music, anaylizing tempo.
+ * Csound initialization and configuration
  */
-public class CsoundMusician implements CsoundObjListener, CsoundBinding {
+public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
 
-    private static final String TAG = CsoundMusician.class.getSimpleName();
+    private static final String TAG = CsoundBaseSetup.class.getSimpleName();
 
     protected CsoundObj csoundObj = new CsoundObj(false,true);
     protected Handler handler = new Handler();
@@ -30,9 +29,7 @@ public class CsoundMusician implements CsoundObjListener, CsoundBinding {
     private Resources resources;
     private File cacheDir;
 
-    private int mStepCount = 0;
-
-    public CsoundMusician(Resources res, File cDir) {
+    public CsoundBaseSetup(Resources res, File cDir) {
         resources = res;
         cacheDir = cDir;
 
@@ -47,20 +44,6 @@ public class CsoundMusician implements CsoundObjListener, CsoundBinding {
     public void destroy() {
         csoundObj.stop();
     }
-
-    /**
-     * step has been detected
-     * @param v eventTime value
-     */
-    public void onStep(long eventTime) {
-        ++mStepCount;
-        Log.d(TAG,"onStep");
-        csoundObj.sendScore(String.format(
-                "i3 0 0.25 100",mStepCount));
-    }
-
-
-
 
     protected String getResourceFileAsString(int resId) {
         StringBuilder str = new StringBuilder();

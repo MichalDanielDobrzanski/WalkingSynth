@@ -15,7 +15,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.dobi.walkingsynth.csound.CsoundMusician;
+import com.dobi.walkingsynth.music.MusicAnalyzer;
 
 import org.achartengine.GraphicalView;
 
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
-    private CsoundMusician mCsoundMusician;
+    private MusicAnalyzer mMusicAnalyzer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
         mAccelDetector = new AccelerometerDetector(sensorManager, view, mAccelGraph,preferences);
         mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
             @Override
-            public void onStepCountChange(long v) {
+            public void onStepCountChange(long eventMsecTime) {
                 ++mStepCount;
                 mStepCountTextView.setText(String.valueOf(mStepCount));
-                mCsoundMusician.onStep(v);
+                mMusicAnalyzer.onStep(eventMsecTime);
             }
         });
         // seek bar configuration
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
         // configure csound
-        mCsoundMusician = new CsoundMusician(getResources(),getCacheDir());
+        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
     }
 
     private void createButtons() {
@@ -156,6 +156,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCsoundMusician.destroy();
+        mMusicAnalyzer.destroy();
     }
 }

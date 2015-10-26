@@ -40,7 +40,7 @@ public class AccelerometerProcessing {
      * @see <a href="http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp">To miliseconds.</a>
      * @return time in milliseconds
      */
-    public static long getEventTime() {
+    public static long timestampToMilliseconds() {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 

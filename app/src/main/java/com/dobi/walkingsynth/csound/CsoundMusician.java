@@ -56,7 +56,7 @@ public class CsoundMusician implements CsoundObjListener, CsoundBinding {
         ++mStepCount;
         Log.d(TAG,"onStep");
         csoundObj.sendScore(String.format(
-                "i3.%d 0 0.25 100",mStepCount));
+                "i3 0 0.25 100",mStepCount));
     }
 
 

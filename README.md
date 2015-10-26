@@ -1,4 +1,4 @@
-* # README #
+# README #
 
 ### Walking Synthesizer ###
 
@@ -10,7 +10,6 @@
 * Csound
 * Achartengine
 
-### Owner and purpose ###
-
+## Owner and purpose ##
 * Michał Dobrzański
 * This is a project for Warsaw University of Technology

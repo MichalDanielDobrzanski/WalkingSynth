@@ -7,6 +7,7 @@
     android:id="@+id/activity_main_layout"
     tools:context=".MainActivity">
 
+    <!-- Main toolbar -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/main_toolbar"
         android:layout_height= "wrap_content"
@@ -14,84 +15,115 @@
         android:minHeight = "?attr/actionBarSize"
         android:background= "?attr/colorPrimary" />
 
+
+    <!-- Main actions -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:id="@+id/container_layout"
+        android:weightSum="10">
 
-    <LinearLayout
-        android:id="@+id/control_layout"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false">
-
+        <!-- Controls-->
         <LinearLayout
-            android:id="@+id/buttons_layout"
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-
-        <SeekBar
-            android:progressDrawable="@android:color/transparent"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/offset_seekBar"
-            android:layout_gravity="center_vertical" />
+            android:layout_height="0dp"
+            android:id="@+id/controls_layout"
+            android:layout_weight="1">
 
-    </LinearLayout>
+            <!-- buttons, sliders -->
+            <LinearLayout
+                android:id="@+id/interaction_layout"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:baselineAligned="false"
+                android:layout_weight="1">
 
-        <LinearLayout
-            android:id="@+id/info_layout"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="6">
+                <LinearLayout
+                    android:id="@+id/buttons_layout"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
 
-            <TextView
+                <SeekBar
+                    android:progressDrawable="@android:color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/offset_seekBar"
+                    android:layout_gravity="center_vertical" />
+
+            </LinearLayout>
+
+            <!-- Lots of text views -->
+            <LinearLayout
+                android:id="@+id/info_layout"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/steps_count" />
+                android:weightSum="8">
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/stepcount_textView" />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/steps_count" />
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/thresh_val" />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/stepcount_textView" />
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/threshval_textView" />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/thresh_val" />
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/tempo_val" />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/threshval_textView" />
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/tempoval_textView" />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tempo_val" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tempoval_textView" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_val" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/timeVal_textView" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
+        <!-- Achart Engine graph -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/graph_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="9"/>
     </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/graph_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </LinearLayout>

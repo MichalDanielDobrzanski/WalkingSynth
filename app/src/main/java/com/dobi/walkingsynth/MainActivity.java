@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -41,7 +42,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
+    private TextView mTimeValTextView;
     private MusicAnalyzer mMusicAnalyzer;
+
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
         mStepCountTextView.setText(String.valueOf(0));
         mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
         mTempoValTextView.setText(String.valueOf(mMusicAnalyzer.getTempo()));
+        mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
+
+        // timer counter
+        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
+        timer.start();
 
         // UI default setup
         GraphicalView view = mAccelGraph.getView(this);

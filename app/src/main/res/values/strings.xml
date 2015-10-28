@@ -10,5 +10,10 @@
     <string name="steps_count">Steps count:</string>
     <string name="thresh_val">Thresh val:</string>
     <string name="tempo_val">Tempo:</string>
+    
+    <string-array name="nav_drawer_items">
+        <item>Threshold</item>
+        <item>Info</item>
+    </string-array>
 
 </resources>

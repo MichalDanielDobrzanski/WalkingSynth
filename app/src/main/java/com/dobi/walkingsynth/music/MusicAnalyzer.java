@@ -17,9 +17,39 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     private int mStepCount = 0;
     private long mLastEventTime = 0;
     private int mTempo = MIN_TEMPO;
+    private boolean isPlaying = true;
+    private long mNextMoment;
 
     public MusicAnalyzer(Resources res, File cDir) {
         super(res, cDir);
+        mNextMoment = calcMoment(2);
+        Thread hHatThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (isPlaying) {
+                        sleep(mNextMoment);
+                        csoundObj.sendScore("i1 0 0.25 10");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        hHatThread.start();
+    }
+
+    /**
+     * Calculate next time moment. When should I play another note.
+     * 60 / tempo = seconds between beats
+     * (60 / tempo) * 1000 = milliseconds between beats
+     * @param noteType 1 = Note, 2 = HalfNote, 4 = QuarterNote
+     * @return time distance to the next moment.
+     */
+    private long calcMoment(int noteType) {
+        final long nextMoment =  (long)((60 / (float)mTempo) * 1000 ) / noteType;
+        Log.d(TAG,"next Moment: " + nextMoment);
+        return nextMoment;
     }
 
     /**
@@ -30,8 +60,8 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         Log.d(TAG, "onStep");
         ++mStepCount;
         calculateTempo(eventMsecTime);
-        csoundObj.sendScore(String.format(
-                "i3 0 0.25 100", mStepCount));
+        mNextMoment = calcMoment(2);
+        csoundObj.sendScore("i3 0 0.50 70");
     }
 
     /**

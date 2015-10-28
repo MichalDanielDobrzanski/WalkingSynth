@@ -10,7 +10,7 @@ import org.achartengine.model.TimeSeries;
  */
 public class TimeCounter {
 
-    private final int FPS = 20;
+    private final int FPS = 60;
 
     /**
      * Public accessors for time measurement.

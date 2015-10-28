@@ -14,9 +14,18 @@ public class AccelerometerProcessing {
     private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
     /**
-     * Step detectring parameter. How many periods it is
+     * Step detecting parameter. How many periods it is sleeping.
+     * If DELAY_GAME: T ~= 20ms => f = 50Hz
+     * and MAX_TEMPO = 240bpms
+     * then:
+     * 60bpm - 1000milliseconds
+     * 240bpm - 250milliseconds
+     *
+     * n - periods
+     * n = 250msec / T
+     * n = 250 / 20 ~= 12
      */
-    private static final int INACTIVE_PERIODS = 7;
+    private static final int INACTIVE_PERIODS = 12;
     private static int mInactiveCounter = 0;
     public static boolean isActiveCounter = true;
     // dynamic variables

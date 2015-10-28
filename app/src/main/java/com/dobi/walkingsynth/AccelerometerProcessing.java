@@ -13,11 +13,14 @@ public class AccelerometerProcessing {
 
     private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
+    /**
+     * Step detectring parameter. How many periods it is
+     */
     private static final int INACTIVE_PERIODS = 7;
     private static int mInactiveCounter = 0;
     public static boolean isActiveCounter = true;
     // dynamic variables
-    public static final int THRESH_INIT = 12;
+    public static final float THRESH_INIT = 12.72f;
     private static double mThreshold = THRESH_INIT;
     private static double[] mAccelResult = new double[AccelerometerSignals.count];
     private static double[] mLastAccelResult = new double[AccelerometerSignals.count];
@@ -44,11 +47,15 @@ public class AccelerometerProcessing {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 
-    public static void setThreshold(double v) {
-        final double change = (v + 90) / 100;
+    public static void changeThreshold(float v) {
+        final float change = (v + 90) / 100;
         mThreshold = THRESH_INIT * change;
         // TODO!
         Log.d(TAG, "Change: " + change + " Thresh: " + mThreshold);
+    }
+
+    public static void setThreshold(float v) {
+        mThreshold = v;
     }
 
     public static double getThreshold() {

@@ -6,7 +6,11 @@ import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -28,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MActivity";
 
-    private static final String PREFERENCES_NAME = "ValuesSet";
+    private static final String PREFERENCES_NAME = "Values";
+    private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
     private SharedPreferences preferences;
     private int mStepCount = 0;
     private AccelerometerDetector mAccelDetector;
@@ -43,8 +48,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // instantiate music analyzer
+        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
+
+        // toolbar (action bar) settings
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
         // config prefs
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+        float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessing.THRESH_INIT);
+        AccelerometerProcessing.setThreshold(threshVal);
+
+        // get and configure text views
+        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
+        formatThreshTextView(threshVal);
+        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
+        mStepCountTextView.setText(String.valueOf(0));
+        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
+        mTempoValTextView.setText(String.valueOf(mMusicAnalyzer.getTempo()));
 
         // UI default setup
         GraphicalView view = mAccelGraph.getView(this);
@@ -88,11 +110,8 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                AccelerometerProcessing.setThreshold(progress);
-                // add display formatting
-                final DecimalFormat df = new DecimalFormat("#.##");
-                mThreshValTextView.setText(
-                        String.valueOf(df.format(AccelerometerProcessing.getThreshold())));
+                AccelerometerProcessing.changeThreshold(progress);
+                formatThreshTextView(AccelerometerProcessing.getThreshold());
             }
 
             @Override
@@ -105,15 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        // instantiate music analyzer
-        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
-        // get and configure text views
-        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        mThreshValTextView.setText(String.valueOf(AccelerometerProcessing.getThreshold()));
-        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
-        mStepCountTextView.setText(String.valueOf(0));
-        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
-        mTempoValTextView.setText(String.valueOf(mMusicAnalyzer.getTempo()));
+    }
+
+    private void formatThreshTextView(double v) {
+        final DecimalFormat df = new DecimalFormat("#.##");
+        mThreshValTextView.setText(String.valueOf(df.format(v)));
     }
 
     private void createButtons() {
@@ -135,6 +150,35 @@ public class MainActivity extends AppCompatActivity {
             });
             layout.addView(btn);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_main_menu, menu);
+
+        // set string values for menu
+        String[] titles = getResources().getStringArray(R.array.nav_drawer_items);
+        for (int i = 0; i < titles.length; i++) {
+            menu.getItem(i).setTitle(titles[i]);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_threshold:
+                saveThreshold();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void saveThreshold() {
+        preferences.edit().putFloat(PREFERENCES_VALUES_THRESHOLD_KEY, (float) AccelerometerProcessing.getThreshold()).apply();
     }
 
     @Override

@@ -38,6 +38,7 @@ a1  poscil    8000, k1, 1
 outs a1*aenv, a1*aenv
 endin
 
+; reverb
 instr 100
 aInL = gaRevInL
 aInR = gaRevInR

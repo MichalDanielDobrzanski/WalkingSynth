@@ -15,6 +15,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
     private static final int MAX_TEMPO_DIFF = 40;
+    private static final int BAR_SPACING = 8;
 
     private int mStepCount = 0;
     private long mLastEventTime = 0;
@@ -22,30 +23,52 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     private boolean isPlaying = true;
     private long mNextMoment;
 
+    /**
+     * The current position in a bar ( 0-indexed )
+     * 0 1 2 3 4 5 6 7
+     * _ _ _ _ _ _ _ _
+     */
+    private int positionInBar = 0;
+
+    /**
+     * The count of bars.
+     */
+    private int barCount = 0;
+
     public MusicAnalyzer(Resources res, File cDir) {
         super(res, cDir);
-//        mNextMoment = calcMoment(1);
-//        Thread hHatThread = new Thread() {
-//            @Override
-//            public void run() {
-//                try {
-//                    while (isPlaying) {
-//                        sleep(mNextMoment);
-//                        csoundObj.sendScore("i1 0 0.25 10");
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//        hHatThread.start();
+        mNextMoment = calcMoment(BAR_SPACING);
+        Thread hHatThread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    while (isPlaying) {
+                        sleep(mNextMoment);
+                        positionInBar = (positionInBar + 1) % BAR_SPACING;
+                        if (positionInBar == 0)
+                            ++barCount;
+                        if (positionInBar == 0 | positionInBar == 4)
+                            csoundObj.sendScore("i1 0 0.15 10");
+                        if (barCount % 2 == 0 & positionInBar == 0)
+                            csoundObj.sendScore("i3 0 0.50 70");
+                        if (barCount % 2 == 1 & positionInBar == 0)
+                            csoundObj.sendScore("i2 0 1 10000");
+                        Log.d(TAG,"P: " + positionInBar + " B: " + barCount + " Sleep: " + mNextMoment);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        hHatThread.start();
     }
 
     /**
      * Calculate next time moment. When should I play another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
-     * @param noteType 1 = Note, 2 = HalfNote, 4 = QuarterNote
+     * @param noteType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote
      * @return time distance to the next moment.
      */
     private long calcMoment(int noteType) {
@@ -63,7 +86,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         ++mStepCount;
         calculateTempo(eventMsecTime);
         mNextMoment = calcMoment(1);
-        csoundObj.sendScore("i2 0 1 10000");
+        //csoundObj.sendScore("i2 0 1 10000");
         //csoundObj.sendScore("i3 0 0.50 70");
     }
 

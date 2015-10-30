@@ -10,7 +10,7 @@ import java.io.File;
  */
 public class MusicAnalyzer extends CsoundBaseSetup {
 
-    private static final String TAG = CsoundBaseSetup.class.getSimpleName();
+    private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
@@ -45,16 +45,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
                 try {
                     while (isPlaying) {
                         sleep(mNextMoment);
-                        positionInBar = (positionInBar + 1) % BAR_SPACING;
-                        if (positionInBar == 0)
-                            ++barCount;
-                        if (positionInBar == 0 | positionInBar == 4)
-                            csoundObj.sendScore("i1 0 0.15 10");
-                        if (barCount % 2 == 0 & positionInBar == 0)
-                            csoundObj.sendScore("i3 0 0.50 70");
-                        if (barCount % 2 == 1 & positionInBar == 0)
-                            csoundObj.sendScore("i2 0 1 10000");
-                        Log.d(TAG,"P: " + positionInBar + " B: " + barCount + " Sleep: " + mNextMoment);
+                        playSequence();
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -62,7 +53,22 @@ public class MusicAnalyzer extends CsoundBaseSetup {
             }
         };
         hHatThread.start();
+        Log.d(TAG,"I was created.");
     }
+
+    private void playSequence() {
+        if (positionInBar == 0)
+            ++barCount;
+        if (positionInBar == 0 | positionInBar == 4)
+            csoundObj.sendScore("i1 0 0.15 10");
+        if (barCount % 2 == 0 & positionInBar == 0)
+            csoundObj.sendScore("i3 0 0.50 70");
+        if (barCount % 2 == 1 & positionInBar == 0)
+            csoundObj.sendScore("i2 0 1 10000");
+        Log.d(TAG,positionInBar + ", " + barCount + " Sleep: " + mNextMoment);
+        positionInBar = (positionInBar + 1) % BAR_SPACING;
+    }
+
 
     /**
      * Calculate next time moment. When should I play another note.
@@ -84,8 +90,9 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     public void onStep(long eventMsecTime) {
         Log.d(TAG, "onStep");
         ++mStepCount;
-        calculateTempo(eventMsecTime);
-        mNextMoment = calcMoment(1);
+        final boolean speeding = calculateTempo(eventMsecTime);
+        mNextMoment = calcMoment(BAR_SPACING);
+        positionInBar = 0;
         //csoundObj.sendScore("i2 0 1 10000");
         //csoundObj.sendScore("i3 0 0.50 70");
     }
@@ -100,9 +107,11 @@ public class MusicAnalyzer extends CsoundBaseSetup {
      * 1 / ((t2 - t1) / (1000 * 60)) gives bpm.
      * }</pre>
      * @param eventTime Current event to be processed.
+     * @return true if tempo is higher (speeding up)
      */
-    public void calculateTempo(long eventTime) {
+    public boolean calculateTempo(long eventTime) {
         final int tempo =  (int)(1 / ((float)(eventTime - mLastEventTime) / (1000 * 60)));
+        final int tempoDiff = mTempo  - tempo;
         // process tempo
         if (tempo < MIN_TEMPO) {
             mTempo = MIN_TEMPO;
@@ -114,6 +123,8 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         }
         Log.d(TAG, "Tempo: " + mTempo + "bpm.");
         mLastEventTime = eventTime;
+
+        return tempoDiff < 0;
     }
 
     public int getTempo() {

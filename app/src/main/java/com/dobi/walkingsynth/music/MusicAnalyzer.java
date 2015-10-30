@@ -14,6 +14,8 @@ public class MusicAnalyzer extends CsoundBaseSetup {
 
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
+    private static final int MAX_TEMPO_DIFF = 40;
+
     private int mStepCount = 0;
     private long mLastEventTime = 0;
     private int mTempo = MIN_TEMPO;
@@ -22,21 +24,21 @@ public class MusicAnalyzer extends CsoundBaseSetup {
 
     public MusicAnalyzer(Resources res, File cDir) {
         super(res, cDir);
-        mNextMoment = calcMoment(2);
-        Thread hHatThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while (isPlaying) {
-                        sleep(mNextMoment);
-                        csoundObj.sendScore("i1 0 0.25 10");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        hHatThread.start();
+//        mNextMoment = calcMoment(1);
+//        Thread hHatThread = new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    while (isPlaying) {
+//                        sleep(mNextMoment);
+//                        csoundObj.sendScore("i1 0 0.25 10");
+//                    }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        };
+//        hHatThread.start();
     }
 
     /**
@@ -60,8 +62,9 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         Log.d(TAG, "onStep");
         ++mStepCount;
         calculateTempo(eventMsecTime);
-        mNextMoment = calcMoment(2);
-        csoundObj.sendScore("i3 0 0.50 70");
+        mNextMoment = calcMoment(1);
+        csoundObj.sendScore("i2 0 1 10000");
+        //csoundObj.sendScore("i3 0 0.50 70");
     }
 
     /**
@@ -83,7 +86,8 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         } else if (tempo > MAX_TEMPO) {
             mTempo = MAX_TEMPO;
         } else {
-            mTempo = tempo;
+            if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF)
+                mTempo = tempo;
         }
         Log.d(TAG, "Tempo: " + mTempo + "bpm.");
         mLastEventTime = eventTime;

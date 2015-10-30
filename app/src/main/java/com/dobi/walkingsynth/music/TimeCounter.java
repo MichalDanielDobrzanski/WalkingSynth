@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth;
+package com.dobi.walkingsynth.music;
 
 import android.os.Handler;
 import android.widget.TextView;
@@ -15,6 +15,7 @@ public class TimeCounter {
     /**
      * Public accessors for time measurement.
      */
+    public static long milliseconds = 0;
     public static int seconds = 0;
     public static int minutes = 0;
 
@@ -32,8 +33,8 @@ public class TimeCounter {
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
-            long millis = System.currentTimeMillis() - mStartTime;
-            seconds = (int) (millis / 1000);
+            milliseconds = System.currentTimeMillis() - mStartTime;
+            seconds = (int) (milliseconds / 1000);
             minutes = seconds / 60;
             seconds = seconds % 60;
 

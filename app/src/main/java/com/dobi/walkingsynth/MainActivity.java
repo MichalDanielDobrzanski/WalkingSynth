@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.dobi.walkingsynth.music.MusicAnalyzer;
+import com.dobi.walkingsynth.music.TimeCounter;
 
 import org.achartengine.GraphicalView;
 
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
         // timer counter
-        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
+        TimeCounter timer = new TimeCounter(mHandler,mTempoValTextView);
         timer.start();
 
         // UI default setup

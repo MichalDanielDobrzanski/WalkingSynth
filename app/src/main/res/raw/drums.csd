@@ -14,7 +14,7 @@ gaRevInL init 0
 gaRevInR init 0
 
 instr 1; hihat closed
-aamp      expon     1000,  0.1,   p4
+aamp      expon     600,  0.1,   p4
 arand     rand      aamp
 outs arand, arand
 endin
@@ -34,7 +34,7 @@ endin
 instr 3; kick
 k1  expon    p4, .2, 50
 aenv expon 1, p3, 0.01
-a1  poscil    10000, k1, 1
+a1  poscil    8000, k1, 1
 outs a1*aenv, a1*aenv
 endin
 

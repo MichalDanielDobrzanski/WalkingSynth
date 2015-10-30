@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
         // timer counter
-        TimeCounter timer = new TimeCounter(mHandler,mTempoValTextView);
+        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
         timer.start();
 
         // UI default setup

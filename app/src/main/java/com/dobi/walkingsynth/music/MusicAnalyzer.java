@@ -1,14 +1,11 @@
 package com.dobi.walkingsynth.music;
 
-import android.content.res.Resources;
 import android.util.Log;
-
-import java.io.File;
 
 /**
  * Anaylizing tempo and other parameters.
  */
-public class MusicAnalyzer extends CsoundBaseSetup {
+public class MusicAnalyzer {
 
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
@@ -35,8 +32,14 @@ public class MusicAnalyzer extends CsoundBaseSetup {
      */
     private int barCount = 0;
 
-    public MusicAnalyzer(Resources res, File cDir) {
-        super(res, cDir);
+    private OnBasicIntervalListener mIntervalListener;
+
+    public void setBasicIntervalListener(OnBasicIntervalListener listener) {
+        mIntervalListener = listener;
+    }
+
+    public MusicAnalyzer() {
+        mIntervalListener = null;
         mNextMoment = calcMoment(BAR_SPACING);
         Thread hHatThread = new Thread() {
 
@@ -45,7 +48,14 @@ public class MusicAnalyzer extends CsoundBaseSetup {
                 try {
                     while (isPlaying) {
                         sleep(mNextMoment);
-                        playSequence();
+                        if (positionInBar == 0)
+                            ++barCount;
+                        // notify potential listeners
+                        if (mIntervalListener != null)
+                            mIntervalListener.onBasicInterval(positionInBar,barCount);
+                        //playSequence();
+                        Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mNextMoment);
+                        positionInBar = (positionInBar + 1) % BAR_SPACING;
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -54,19 +64,6 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         };
         hHatThread.start();
         Log.d(TAG,"I was created.");
-    }
-
-    private void playSequence() {
-        if (positionInBar == 0)
-            ++barCount;
-        if (positionInBar == 0 | positionInBar == 4)
-            csoundObj.sendScore("i1 0 0.15 10");
-        if (barCount % 2 == 0 & positionInBar == 0)
-            csoundObj.sendScore("i3 0 0.50 70");
-        if (barCount % 2 == 1 & positionInBar == 0)
-            csoundObj.sendScore("i2 0 1 10000");
-        Log.d(TAG,positionInBar + ", " + barCount + " Sleep: " + mNextMoment);
-        positionInBar = (positionInBar + 1) % BAR_SPACING;
     }
 
 
@@ -79,7 +76,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
      */
     private long calcMoment(int noteType) {
         final long nextMoment =  (long)((60 / (float)mTempo) * 1000 ) / noteType;
-        Log.d(TAG,"next Moment: " + nextMoment);
+        Log.d(TAG, "next Moment: " + nextMoment);
         return nextMoment;
     }
 
@@ -96,6 +93,7 @@ public class MusicAnalyzer extends CsoundBaseSetup {
         //csoundObj.sendScore("i2 0 1 10000");
         //csoundObj.sendScore("i3 0 0.50 70");
     }
+
 
     /**
      * Tempo calculator based on two eventTimes.
@@ -130,4 +128,5 @@ public class MusicAnalyzer extends CsoundBaseSetup {
     public int getTempo() {
         return mTempo;
     }
+
 }

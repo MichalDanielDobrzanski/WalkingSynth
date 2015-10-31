@@ -20,7 +20,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.dobi.walkingsynth.music.MusicAnalyzer;
+import com.dobi.walkingsynth.music.MusicCreator;
 import com.dobi.walkingsynth.music.TimeCounter;
 
 import org.achartengine.GraphicalView;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
     private TextView mTimeValTextView;
-    private MusicAnalyzer mMusicAnalyzer;
+    private MusicCreator mMusicCreator;
 
     private Handler mHandler = new Handler();
 
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // instantiate music analyzer
-        mMusicAnalyzer = new MusicAnalyzer(getResources(),getCacheDir());
+        mMusicCreator = new MusicCreator(getResources(),getCacheDir());
 
         // toolbar (action bar) settings
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
         mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
-        mTempoValTextView.setText(String.valueOf(mMusicAnalyzer.getTempo()));
+        mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
         // timer counter
@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
             public void onStepCountChange(long eventMsecTime) {
                 ++mStepCount;
                 mStepCountTextView.setText(String.valueOf(mStepCount));
-                mMusicAnalyzer.onStep(eventMsecTime);
+                mMusicCreator.getAnalyzer().onStep(eventMsecTime);
                 mTempoValTextView.setText(
-                        String.valueOf(mMusicAnalyzer.getTempo()));
+                        String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
         });
         // seek bar configuration
@@ -215,6 +215,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mMusicAnalyzer.destroy();
+        mMusicCreator.destroy();
     }
 }

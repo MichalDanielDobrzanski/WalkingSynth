@@ -16,10 +16,10 @@ public class MusicCreator extends CsoundBaseSetup {
 
     public MusicCreator(Resources res, File cDir) {
         super(res, cDir);
-        mMusicAnalyzer.setBasicIntervalListener(new OnBasicIntervalListener() {
+        mMusicAnalyzer.setIntervalListener(new OnIntervalListener() {
             @Override
-            public void onBasicInterval(int pos, int bc) {
-                mMusicDrums.playSequence(pos,bc);
+            public void onInterval(int pos, int bc) {
+                mMusicDrums.playSequence(pos, bc);
             }
         });
     }

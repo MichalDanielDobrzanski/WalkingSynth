@@ -50,7 +50,7 @@ public class MusicAnalyzer {
 
     public MusicAnalyzer() {
         mIntervalListener = null;
-        mPositionInterval = calcPositionInterval(BAR_INTERVALS);
+        mPositionInterval = calcPositionInterval();
         Thread hHatThread = new Thread() {
 
             @Override
@@ -84,8 +84,8 @@ public class MusicAnalyzer {
      * @param intervalType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote
      * @return time distance to the next moment.
      */
-    private long calcPositionInterval(int intervalType) {
-        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / intervalType;
+    private long calcPositionInterval() {
+        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS;
         Log.d(TAG, "next Moment: " + pi);
         return pi;
     }
@@ -97,8 +97,7 @@ public class MusicAnalyzer {
     public void onStep(long stepTime) {
         Log.d(TAG, "onStep");
         if (isTempoOk(calculateTempo(stepTime))) {
-            mPositionInterval = calcPositionInterval(BAR_INTERVALS);
-            positionInBar = 0;
+            mPositionInterval = calcPositionInterval();
         }
     }
 
@@ -129,7 +128,7 @@ public class MusicAnalyzer {
     private boolean isTempoOk(int tempo) {
         if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF & tempo >= MIN_TEMPO & tempo <= MAX_TEMPO) {
             mTempo = tempo;
-            Log.d(TAG, "Tempo: " + mTempo + "bpm.");
+            Log.d(TAG, "Tempo is ok. Value: " + mTempo + "bpm.");
             return true;
         }
         return false;

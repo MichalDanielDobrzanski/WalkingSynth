@@ -12,7 +12,7 @@ public class MusicAnalyzer {
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
     private static final int MAX_TEMPO_DIFF = 40;
-    private static final int BAR_SPACING = 8;
+    private static final int BAR_INTERVALS = 8;
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -38,19 +38,19 @@ public class MusicAnalyzer {
     private long mPositionInterval;
 
     /**
-     * The counter of bars.
+     * The counter of elapsed bars.
      */
     private int barCount = 0;
 
-    private OnBasicIntervalListener mIntervalListener;
+    private OnIntervalListener mIntervalListener;
 
-    public void setBasicIntervalListener(OnBasicIntervalListener listener) {
+    public void setIntervalListener(OnIntervalListener listener) {
         mIntervalListener = listener;
     }
 
     public MusicAnalyzer() {
         mIntervalListener = null;
-        mPositionInterval = calcMoment(BAR_SPACING);
+        mPositionInterval = calcPositionInterval(BAR_INTERVALS);
         Thread hHatThread = new Thread() {
 
             @Override
@@ -62,10 +62,10 @@ public class MusicAnalyzer {
                             ++barCount;
                         // notify potential listeners
                         if (mIntervalListener != null)
-                            mIntervalListener.onBasicInterval(positionInBar,barCount);
+                            mIntervalListener.onInterval(positionInBar, barCount);
                         //playSequence();
                         Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
-                        positionInBar = (positionInBar + 1) % BAR_SPACING;
+                        positionInBar = (positionInBar + 1) % BAR_INTERVALS;
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -78,16 +78,16 @@ public class MusicAnalyzer {
 
 
     /**
-     * Calculate next time moment. When should I play another note.
+     * Calculate next time interval based on tempo. When should I play another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
-     * @param noteType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote
+     * @param intervalType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote
      * @return time distance to the next moment.
      */
-    private long calcMoment(int noteType) {
-        final long nextMoment =  (long)((60 / (float)mTempo) * 1000 ) / noteType;
-        Log.d(TAG, "next Moment: " + nextMoment);
-        return nextMoment;
+    private long calcPositionInterval(int intervalType) {
+        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / intervalType;
+        Log.d(TAG, "next Moment: " + pi);
+        return pi;
     }
 
     /**
@@ -96,11 +96,11 @@ public class MusicAnalyzer {
      */
     public void onStep(long stepTime) {
         Log.d(TAG, "onStep");
-        final boolean speeding = calculateTempo(stepTime);
-        mPositionInterval = calcMoment(BAR_SPACING);
-        positionInBar = 0;
+        if (isTempoOk(calculateTempo(stepTime))) {
+            mPositionInterval = calcPositionInterval(BAR_INTERVALS);
+            positionInBar = 0;
+        }
     }
-
 
     /**
      * Tempo calculator based on two eventTimes.
@@ -112,24 +112,29 @@ public class MusicAnalyzer {
      * 1 / ((t2 - t1) / (1000 * 60)) gives bpm.
      * }</pre>
      * @param stepTime Current time of event to be processed.
-     * @return true if tempo is higher (speeding up)
      */
-    public boolean calculateTempo(long stepTime) {
+    private int calculateTempo(long stepTime) {
+        // calc new tempo
         final int tempo =  (int)(1 / ((float)(stepTime - mLastStepTime) / (1000 * 60)));
-        final int tempoDiff = mTempo  - tempo;
-        // process tempo
-        if (tempo < MIN_TEMPO) {
-            mTempo = MIN_TEMPO;
-        } else if (tempo > MAX_TEMPO) {
-            mTempo = MAX_TEMPO;
-        } else {
-            if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF)
-                mTempo = tempo;
-        }
-        Log.d(TAG, "Tempo: " + mTempo + "bpm.");
         mLastStepTime = stepTime;
-        return tempoDiff < 0;
+        return tempo;
     }
+
+    /**
+     * Checks whether the calculated tempo is ok.
+     * If it is then this method sets the variable.
+     * @param tempo value to be checked.
+     * @return tempo is ok / not ok.
+     */
+    private boolean isTempoOk(int tempo) {
+        if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF & tempo >= MIN_TEMPO & tempo <= MAX_TEMPO) {
+            mTempo = tempo;
+            Log.d(TAG, "Tempo: " + mTempo + "bpm.");
+            return true;
+        }
+        return false;
+    }
+
 
     public int getTempo() {
         return mTempo;

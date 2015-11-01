@@ -14,11 +14,15 @@ public class MusicAnalyzer {
     private static final int MAX_TEMPO_DIFF = 40;
     private static final int BAR_SPACING = 8;
 
-    private int mStepCount = 0;
-    private long mLastEventTime = 0;
+    /**
+     * Tempo variable initialized to MIN_TEMPO
+     */
     private int mTempo = MIN_TEMPO;
-    private boolean isPlaying = true;
-    private long mNextMoment;
+
+    /**
+     * To calculate the current tempo value.
+     */
+    private long mLastStepTime = 0;
 
     /**
      * The current position in a bar ( 0-indexed )
@@ -27,8 +31,14 @@ public class MusicAnalyzer {
      */
     private int positionInBar = 0;
 
+    private boolean isPlaying = true;
     /**
-     * The count of bars.
+     * time interval between two positions in a bar.
+     */
+    private long mPositionInterval;
+
+    /**
+     * The counter of bars.
      */
     private int barCount = 0;
 
@@ -40,21 +50,21 @@ public class MusicAnalyzer {
 
     public MusicAnalyzer() {
         mIntervalListener = null;
-        mNextMoment = calcMoment(BAR_SPACING);
+        mPositionInterval = calcMoment(BAR_SPACING);
         Thread hHatThread = new Thread() {
 
             @Override
             public void run() {
                 try {
                     while (isPlaying) {
-                        sleep(mNextMoment);
+                        sleep(mPositionInterval);
                         if (positionInBar == 0)
                             ++barCount;
                         // notify potential listeners
                         if (mIntervalListener != null)
                             mIntervalListener.onBasicInterval(positionInBar,barCount);
                         //playSequence();
-                        Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mNextMoment);
+                        Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
                         positionInBar = (positionInBar + 1) % BAR_SPACING;
                     }
                 } catch (InterruptedException e) {
@@ -82,16 +92,13 @@ public class MusicAnalyzer {
 
     /**
      * Called when step has been detected.
-     * @param eventMsecTime current event time in milliseconds.
+     * @param stepTime current step time in milliseconds.
      */
-    public void onStep(long eventMsecTime) {
+    public void onStep(long stepTime) {
         Log.d(TAG, "onStep");
-        ++mStepCount;
-        final boolean speeding = calculateTempo(eventMsecTime);
-        mNextMoment = calcMoment(BAR_SPACING);
+        final boolean speeding = calculateTempo(stepTime);
+        mPositionInterval = calcMoment(BAR_SPACING);
         positionInBar = 0;
-        //csoundObj.sendScore("i2 0 1 10000");
-        //csoundObj.sendScore("i3 0 0.50 70");
     }
 
 
@@ -104,11 +111,11 @@ public class MusicAnalyzer {
      * (t2 - t1) / (1000 * 60) in minutes.
      * 1 / ((t2 - t1) / (1000 * 60)) gives bpm.
      * }</pre>
-     * @param eventTime Current event to be processed.
+     * @param stepTime Current time of event to be processed.
      * @return true if tempo is higher (speeding up)
      */
-    public boolean calculateTempo(long eventTime) {
-        final int tempo =  (int)(1 / ((float)(eventTime - mLastEventTime) / (1000 * 60)));
+    public boolean calculateTempo(long stepTime) {
+        final int tempo =  (int)(1 / ((float)(stepTime - mLastStepTime) / (1000 * 60)));
         final int tempoDiff = mTempo  - tempo;
         // process tempo
         if (tempo < MIN_TEMPO) {
@@ -120,8 +127,7 @@ public class MusicAnalyzer {
                 mTempo = tempo;
         }
         Log.d(TAG, "Tempo: " + mTempo + "bpm.");
-        mLastEventTime = eventTime;
-
+        mLastStepTime = stepTime;
         return tempoDiff < 0;
     }
 

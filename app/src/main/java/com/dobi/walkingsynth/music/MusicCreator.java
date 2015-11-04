@@ -19,7 +19,7 @@ public class MusicCreator extends CsoundBaseSetup {
         mMusicAnalyzer.setIntervalListener(new OnIntervalListener() {
             @Override
             public void onInterval(int pos, int bc) {
-                mMusicDrums.playSequence(pos, bc);
+                mMusicDrums.play(pos, bc);
             }
         });
     }

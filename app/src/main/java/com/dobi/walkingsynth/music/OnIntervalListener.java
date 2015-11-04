@@ -1,7 +1,7 @@
 package com.dobi.walkingsynth.music;
 
 /**
- * Created by dobi on 31.10.15.
+ * Interface for sending the information bout the current bar and current position in it.
  */
 public interface OnIntervalListener {
     void onInterval(int pos, int bc);

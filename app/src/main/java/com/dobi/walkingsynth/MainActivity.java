@@ -26,6 +26,7 @@ import com.dobi.walkingsynth.music.TimeCounter;
 import org.achartengine.GraphicalView;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 /**
  * Starting point. Sets the whole UI.
@@ -52,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // set default locale:
+        Locale.setDefault(Locale.ENGLISH);
 
         // instantiate music analyzer
         mMusicCreator = new MusicCreator(getResources(),getCacheDir());

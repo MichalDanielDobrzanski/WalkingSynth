@@ -63,7 +63,7 @@ public class MusicAnalyzer {
                         // notify potential listeners
                         if (mIntervalListener != null)
                             mIntervalListener.onInterval(positionInBar, barCount);
-                        //playSequence();
+                        //play();
                         Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
                         positionInBar = (positionInBar + 1) % BAR_INTERVALS;
                     }

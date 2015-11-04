@@ -31,7 +31,7 @@ gaRevInR = gaRevInR + a1
 outs a1, a1
 endin
 
-instr 3; kick
+instr 3; kick (bass drum)
 k1  expon    p4, .2, 50
 aenv expon 1, p3, 0.01
 a1  poscil    8000, k1, 1

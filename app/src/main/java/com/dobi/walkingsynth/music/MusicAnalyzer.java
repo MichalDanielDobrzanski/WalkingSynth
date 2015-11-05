@@ -12,7 +12,7 @@ public class MusicAnalyzer {
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
     private static final int MAX_TEMPO_DIFF = 40;
-    private static final int BAR_INTERVALS = 8;
+    public static final int BAR_INTERVALS = 16;
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -26,8 +26,8 @@ public class MusicAnalyzer {
 
     /**
      * The current position in a bar ( 0-indexed )
-     * 0 1 2 3 4 5 6 7
-     * _ _ _ _ _ _ _ _
+     * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+     * _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
      */
     private int positionInBar = 0;
 
@@ -63,7 +63,7 @@ public class MusicAnalyzer {
                         // notify potential listeners
                         if (mIntervalListener != null)
                             mIntervalListener.onInterval(positionInBar, barCount);
-                        //play();
+                        //invalidate();
                         Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
                         positionInBar = (positionInBar + 1) % BAR_INTERVALS;
                     }
@@ -78,7 +78,7 @@ public class MusicAnalyzer {
 
 
     /**
-     * Calculate next time interval based on tempo. When should I play another note.
+     * Calculate next time interval based on tempo. When should I invalidate another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
      * @param intervalType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote

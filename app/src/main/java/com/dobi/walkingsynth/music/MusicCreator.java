@@ -12,14 +12,14 @@ public class MusicCreator extends CsoundBaseSetup {
     private static final String TAG = MusicCreator.class.getSimpleName();
 
     private MusicAnalyzer mMusicAnalyzer = new MusicAnalyzer();
-    private MusicDrums mMusicDrums = new MusicDrums(csoundObj);
+    private DrumsPlayer mDrums = new DrumsPlayer(csoundObj);
 
     public MusicCreator(Resources res, File cDir) {
         super(res, cDir);
         mMusicAnalyzer.setIntervalListener(new OnIntervalListener() {
             @Override
             public void onInterval(int pos, int bc) {
-                mMusicDrums.play(pos, bc);
+                mDrums.invalidate(pos, bc);
             }
         });
     }

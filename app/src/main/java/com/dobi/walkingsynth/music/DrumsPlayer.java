@@ -11,12 +11,10 @@ import java.util.ArrayList;
 /**
  * Drum and rhythm creating class.
  */
-public class DrumsPlayer {
+public class DrumsPlayer extends BasePlayer {
 
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
-    private CsoundObj mCsoundObj;
-    private int mPositionInBar;
     private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
 
     /**
@@ -30,7 +28,7 @@ public class DrumsPlayer {
     private int bitFlag = 128;
 
     public DrumsPlayer(CsoundObj csoundObj) {
-        mCsoundObj = csoundObj;
+        super(csoundObj);
         // hi hat:
         mParams[0][0] = 0.15f;
         mParams[0][1] = 10;
@@ -44,18 +42,11 @@ public class DrumsPlayer {
     }
 
     /**
-     * Song variables
-     */
-    private long mSongElapsed = 0;
-
-    /**
      * Main looping function for reading the playSequence values.
      * @param positionInBar time position.
      */
     public void invalidate(int pb, int es) {
-        // update time position:
-        mPositionInBar = pb;
-        mSongElapsed = es;
+        super.invalidate(pb,es);
         // read drum pattern from sequencer and play it:
         mDrumsSequencer.setTime(es);
         playSequence(mDrumsSequencer.getSequences());

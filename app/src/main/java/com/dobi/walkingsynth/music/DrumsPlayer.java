@@ -17,7 +17,6 @@ public class DrumsPlayer {
 
     private CsoundObj mCsoundObj;
     private int mPositionInBar;
-    private int mBarCount;
     private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
 
     /**
@@ -45,14 +44,18 @@ public class DrumsPlayer {
     }
 
     /**
+     * Song variables
+     */
+    private long mSongElapsed = 0;
+
+    /**
      * Main looping function for reading the playSequence values.
      * @param positionInBar time position.
-     * @param barCount bar count.
      */
-    public void invalidate(int positionInBar, int barCount) {
+    public void invalidate(int pb, long es) {
         // update time position:
-        mPositionInBar = positionInBar;
-        mBarCount = barCount;
+        mPositionInBar = pb;
+        mSongElapsed = es;
         // read drum pattern from sequencer and play it:
         playSequence(mDrumsSequencer.getSequences());
 
@@ -93,7 +96,8 @@ public class DrumsPlayer {
         if ((seq & bitFlag) > 0) {
             // when comparison with the flag is successful do the csound playing!
             playCsoundNote(instr + 1);
-            Log.d(TAG, "I" + (instr + 1) + " at " + mPositionInBar + ", " + mBarCount);
+            Log.d(TAG, "I" + (instr + 1) +
+                    " at " + mPositionInBar + " song: " + mSongElapsed);
         }
     }
 

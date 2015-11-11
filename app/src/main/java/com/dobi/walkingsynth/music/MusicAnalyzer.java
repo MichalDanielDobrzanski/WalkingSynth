@@ -39,21 +39,18 @@ public class MusicAnalyzer {
      */
     private long mPositionInterval;
 
-    /**
-     * The counter of elapsed bars.
-     */
-    private int barCount = 0;
-
     private OnIntervalListener mIntervalListener;
 
     public void setIntervalListener(OnIntervalListener listener) {
         mIntervalListener = listener;
     }
 
-
+    /**
+     * Song counting variables:
+     */
     private int mSongNumber = 1;
     private long mSongLength;
-    private long mElapsedTime = 0;
+    private long mSongElapsed = 0;
 
     /**
      * Entry analysis parameters
@@ -70,21 +67,18 @@ public class MusicAnalyzer {
                 try {
                     while (isPlaying) {
                         sleep(mPositionInterval);
-                        if (positionInBar == 0)
-                            ++barCount;
-                        // notify potential listeners
-                        if (mIntervalListener != null)
-                            mIntervalListener.onInterval(positionInBar, barCount);
-                        //invalidate();
-                        Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
                         positionInBar = (positionInBar + 1) % BAR_INTERVALS;
                         // update elapsed time and check whether to start new song
-                        mElapsedTime += mPositionInterval;
-                        if (mElapsedTime > mSongLength) {
+                        mSongElapsed += mPositionInterval;
+                        if (mSongElapsed > mSongLength) {
                             calcNewSongLength();
-                            mElapsedTime = 0;
+                            mSongElapsed = 0;
                             ++mSongNumber;
                         }
+                        // notify potential listeners
+                        if (mIntervalListener != null)
+                            mIntervalListener.onInterval(positionInBar, calcElapsedSong());
+                        Log.d(TAG, positionInBar + " Sleep: " + mPositionInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -99,6 +93,10 @@ public class MusicAnalyzer {
         Random random = new Random();
         mSongLength = (random.nextInt(600 - 180) + 180) * 1000; // to milliseconds
         Log.d(TAG,"Song length: " + ((double)mSongLength / 1000 / 60));
+    }
+
+    private int calcElapsedSong() {
+        return (int)(((double)mSongElapsed / (double)mSongLength) * 100);
     }
 
     /**

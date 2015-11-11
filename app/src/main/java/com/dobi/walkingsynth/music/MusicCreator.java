@@ -13,6 +13,7 @@ public class MusicCreator extends CsoundBaseSetup {
 
     private MusicAnalyzer mMusicAnalyzer = new MusicAnalyzer();
     private DrumsPlayer mDrums = new DrumsPlayer(csoundObj);
+    private SynthesizerPlayer mSynth = new SynthesizerPlayer(csoundObj);
 
     public MusicCreator(Resources res, File cDir) {
         super(res, cDir);
@@ -20,6 +21,7 @@ public class MusicCreator extends CsoundBaseSetup {
             @Override
             public void onInterval(int pos, int el) {
                 mDrums.invalidate(pos, el);
+                mSynth.invalidate(pos,el);
             }
         });
     }

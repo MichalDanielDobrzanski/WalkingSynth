@@ -30,14 +30,14 @@ public class DrumsPlayer extends BasePlayer {
     public DrumsPlayer(CsoundObj csoundObj) {
         super(csoundObj);
         // hi hat:
-        mParams[0][0] = 0.15f;
-        mParams[0][1] = 10;
+        mParams[0][0] = 0.11f;
+        mParams[0][1] = 0.2f;
         // snare:
-        mParams[1][0] = 1;
-        mParams[1][1] = 10000;
+        mParams[1][0] = 1f;
+        mParams[1][1] = 0.7f;
         // kick:
-        mParams[2][0] = 0.50f;
-        mParams[2][1] = 70;
+        mParams[2][0] = 60f;
+        mParams[2][1] = 0.8f;
 
     }
 

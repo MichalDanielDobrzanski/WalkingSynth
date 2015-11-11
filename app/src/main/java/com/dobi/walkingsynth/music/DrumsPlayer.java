@@ -75,16 +75,10 @@ public class DrumsPlayer {
      * Reads the current pattern sequences and passes it to csound playback.
      * @param sequences the pattern sequences.
      */
-    private void playSequence(ArrayList<Pair<Integer, Integer>> sequences) {
+    private void playSequence(ArrayList<Integer> sequences) {
         for (int i = 0; i < sequences.size(); ++i) {
             // reading sequences for every instrument
-            if (mPositionInBar < MusicAnalyzer.BAR_INTERVALS / 2) {
-                // first half of the sequence
-                playAt(sequences.get(i).first, i);
-            } else {
-                // second half of the sequence
-                playAt(sequences.get(i).second, i);
-            }
+            playAt(sequences.get(i),i);
         }
         // move flag:
         moveFlag();

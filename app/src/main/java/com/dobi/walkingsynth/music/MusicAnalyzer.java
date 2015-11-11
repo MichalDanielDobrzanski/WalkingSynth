@@ -2,6 +2,8 @@ package com.dobi.walkingsynth.music;
 
 import android.util.Log;
 
+import java.util.Random;
+
 /**
  * Anaylizing tempo and other parameters.
  */
@@ -12,7 +14,7 @@ public class MusicAnalyzer {
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 240;
     private static final int MAX_TEMPO_DIFF = 40;
-    public static final int BAR_INTERVALS = 16;
+    public static final int BAR_INTERVALS = 4; // as for now
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -48,11 +50,21 @@ public class MusicAnalyzer {
         mIntervalListener = listener;
     }
 
+
+    private int mSongNumber = 1;
+    private long mSongLength;
+    private long mElapsedTime = 0;
+
+    /**
+     * Entry analysis parameters
+     */
     public MusicAnalyzer() {
         mIntervalListener = null;
         mPositionInterval = calcPositionInterval();
+        // calculate the length of a song
+        calcNewSongLength();
+        // time looper
         Thread hHatThread = new Thread() {
-
             @Override
             public void run() {
                 try {
@@ -66,6 +78,13 @@ public class MusicAnalyzer {
                         //invalidate();
                         Log.d(TAG, positionInBar + ", " + barCount + " Sleep: " + mPositionInterval);
                         positionInBar = (positionInBar + 1) % BAR_INTERVALS;
+                        // update elapsed time and check whether to start new song
+                        mElapsedTime += mPositionInterval;
+                        if (mElapsedTime > mSongLength) {
+                            calcNewSongLength();
+                            mElapsedTime = 0;
+                            ++mSongNumber;
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -73,9 +92,14 @@ public class MusicAnalyzer {
             }
         };
         hHatThread.start();
-        Log.d(TAG,"I was created.");
     }
 
+
+    private void calcNewSongLength() {
+        Random random = new Random();
+        mSongLength = (random.nextInt(600 - 180) + 180) * 1000; // to milliseconds
+        Log.d(TAG,"Song length: " + ((double)mSongLength / 1000 / 60));
+    }
 
     /**
      * Calculate next time interval based on tempo. When should I invalidate another note.

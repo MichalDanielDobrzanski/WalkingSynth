@@ -12,7 +12,7 @@ public class MusicAnalyzer {
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
     private static final int MIN_TEMPO = 60;
-    private static final int MAX_TEMPO = 240;
+    private static final int MAX_TEMPO = 130;
     private static final int MAX_TEMPO_DIFF = 40;
     public static final int BAR_INTERVALS = 4; // as for now
 
@@ -39,9 +39,9 @@ public class MusicAnalyzer {
      */
     private long mPositionInterval;
 
-    private OnIntervalListener mIntervalListener;
+    private OnTimeIntervalListener mIntervalListener;
 
-    public void setIntervalListener(OnIntervalListener listener) {
+    public void setIntervalListener(OnTimeIntervalListener listener) {
         mIntervalListener = listener;
     }
 
@@ -92,7 +92,7 @@ public class MusicAnalyzer {
     private void calcNewSongLength() {
         Random random = new Random();
         mSongLength = (random.nextInt(600 - 180) + 180) * 1000; // to milliseconds
-        Log.d(TAG,"Song length: " + ((double)mSongLength / 1000 / 60));
+        Log.d(TAG, "Song length: " + ((double) mSongLength / 1000 / 60));
     }
 
     private int calcElapsedSong() {

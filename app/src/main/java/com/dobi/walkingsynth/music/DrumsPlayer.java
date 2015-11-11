@@ -52,11 +52,12 @@ public class DrumsPlayer {
      * Main looping function for reading the playSequence values.
      * @param positionInBar time position.
      */
-    public void invalidate(int pb, long es) {
+    public void invalidate(int pb, int es) {
         // update time position:
         mPositionInBar = pb;
         mSongElapsed = es;
         // read drum pattern from sequencer and play it:
+        mDrumsSequencer.setTime(es);
         playSequence(mDrumsSequencer.getSequences());
 
     }

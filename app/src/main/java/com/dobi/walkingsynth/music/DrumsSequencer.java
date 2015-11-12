@@ -17,9 +17,24 @@ public class DrumsSequencer {
     private Random mRandom = new Random();
     private ArrayList<Integer> mSequences = new ArrayList<>(DrumsTypes.count);
 
+    /**
+     * Container for storing drum instruments parameters.
+     */
+    private float[][] mParams = new float[DrumsTypes.count][2];
+
     public DrumsSequencer() {
         initSequence();
         mTimeDistance = mRandom.nextInt(20) + 7;
+        // initial parametrs
+        // hi hat:
+        mParams[0][0] = 0.11f;
+        mParams[0][1] = 0.2f;
+        // snare:
+        mParams[1][0] = 1f;
+        mParams[1][1] = 0.7f;
+        // kick:
+        mParams[2][0] = 60f;
+        mParams[2][1] = 0.8f;
     }
 
     private void initSequence() {
@@ -27,10 +42,6 @@ public class DrumsSequencer {
         mSequences.add(1, 8);
         mSequences.add(2, 128);
         Log.d(TAG, "Count is: " + mSequences.size());
-    }
-
-    public Integer getSequence(int instr) {
-        return mSequences.get(instr - 1);
     }
 
     /**
@@ -51,6 +62,10 @@ public class DrumsSequencer {
 
     public ArrayList<Integer> getSequences() {
         return mSequences;
+    }
+
+    public float[] getParametrs(int instr) {
+        return mParams[instr - 1];
     }
 
     private int randHiHat() {

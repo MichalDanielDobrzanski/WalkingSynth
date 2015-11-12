@@ -18,27 +18,12 @@ public class DrumsPlayer extends BasePlayer {
     private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
 
     /**
-     * Container for storing instruments parameters.
-     */
-    private float[][] mParams = new float[DrumsTypes.count][2];
-
-    /**
      * This flag id for checking whether to invalidate the note on specific time interval
      */
     private int bitFlag = 128;
 
     public DrumsPlayer(CsoundObj csoundObj) {
         super(csoundObj);
-        // hi hat:
-        mParams[0][0] = 0.11f;
-        mParams[0][1] = 0.2f;
-        // snare:
-        mParams[1][0] = 1f;
-        mParams[1][1] = 0.7f;
-        // kick:
-        mParams[2][0] = 60f;
-        mParams[2][1] = 0.8f;
-
     }
 
     /**
@@ -61,13 +46,13 @@ public class DrumsPlayer extends BasePlayer {
         final DecimalFormat df = new DecimalFormat("#.##");
         mCsoundObj.sendScore(
                 String.format("i%d 0 ", instr)
-                        + df.format(mParams[instr - 1][0]) + " "
-                        + df.format(mParams[instr - 1][1])
+                        + df.format(mDrumsSequencer.getParametrs(instr)[0]) + " "
+                        + df.format(mDrumsSequencer.getParametrs(instr)[1])
         );
     }
 
     /**
-     * Reads the current pattern sequences and passes it to csound playback.
+     * Reads the current pattern sequences and passes it to the csound playback.
      * @param sequences the pattern sequences.
      */
     private void playSequence(ArrayList<Integer> sequences) {
@@ -80,8 +65,9 @@ public class DrumsPlayer extends BasePlayer {
     }
 
     /**
-     * Parsing the number to the playSequence. The number values is compared with the flag.
-     * @param seq playSequence (passed as a number)
+     * Parsing the sequence (as number) to the playback.
+     * The number values are compared with the moving flag.
+     * @param seq sequence of notes to hit (passed as a number)
      * @param instr selected instrument.
      */
     private void playAt(int seq, int instr) {

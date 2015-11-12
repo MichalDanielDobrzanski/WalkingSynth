@@ -43,4 +43,6 @@ public class SynthesizerSequencer {
     private double freqToPitch(double freq) {
         return 12 * Math.log(freq/f0) / Math.log(2);
     }
+
+
 }

@@ -10,14 +10,15 @@ public class SynthesizerPlayer extends BasePlayer {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
+    private int mBeatCount = 0;
+
     public SynthesizerPlayer(CsoundObj csoundObj) {
         super(csoundObj);
     }
 
-    @Override
-    protected void invalidate(int pb, int es) {
+    protected void invalidate(int pb, int bc, int es) {
         super.invalidate(pb, es);
-
+        mBeatCount = bc;
     }
 
     private void playCsoundNote(int instr) {

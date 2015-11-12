@@ -31,7 +31,9 @@ public class MusicAnalyzer {
      * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
      * _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
      */
-    private int positionInBar = 0;
+    private int mBeatPosition = 0;
+
+    private int mBeatCount = 0;
 
     private boolean isPlaying = true;
     /**
@@ -67,18 +69,23 @@ public class MusicAnalyzer {
                 try {
                     while (isPlaying) {
                         sleep(mPositionInterval);
-                        positionInBar = (positionInBar + 1) % BAR_INTERVALS;
+                        mBeatPosition = (mBeatPosition + 1) % BAR_INTERVALS;
+                        if (mBeatPosition == 0) {
+                            mBeatCount = 0;
+                        }
                         // update elapsed time and check whether to start new song
                         mSongElapsed += mPositionInterval;
                         if (mSongElapsed > mSongLength) {
+                            // start a new song
                             calcNewSongLength();
                             mSongElapsed = 0;
+                            mBeatCount = 0;
                             ++mSongNumber;
                         }
                         // notify potential listeners
                         if (mIntervalListener != null)
-                            mIntervalListener.onInterval(positionInBar, calcElapsedSong());
-                        Log.d(TAG, positionInBar + " Sleep: " + mPositionInterval);
+                            mIntervalListener.onInterval(mBeatPosition, mBeatCount, calcElapsedSong());
+                        Log.d(TAG, mBeatPosition + " Sleep: " + mPositionInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();

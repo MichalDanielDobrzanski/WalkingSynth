@@ -19,9 +19,9 @@ public class MusicCreator extends CsoundBaseSetup {
         super(res, cDir);
         mMusicAnalyzer.setIntervalListener(new OnTimeIntervalListener() {
             @Override
-            public void onInterval(int pos, int el) {
+            public void onInterval(int pos, int bc, int el) {
                 mDrums.invalidate(pos, el);
-                mSynth.invalidate(pos,el);
+                mSynth.invalidate(pos, bc, el);
             }
         });
     }

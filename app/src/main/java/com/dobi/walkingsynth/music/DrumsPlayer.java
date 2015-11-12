@@ -1,7 +1,6 @@
 package com.dobi.walkingsynth.music;
 
 import android.util.Log;
-import android.util.Pair;
 
 import com.csounds.CsoundObj;
 
@@ -16,11 +15,6 @@ public class DrumsPlayer extends BasePlayer {
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
     private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
-
-    /**
-     * This flag id for checking whether to invalidate the note on specific time interval
-     */
-    private int bitFlag = 128;
 
     public DrumsPlayer(CsoundObj csoundObj) {
         super(csoundObj);
@@ -42,7 +36,7 @@ public class DrumsPlayer extends BasePlayer {
      * Csound playback.
      * @param instr selected instrument.
      */
-    private void playCsoundNote(int instr) {
+    protected void playCsoundNote(int instr) {
         final DecimalFormat df = new DecimalFormat("#.##");
         mCsoundObj.sendScore(
                 String.format("i%d 0 ", instr)
@@ -62,38 +56,6 @@ public class DrumsPlayer extends BasePlayer {
         }
         // move flag:
         moveFlag();
-    }
-
-    /**
-     * Parsing the sequence (as number) to the playback.
-     * The number values are compared with the moving flag.
-     * @param seq sequence of notes to hit (passed as a number)
-     * @param instr selected instrument.
-     */
-    private void playAt(int seq, int instr) {
-        if ((seq & bitFlag) > 0) {
-            // when comparison with the flag is successful do the csound playing!
-            playCsoundNote(instr + 1);
-            Log.d(TAG, "I" + (instr + 1) +
-                    " at " + mPositionInBar + " song: " + mSongElapsed);
-        }
-    }
-
-    /**
-     * This functions moves the flag to the left.
-     * The flag has 8 positions.
-     *      1 0 0 0 0 0 0 0
-     * then 0 1 0 0 0 0 0 0
-     * then 0 0 1 0 0 0 0 0
-     * then 0 0 0 1 0 0 0 0
-     * etc...
-     * When reached zero, it is set to
-     *      1 0 0 0 0 0 0 0
-     */
-    private void moveFlag() {
-        bitFlag = bitFlag >> 1;
-        if (bitFlag == 0)
-            bitFlag = 128;
     }
 
 }

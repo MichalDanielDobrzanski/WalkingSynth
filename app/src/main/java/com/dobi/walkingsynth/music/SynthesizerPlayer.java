@@ -45,12 +45,4 @@ public class SynthesizerPlayer extends BasePlayer {
         moveFlag();
     }
 
-    protected void playAt(int seq, int instr) {
-        if ((seq & bitFlag) > 0) {
-            // when comparison with the flag is successful do the csound playing!
-            playCsoundNote(instr + 1);
-            Log.d(TAG, "I" + (instr + 1) +
-                    " at " + mBeatPosition + " song: " + mSongElapsed);
-        }
-    }
 }

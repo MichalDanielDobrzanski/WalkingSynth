@@ -24,11 +24,14 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.dobi.walkingsynth.music.MusicCreator;
+import com.dobi.walkingsynth.music.SynthesizerPlayer;
+import com.dobi.walkingsynth.music.SynthesizerSequencer;
 import com.dobi.walkingsynth.music.TimeCounter;
 
 import org.achartengine.GraphicalView;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -98,6 +101,17 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        ArrayList<Integer> itrvls = new ArrayList<>();
+        int l = SynthesizerSequencer.stepIntervals.length;
+        for (int i = 0; i < l; i++)
+        {
+            itrvls.add(SynthesizerSequencer.stepIntervals[i]);
+        }
+        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<Integer>(this,R.layout.support_simple_spinner_dropdown_item,itrvls);
+        Spinner timeIntervalsSpinner = (Spinner) findViewById(R.id.steps_interval_spinner);
+        timeIntervalsSpinner.setAdapter(adapter3);
+
 
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);

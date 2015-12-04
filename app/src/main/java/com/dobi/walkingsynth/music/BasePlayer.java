@@ -14,8 +14,12 @@ public class BasePlayer {
      * This flag id for checking whether to invalidate the note on specific time interval
      */
     protected int bitFlag;
-    protected int mBeatPosition;
+
+    private int mBarCount;
+    protected int mBarPosition;
+
     protected long mSongElapsed = 0;
+
     protected CsoundObj mCsoundObj;
 
     protected BasePlayer(CsoundObj csoundObj) {
@@ -23,9 +27,10 @@ public class BasePlayer {
         bitFlag = BIT_FLAG_VALUE;
     }
 
-    protected void invalidate(int pb, int es) {
+    protected void invalidate(int pb, int bc, int es) {
         // update time position:
-        mBeatPosition = pb;
+        mBarCount = bc;
+        mBarPosition = pb;
         mSongElapsed = es;
     };
 
@@ -65,7 +70,7 @@ public class BasePlayer {
             // when comparison with the flag is successful do the csound playing!
             playCsoundNote(instr + 1);
             Log.d("BasePlayer", "I" + (instr + 1) +
-                    " at " + mBeatPosition + " song: " + mSongElapsed);
+                    " at " + mBarPosition + " song: " + mSongElapsed);
         }
     }
 

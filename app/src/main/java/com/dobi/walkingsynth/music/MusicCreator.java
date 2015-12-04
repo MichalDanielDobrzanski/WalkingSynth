@@ -2,10 +2,13 @@ package com.dobi.walkingsynth.music;
 
 import android.content.res.Resources;
 
+import com.dobi.walkingsynth.OnStepCountChangeListener;
+
 import java.io.File;
 
 /**
- * Main entry class for music creation.
+ * Main entry class for music creation. General class which handles
+ * all information passed from UI.
  */
 public class MusicCreator extends CsoundBaseSetup {
 
@@ -20,7 +23,7 @@ public class MusicCreator extends CsoundBaseSetup {
         mMusicAnalyzer.setIntervalListener(new OnTimeIntervalListener() {
             @Override
             public void onInterval(int pos, int bc, int el) {
-                mDrums.invalidate(pos, el);
+                mDrums.invalidate(pos, bc, el);
                 mSynth.invalidate(pos, bc, el);
             }
         });
@@ -31,4 +34,16 @@ public class MusicCreator extends CsoundBaseSetup {
         return mMusicAnalyzer;
     }
 
+    public void invalidateStep(int nval) {
+        mSynth.invaliateStep(nval);
+    }
+
+    public void invalidateBaseNote(int pos)
+    {
+        mSynth.invalidateBaseNote(pos);
+    }
+
+    public void invalidateScale(int pos) {
+        mSynth.invalidateScale(pos);
+    }
 }

@@ -14,9 +14,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -60,14 +63,41 @@ public class MainActivity extends AppCompatActivity {
         // instantiate music analyzer
         mMusicCreator = new MusicCreator(getResources(),getCacheDir());
 
-        // toolbar (action bar) settings
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-
         // config prefs
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
         float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessing.THRESH_INIT);
         AccelerometerProcessing.setThreshold(threshVal);
+
+        // configure spinners
+        Spinner baseNotesSpinner = (Spinner) findViewById(R.id.base_notes_spinner);
+        ArrayAdapter adapter =  ArrayAdapter.createFromResource(this, R.array.base_notes, R.layout.support_simple_spinner_dropdown_item);
+        baseNotesSpinner.setAdapter(adapter);
+        baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mMusicCreator.invalidateBaseNote(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        Spinner scalesSpinner = (Spinner) findViewById(R.id.scale_spinner);
+        ArrayAdapter adapter2 =  ArrayAdapter.createFromResource(this, R.array.scales, R.layout.support_simple_spinner_dropdown_item);
+        scalesSpinner.setAdapter(adapter2);
+        scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mMusicCreator.invalidateScale(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
@@ -113,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 ++mStepCount;
                 mStepCountTextView.setText(String.valueOf(mStepCount));
                 mMusicCreator.getAnalyzer().onStep(eventMsecTime);
+                mMusicCreator.invalidateStep(mStepCount);
                 mTempoValTextView.setText(
                         String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
@@ -221,4 +252,5 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         mMusicCreator.destroy();
     }
+
 }

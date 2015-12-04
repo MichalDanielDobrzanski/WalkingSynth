@@ -7,6 +7,7 @@ import java.util.Random;
 
 /**
  * Creating drum sequences and dynamic pattern modifications.
+ * "When to play what"
  */
 public class DrumsSequencer {
 

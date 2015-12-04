@@ -22,10 +22,9 @@ public class DrumsPlayer extends BasePlayer {
 
     /**
      * Main looping function for reading the playSequence values.
-     * @param positionInBar time position.
      */
-    public void invalidate(int pb, int es) {
-        super.invalidate(pb,es);
+    public void invalidate(int pb, int bc, int es) {
+        super.invalidate(pb,bc, es);
         // read drum pattern from sequencer and play it:
         mDrumsSequencer.setTime(es);
         playSequence(mDrumsSequencer.getSequences());
@@ -47,6 +46,7 @@ public class DrumsPlayer extends BasePlayer {
 
     /**
      * Reads the current pattern sequences and passes it to the csound playback.
+     * seqences = hi-hat, snare, drum patterns
      * @param sequences the pattern sequences.
      */
     private void playSequence(ArrayList<Integer> sequences) {

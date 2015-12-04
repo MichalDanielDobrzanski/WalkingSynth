@@ -6,16 +6,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Sequencing melodies of a synth
+ * Sequencing melodies of a synth.
+ * "When to play what"
  */
 public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
-
-    /**
-     * Based on http://www.phy.mtu.edu/~suits/notefreqs.html
-     */
-    public static double f0 = 261.63; // corresponds to C4
 
     private static String[] notes =
     {
@@ -32,6 +28,9 @@ public class SynthesizerSequencer {
         "A#",
         "B"
     };
+
+    private static int[] pentatonic = { 0, 3, 5, 7, 10, 12 };
+    private static int[] flamenco = { 0, 1, 4, 5, 7, 8, 10, 12 };
 
     private int mBaseNote;
     private Random mRandom = new Random();
@@ -56,15 +55,5 @@ public class SynthesizerSequencer {
     public int getBaseNote() {
         return mBaseNote;
     }
-
-    /**
-     * Based on http://people.sju.edu/~rhall/SoundingNumber/pitch_and_frequency.pdf
-     * @param freq input frequency.
-     * @return output pitch related to f0.
-     */
-    private double freqToPitch(double freq) {
-        return 12 * Math.log(freq/f0) / Math.log(2);
-    }
-
 
 }

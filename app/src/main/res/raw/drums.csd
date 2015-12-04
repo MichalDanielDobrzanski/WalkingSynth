@@ -63,8 +63,8 @@ aamp      expon     p4 / 2,  0.2,   0.01
 arand     rand      aamp ; make noise to the snare
 a1 = a1 + arand
 ; send snare to the reverb
-gaRevInL = gaRevInL + a1
-gaRevInR = gaRevInR + a1
+gaRevSendL = gaRevSendL + a1
+gaRevSendR = gaRevSendR + a1
 outs a1, a1
 endin
 

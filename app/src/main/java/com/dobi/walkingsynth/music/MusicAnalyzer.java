@@ -13,8 +13,13 @@ public class MusicAnalyzer {
 
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 130;
-    private static final int MAX_TEMPO_DIFF = 40;
-    public static final int BAR_INTERVALS = 4; // as for now
+    private static final int MAX_TEMPO_DIFF = 50;
+
+    /**
+     * How many divisions do for a single bar.
+     * 8 corresponds to quarter notes.
+    */
+    public static final int BAR_INTERVALS = 8; // as for now
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -28,12 +33,12 @@ public class MusicAnalyzer {
 
     /**
      * The current position in a bar ( 0-indexed )
-     * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-     * _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+     * 0 1 2 3 4 5 6 7
+     * _ _ _ _ _ _ _ _
      */
-    private int mBeatPosition = 0;
+    private int mBarPosition = 0;
 
-    private int mBeatCount = 0;
+    private int mBarCount = 0;
 
     private boolean isPlaying = true;
     /**
@@ -69,9 +74,9 @@ public class MusicAnalyzer {
                 try {
                     while (isPlaying) {
                         sleep(mPositionInterval);
-                        mBeatPosition = (mBeatPosition + 1) % BAR_INTERVALS;
-                        if (mBeatPosition == 0) {
-                            mBeatCount = 0;
+                        mBarPosition = (mBarPosition + 1) % BAR_INTERVALS;
+                        if (mBarPosition == 0) {
+                            ++mBarCount;
                         }
                         // update elapsed time and check whether to start new song
                         mSongElapsed += mPositionInterval;
@@ -79,13 +84,13 @@ public class MusicAnalyzer {
                             // start a new song
                             calcNewSongLength();
                             mSongElapsed = 0;
-                            mBeatCount = 0;
+                            mBarCount = 0;
                             ++mSongNumber;
                         }
                         // notify potential listeners
                         if (mIntervalListener != null)
-                            mIntervalListener.onInterval(mBeatPosition, mBeatCount, calcElapsedSong());
-                        Log.d(TAG, mBeatPosition + " Sleep: " + mPositionInterval);
+                            mIntervalListener.onInterval(mBarPosition, mBarCount, calcElapsedSong());
+                        Log.d(TAG, mBarPosition + " Sleep: " + mPositionInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -107,14 +112,18 @@ public class MusicAnalyzer {
     }
 
     /**
-     * Calculate next time interval based on tempo. When should I invalidate another note.
+     * Calculate next time interval based on tempo. When (in time) should I invalidate another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
-     * @param intervalType 1 = Note, 2 = HalfNote, 4 = QuarterNote, 8 = EightNote
+     *
+     *  Basically, do this every 250ms.
+     *  Its nice and enough.
+     *
+     *
      * @return time distance to the next moment.
      */
     private long calcPositionInterval() {
-        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS;
+        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS * 2;
         Log.d(TAG, "next Moment: " + pi);
         return pi;
     }

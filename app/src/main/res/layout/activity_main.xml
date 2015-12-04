@@ -48,6 +48,15 @@
                     android:layout_weight="1"
                     android:spinnerMode="dropdown"
                     android:id="@+id/scale_spinner" />
+
+                <Spinner
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:spinnerMode="dropdown"
+                    android:id="@+id/steps_interval_spinner" />
+
+
             </LinearLayout>
 
             <LinearLayout

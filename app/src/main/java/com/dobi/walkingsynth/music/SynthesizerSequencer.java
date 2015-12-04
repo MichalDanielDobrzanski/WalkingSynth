@@ -13,7 +13,15 @@ public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
-    private static String[] notes =
+    public static final int[] stepIntervals = new int[]
+    {
+        10,
+        20,
+        50,
+        100,
+    };
+
+    public static String[] notes =
     {
         "C",
         "C#",
@@ -29,8 +37,8 @@ public class SynthesizerSequencer {
         "B"
     };
 
-    private static int[] pentatonic = { 0, 3, 5, 7, 10, 12 };
-    private static int[] flamenco = { 0, 1, 4, 5, 7, 8, 10, 12 };
+    public static int[] pentatonic = { 0, 3, 5, 7, 10, 12 };
+    public static int[] flamenco = { 0, 1, 4, 5, 7, 8, 10, 12 };
 
     private int mBaseNote;
     private Random mRandom = new Random();

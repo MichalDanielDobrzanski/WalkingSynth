@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 /**
  * Synthesizer player. Needs to now about the current key and scale and step and beat count.
+ * Provides the SynthesizerSequencer with necessary information.
  */
 public class SynthesizerPlayer extends BasePlayer {
 
@@ -18,21 +19,16 @@ public class SynthesizerPlayer extends BasePlayer {
      */
     private int bitFlag = 128;
 
-    private int mStepCount = 0;
-    private int mBeatCount = 0;
-    private int mBaseNote = 0;
-    private int mScale = 0;
-
     public SynthesizerPlayer(CsoundObj csoundObj) {
         super(csoundObj);
     }
 
-    //private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
+    private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
 
     protected void invalidate(int pb, int bc, int es) {
         super.invalidate(pb, bc, es);
-        mBeatCount = bc;
-        Log.d(TAG,"I am on beat:" + mBeatCount);
+        mSynthesizerSequencer.invdalidateBeatCount(bc);
+        Log.d(TAG,"I am on beat:" + bc);
     }
 
     protected void playCsoundNote(int instr) {
@@ -53,17 +49,17 @@ public class SynthesizerPlayer extends BasePlayer {
 
     public void invaliateStep(int nval)
     {
-        mStepCount = nval;
-        Log.d(TAG, "My step count: " + mStepCount);
+        mSynthesizerSequencer.invdalidateStepCount(nval);
+        Log.d(TAG, "My step count: " + nval);
     }
 
     public void invalidateBaseNote(int pos)
     {
-        mBaseNote = pos;
-        Log.d(TAG, "Current base note:" + mBaseNote);
+        mSynthesizerSequencer.invdalidateBaseNote(pos);
+        Log.d(TAG, "Current base note:" + pos);
     }
 
     public void invalidateScale(int idx) {
-        mScale = idx;
+        mSynthesizerSequencer.invdalidateScale(idx);
     }
 }

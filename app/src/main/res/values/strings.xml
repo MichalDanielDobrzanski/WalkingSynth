@@ -17,25 +17,25 @@
         <item>Info</item>
     </string-array>
     
-    <string-array name="base_notes">
-        <item>C</item>
-        <item>C#</item>
-        <item>D</item>
-        <item>D#</item>
-        <item>E</item>
-        <item>F</item>
-        <item>F#</item>
-        <item>G</item>
-        <item>G#</item>
-        <item>A</item>
-        <item>A#</item>
-        <item>B</item>
-    </string-array>
+    <!--<string-array name="base_notes">-->
+        <!--<item>C</item>-->
+        <!--<item>C#</item>-->
+        <!--<item>D</item>-->
+        <!--<item>D#</item>-->
+        <!--<item>E</item>-->
+        <!--<item>F</item>-->
+        <!--<item>F#</item>-->
+        <!--<item>G</item>-->
+        <!--<item>G#</item>-->
+        <!--<item>A</item>-->
+        <!--<item>A#</item>-->
+        <!--<item>B</item>-->
+    <!--</string-array>-->
 
-    <string-array name="scales">
-        <item>Pentatonic</item>
-        <item>Flamenco</item>
-    </string-array>
+    <!--<string-array name="scales">-->
+        <!--<item>Pentatonic</item>-->
+        <!--<item>Flamenco</item>-->
+    <!--</string-array>-->
 
 
 </resources>

@@ -71,9 +71,16 @@ public class MainActivity extends AppCompatActivity {
         float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessing.THRESH_INIT);
         AccelerometerProcessing.setThreshold(threshVal);
 
-        // configure spinners
+        // spinners configuration
+        // base note spinner:
+        ArrayList<String> itrvls = new ArrayList<>();
+        int l = SynthesizerSequencer.notes.length;
+        for (int i = 0; i < l; i++)
+        {
+            itrvls.add(SynthesizerSequencer.notes[i]);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls);
         Spinner baseNotesSpinner = (Spinner) findViewById(R.id.base_notes_spinner);
-        ArrayAdapter adapter =  ArrayAdapter.createFromResource(this, R.array.base_notes, R.layout.support_simple_spinner_dropdown_item);
         baseNotesSpinner.setAdapter(adapter);
         baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -87,8 +94,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // scales spinner:
+        ArrayList<String> itrvls2 = new ArrayList<>();
+        for ( String key : SynthesizerSequencer.scales.keySet())
+        {
+            itrvls2.add(key);
+        }
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls2);
         Spinner scalesSpinner = (Spinner) findViewById(R.id.scale_spinner);
-        ArrayAdapter adapter2 =  ArrayAdapter.createFromResource(this, R.array.scales, R.layout.support_simple_spinner_dropdown_item);
         scalesSpinner.setAdapter(adapter2);
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -102,14 +115,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ArrayList<Integer> itrvls = new ArrayList<>();
-        int l = SynthesizerSequencer.stepIntervals.length;
-        for (int i = 0; i < l; i++)
+        // step intervals spinner:
+        ArrayList<Integer> itrvls3 = new ArrayList<>();
+        int l3 = SynthesizerSequencer.stepIntervals.length;
+        for (int i = 0; i < l3; i++)
         {
-            itrvls.add(SynthesizerSequencer.stepIntervals[i]);
+            itrvls3.add(SynthesizerSequencer.stepIntervals[i]);
         }
-        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<Integer>(this,R.layout.support_simple_spinner_dropdown_item,itrvls);
-        Spinner timeIntervalsSpinner = (Spinner) findViewById(R.id.steps_interval_spinner);
+        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls3);
+        Spinner timeIntervalsSpinner = (Spinner)findViewById(R.id.steps_interval_spinner);
         timeIntervalsSpinner.setAdapter(adapter3);
 
 

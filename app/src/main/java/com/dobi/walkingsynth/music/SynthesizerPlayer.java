@@ -14,52 +14,60 @@ public class SynthesizerPlayer extends BasePlayer {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
-    /**
-     * This flag id for checking whether to invalidate the note on specific time interval
-     */
-    private int bitFlag = 128;
+    private int mStepInterval = SynthesizerSequencer.stepIntervals[0];
+    private int mStepCount = 0;
 
     public SynthesizerPlayer(CsoundObj csoundObj) {
         super(csoundObj);
     }
 
     private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
+    private int[] currentSequence = mSynthesizerSequencer.getRhythmScoreSequence(); // current sequence obtained from sequencer
 
     protected void invalidate(int pb, int bc, int es) {
         super.invalidate(pb, bc, es);
-        mSynthesizerSequencer.invdalidateBeatCount(bc);
-        Log.d(TAG,"I am on beat:" + bc);
+        if ((pb + 8) % 8 == 0)
+            onBarCountChange(bc);
     }
 
-    protected void playCsoundNote(int instr) {
+    // This is called only when full bar has passed in time.
+    private void onBarCountChange(int bc) {
+        Log.d(TAG,"I am on beat:" + bc);
+        playRhythmScoreSequence(bc);
+    }
+
+    // parsing the current sequence and playing it at right time.
+    private void playRhythmScoreSequence(int bc) {
+        if (bc % 4 == 0)
+            playCsoundNote(currentSequence[0]);
+        if ((bc + 1) % 4 == 0)
+            playCsoundNote(currentSequence[1]);
+        if ((bc + 2) % 4 == 0)
+            playCsoundNote(currentSequence[2]);
+        if ((bc + 3) % 4 == 0)
+            playCsoundNote(currentSequence[3]);
+    }
+
+    protected void playCsoundNote(int notetoplay) {
         final DecimalFormat df = new DecimalFormat("#.##");
         mCsoundObj.sendScore(
                 // TODO
-                String.format("i%d 0 ", instr));
+                String.format("i%d 0 ", notetoplay));
     }
 
-    private void playSequence(ArrayList<Integer> sequences) {
-        for (int i = 0; i < sequences.size(); ++i) {
-            // reading sequences for every instrument
-            playAt(sequences.get(i),i);
-        }
-        // move flag:
-        moveFlag();
+    // invalidations:
+    public void invaliateStep(int stepcount) {
+        // change pattern when specific amount of steps has been made.
+        if (stepcount % mStepInterval == 0)
+            currentSequence = mSynthesizerSequencer.getRhythmScoreSequence();
     }
-
-    public void invaliateStep(int nval)
-    {
-        mSynthesizerSequencer.invdalidateStepCount(nval);
-        Log.d(TAG, "My step count: " + nval);
-    }
-
-    public void invalidateBaseNote(int pos)
-    {
+    public void invalidateBaseNote(int pos) {
         mSynthesizerSequencer.invdalidateBaseNote(pos);
-        Log.d(TAG, "Current base note:" + pos);
     }
-
-    public void invalidateScale(int idx) {
-        mSynthesizerSequencer.invdalidateScale(idx);
+    public void invalidateScale(String scale) {
+        mSynthesizerSequencer.invdalidateScale(scale);
+    }
+    public void invalidateStepInterval(int idx) {
+        mStepInterval = SynthesizerSequencer.stepIntervals[idx];
     }
 }

@@ -16,6 +16,8 @@ public class DrumsSequencer {
     private int mTime = 0;
     private int mTimeDistance;
     private Random mRandom = new Random();
+
+    // a sequence to be played:
     private ArrayList<Integer> mSequences = new ArrayList<>(DrumsTypes.count);
 
     /**

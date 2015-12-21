@@ -74,10 +74,9 @@ public class MainActivity extends AppCompatActivity {
         // spinners configuration
         // base note spinner:
         ArrayList<String> itrvls = new ArrayList<>();
-        int l = SynthesizerSequencer.notes.length;
-        for (int i = 0; i < l; i++)
+        for ( String key : SynthesizerSequencer.notes.keySet())
         {
-            itrvls.add(SynthesizerSequencer.notes[i]);
+            itrvls.add(key);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls);
         Spinner baseNotesSpinner = (Spinner) findViewById(R.id.base_notes_spinner);
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicCreator.invalidateScale(position);
+                mMusicCreator.invalidateScale(parent.getItemAtPosition(position).toString());
             }
 
             @Override
@@ -125,7 +124,17 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<Integer> adapter3 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls3);
         Spinner timeIntervalsSpinner = (Spinner)findViewById(R.id.steps_interval_spinner);
         timeIntervalsSpinner.setAdapter(adapter3);
+        timeIntervalsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mMusicCreator.invalidateStepInterval(position);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);

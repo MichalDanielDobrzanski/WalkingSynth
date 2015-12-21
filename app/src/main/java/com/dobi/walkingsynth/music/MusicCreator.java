@@ -34,16 +34,24 @@ public class MusicCreator extends CsoundBaseSetup {
         return mMusicAnalyzer;
     }
 
+    // dynamic from accelerometer
     public void invalidateStep(int nval) {
         mSynth.invaliateStep(nval);
     }
 
+    // from UI spinner
     public void invalidateBaseNote(int pos)
     {
         mSynth.invalidateBaseNote(pos);
     }
 
-    public void invalidateScale(int pos) {
-        mSynth.invalidateScale(pos);
+    // from UI spinner
+    public void invalidateScale(String scale) {
+        mSynth.invalidateScale(scale);
+    }
+
+    // from UI spinner
+    public void invalidateStepInterval(int idx) {
+        mSynth.invalidateStepInterval(idx);
     }
 }

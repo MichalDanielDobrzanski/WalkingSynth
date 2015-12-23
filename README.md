@@ -25,7 +25,7 @@ It comes with Csound library.
 
 ## Info ##
 * Written in Android Studio 1.3
-* Tested on Google Nexus 7 2013
+* Tested on Google Nexus 7 2013 API 22 (5.1.1)
 
 ## Owner and purpose ##
 * Michał Dobrzański

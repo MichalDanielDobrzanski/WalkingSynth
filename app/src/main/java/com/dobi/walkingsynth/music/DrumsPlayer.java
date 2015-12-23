@@ -14,6 +14,14 @@ public class DrumsPlayer extends BasePlayer {
 
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
+    protected static int BIT_FLAG_VALUE = 128;
+    /**
+     * This flag id for checking whether to invalidate the note on specific time interval
+     */
+    protected int bitFlag;
+
+    private int mBarPosition;
+
     private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
 
     public DrumsPlayer(CsoundObj csoundObj) {
@@ -21,14 +29,31 @@ public class DrumsPlayer extends BasePlayer {
     }
 
     /**
+     * This functions moves the flag to the left.
+     * The flag has 8 positions.
+     *      1 0 0 0 0 0 0 0
+     * then 0 1 0 0 0 0 0 0
+     * then 0 0 1 0 0 0 0 0
+     * then 0 0 0 1 0 0 0 0
+     * etc...
+     * When reached zero, it is set to
+     *      1 0 0 0 0 0 0 0
+     */
+    protected void moveFlag() {
+        bitFlag = bitFlag >> 1;
+        if (bitFlag == 0)
+            bitFlag = BIT_FLAG_VALUE;
+    }
+
+
+    /**
      * Main looping function for reading the playSequence values.
      */
     public void invalidate(int pb, int bc, int es) {
-        super.invalidate(pb,bc, es);
+        mBarPosition = pb;
         // read drum pattern from sequencer and play it:
-        mDrumsSequencer.setTime(es);
+        //mDrumsSequencer.setTime(es);
         playSequence(mDrumsSequencer.getSequences());
-
     }
 
     /**
@@ -56,6 +81,28 @@ public class DrumsPlayer extends BasePlayer {
         }
         // move flag:
         moveFlag();
+    }
+
+    /**
+     * Parsing the sequence (as number) to the playback.
+     * The number values are compared with the moving flag.
+     * @param seq sequence of notes to hit (passed as a number)
+     * @param instr selected instrument.
+     */
+    private void playAt(int seq, int instr) {
+        if ((seq & bitFlag) > 0) {
+            // when comparison with the flag is successful do the csound playing!
+            playCsoundNote(instr + 1);
+            Log.d("BasePlayer", "I" + (instr + 1) + " at " + mBarPosition);
+        }
+    }
+
+    public void invaliateStep(int stepcount) {
+        // change pattern when specific amount of steps has been made.
+        if (stepcount % mStepInterval == 0) {
+            Log.d(TAG,"Walked steps threshold. New drums rhythm score!");
+            mDrumsSequencer.randHiHat();
+        }
     }
 
 }

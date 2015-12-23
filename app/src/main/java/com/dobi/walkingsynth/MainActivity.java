@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         graphLayout.addView(view);
 
         // dynamic button creation
-        createButtons();
+        //createButtons();
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);

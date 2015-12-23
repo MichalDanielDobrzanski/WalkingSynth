@@ -17,7 +17,7 @@ public class SynthesizerSequencer {
 
     public static final int[] stepIntervals = new int[]
     {
-        10, 20, 50,100
+        20, 30, 50, 100
     };
 
     // hash map static initialization
@@ -46,8 +46,8 @@ public class SynthesizerSequencer {
     //public static int[] flamenco = { 0, 1, 4, 5, 7, 8, 10, 12 };
 
     // dynamic variables for synthesizer playback:
-    private int mBaseNote = 0;    // what is the current base note.
-    private String mScale = null; // what scale is in current use.
+    private int mBaseNote = notes.entrySet().iterator().next().getValue(); // what is the current base note.
+    private String mScale = scales.entrySet().iterator().next().getKey();  // what scale is in current use.
 
     // randomized sequences:
     private int[] mRhythmScoreSequence = new int[4];
@@ -59,18 +59,14 @@ public class SynthesizerSequencer {
         int[] resultScale = scales.get(mScale);
         int scaleLength = resultScale.length;
 
-        mRhythmScoreSequence[0] = mBaseNote;
-        mRhythmScoreSequence[1] = resultScale[generator.nextInt(scaleLength)];
-        mRhythmScoreSequence[2] = resultScale[generator.nextInt(scaleLength)];
-        mRhythmScoreSequence[3] = resultScale[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[0] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[1] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[2] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[3] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
         Log.d(TAG,"Output sound sequence: " + mRhythmScoreSequence[0] + ",  " + mRhythmScoreSequence[1]+ ",  "
                 + mRhythmScoreSequence[2] + ",  " + mRhythmScoreSequence[3]);
         return mRhythmScoreSequence;
     }
-
-//    public int[] getArpScoreSequence() {
-//
-//    }
 
     // outer invalidations:
     public void invdalidateBaseNote(int val) {

@@ -22,9 +22,9 @@ public class MusicCreator extends CsoundBaseSetup {
         super(res, cDir);
         mMusicAnalyzer.setIntervalListener(new OnTimeIntervalListener() {
             @Override
-            public void onInterval(int pos, int bc, int el) {
+            public void onInterval(int pos, int bc, long posti,int el) {
                 mDrums.invalidate(pos, bc, el);
-                mSynth.invalidate(pos, bc, el);
+                mSynth.invalidate(pos, bc, posti);
             }
         });
     }
@@ -36,6 +36,7 @@ public class MusicCreator extends CsoundBaseSetup {
 
     // dynamic from accelerometer
     public void invalidateStep(int nval) {
+        mDrums.invaliateStep(nval);
         mSynth.invaliateStep(nval);
     }
 
@@ -52,6 +53,7 @@ public class MusicCreator extends CsoundBaseSetup {
 
     // from UI spinner
     public void invalidateStepInterval(int idx) {
+        mDrums.invalidateStepInterval(idx);
         mSynth.invalidateStepInterval(idx);
     }
 }

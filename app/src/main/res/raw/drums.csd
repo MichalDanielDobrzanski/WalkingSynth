@@ -84,7 +84,8 @@ outs a1*aenv, a1*aenv
 endin
 
 ;-------------------------------------------------------------------------
-; 1st synth
+; 1st synth (i4)
+; goes to the reverb and delay
 ; p5 - Frequency is passed as PITCH.
 ; p6 - mod_idx [0 - 5]
 ; p7 - mod_factor [-100, 100]
@@ -120,7 +121,8 @@ endin
 
 
 ;-------------------------------------------------------------------------
-; 2nd synth
+; 2nd synth (i5)
+; goes only to the reverb
 ; Made from Csound Power! book
 ;instr start dur amp freq
 ; i5     0    2  0.6 8.04
@@ -187,7 +189,7 @@ gaRevSendR = 0
 aInL = aInL / 3
 aInR = aInR / 3
 aoutL, aoutR reverbsc aInL, aInR, 0.9, 10000
-iamp = 0.5
+iamp = 0.45
 kdeclick linseg iamp, 366, iamp, 0.05, 0
 aoutL = aoutL * kdeclick
 aoutR = aoutR * kdeclick
@@ -198,12 +200,15 @@ endin
 <CsScore>
 f1 0 1024 10 1
 
-; listen to events for 1hour * 100
-e 360000
-
 ; reverb works for the whole time
 i100 0 360000
 
+; always active delay line
+;	       dur out feed ldel rdel
+i99  0 360000  0.7 0.3  0.5  0.75
+
+; listen to events for 1hour * 100
+e 360000
 
 </CsScore>
 </CsoundSynthesizer>

@@ -7,10 +7,28 @@ It keeps track of the leg movement pace and plays music based on that.
 It counts the steps quite precisely, so this could also serve as pedometer.
 It comes with Csound library.
 
+![Screen1](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-21-49.png
+![Screen2](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-22-04.png)
+
 ## Features ##
 * Mobile device's accelerometer
 * Csound library - [Csound GitHub](https://csound.github.io/)
 * Achartengine
+
+## App features ##
+* Customizable base note of the synthesizer melody
+* Scales to play (Pentatonic / Flamenco)
+* The amount of steps after the user will be notified and the synth would play different variation of the current scale
+* Adjustable threshold for different leg pace and force
+* Step counter (pedometer)
+* Current tempo in bpm
+* Elapsed time
+* Accelerometer data (the blue line in the chart)
+
+
+## Info ##
+* Written in Android Studio 1.3
+* Tested on Google Nexus 7 2013
 
 ## Owner and purpose ##
 * Michał Dobrzański

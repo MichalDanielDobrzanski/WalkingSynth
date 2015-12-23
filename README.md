@@ -7,9 +7,6 @@ It keeps track of the leg movement pace and plays music based on that.
 It counts the steps quite precisely, so this could also serve as pedometer.
 It comes with Csound library.
 
-![Screen1](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-21-49.png
-![Screen2](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-22-04.png)
-
 ## Features ##
 * Mobile device's accelerometer
 * Csound library - [Csound GitHub](https://csound.github.io/)
@@ -32,5 +29,10 @@ It comes with Csound library.
 
 ## Owner and purpose ##
 * Michał Dobrzański
+* dobrzanski.michal.daniel@gmail.com
 * This is my personal software project created with passion to the music. 
 * I explored the depths of csound language, which seems to be very poweful.
+
+
+![Screen1](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-21-49.png)
+![Screen2](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-22-04.png)

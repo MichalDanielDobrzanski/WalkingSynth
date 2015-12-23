@@ -11,9 +11,10 @@ public class MusicAnalyzer {
 
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
+    // global steering values:
     private static final int MIN_TEMPO = 60;
-    private static final int MAX_TEMPO = 130;
-    private static final int MAX_TEMPO_DIFF = 50;
+    private static final int MAX_TEMPO = 120;
+    private static final int MAX_TEMPO_DIFF = 40;
 
     /**
      * How many divisions do for a single bar.
@@ -89,7 +90,7 @@ public class MusicAnalyzer {
                         }
                         // notify potential listeners
                         if (mIntervalListener != null)
-                            mIntervalListener.onInterval(mBarPosition, mBarCount, calcElapsedSong());
+                            mIntervalListener.onInterval(mBarPosition, mBarCount, mPositionInterval, calcElapsedSong());
                         Log.d(TAG, mBarPosition + " Sleep: " + mPositionInterval);
                     }
                 } catch (InterruptedException e) {

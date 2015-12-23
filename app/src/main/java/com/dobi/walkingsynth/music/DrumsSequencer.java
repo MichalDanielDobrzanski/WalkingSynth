@@ -13,8 +13,6 @@ public class DrumsSequencer {
 
     private static final String TAG = DrumsSequencer.class.getSimpleName();
 
-    private int mTime = 0;
-    private int mTimeDistance;
     private Random mRandom = new Random();
 
     // a sequence to be played:
@@ -27,17 +25,16 @@ public class DrumsSequencer {
 
     public DrumsSequencer() {
         initSequence();
-        mTimeDistance = mRandom.nextInt(20) + 7;
         // initial parametrs
         // hi hat:
         mParams[0][0] = 0.11f;
         mParams[0][1] = 0.2f;
         // snare:
         mParams[1][0] = 1f;
-        mParams[1][1] = 0.7f;
+        mParams[1][1] = 0.5f;
         // kick:
         mParams[2][0] = 60f;
-        mParams[2][1] = 0.8f;
+        mParams[2][1] = 0.5f;
     }
 
     private void initSequence() {
@@ -45,22 +42,6 @@ public class DrumsSequencer {
         mSequences.add(1, 8);
         mSequences.add(2, 128);
         Log.d(TAG, "Count is: " + mSequences.size());
-    }
-
-    /**
-     * On time interval listener handler.
-     * @param t time.
-     */
-    public void setTime (int t) {
-        mTime = t;
-
-        if (t % mTimeDistance == 0) {
-            // a need to change the beat
-            mTimeDistance = mRandom.nextInt(mTimeDistance) + 7;
-            // do the change:
-            mSequences.set(0,randHiHat());
-        }
-
     }
 
     public ArrayList<Integer> getSequences() {
@@ -71,10 +52,10 @@ public class DrumsSequencer {
         return mParams[instr - 1];
     }
 
-    private int randHiHat() {
+    public void randHiHat() {
         // when time is small draw little hi hats
         // when time is big draw frequent hi hats
-        return mRandom.nextInt(256 - mTime) + mTime;
+        mSequences.set(0,mRandom.nextInt(256));
     }
 
     private int randKick() {

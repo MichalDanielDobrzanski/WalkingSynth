@@ -26,8 +26,12 @@ It comes with Csound library.
 ## Info ##
 * Written in Android Studio 1.3
 * Tested on Google Nexus 7 2013 API 22 (5.1.1)
+* minSdkVersion 19
+* targetSdkVersion 22
+* compileSdkVersion 23
 
 ## Owner and purpose ##
+* Software under MIT License
 * Michał Dobrzański
 * dobrzanski.michal.daniel@gmail.com
 * This is my personal software project created with passion to the music. 

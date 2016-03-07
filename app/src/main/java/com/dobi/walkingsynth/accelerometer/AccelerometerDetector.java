@@ -61,20 +61,10 @@ public class AccelerometerDetector implements SensorEventListener {
         if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
-        mAccelGraph.initialize();
     }
 
     public void stopDetector() {
         mSensorManager.unregisterListener(this, mAccel);
-    }
-
-    /**
-     * Shows/hides particular signal
-     * @param i index of a signal
-     * @param show shown/hidden
-     */
-    public void setVisibility(int i, boolean show) {
-        mAccelGraph.setVisibility(i, show);
     }
 
     @Override

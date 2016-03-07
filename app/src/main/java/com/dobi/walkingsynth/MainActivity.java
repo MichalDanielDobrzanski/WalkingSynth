@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mHandler = new Handler();
 
+    // constant reference
+    private final AccelerometerProcessing accelerometerProcessing = AccelerometerProcessing.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,13 +68,64 @@ public class MainActivity extends AppCompatActivity {
         // instantiate music analyzer
         mMusicCreator = new MusicCreator(getResources(),getCacheDir());
 
-        // config prefs
+        // perefences:
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-        float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessing.THRESH_INIT);
-        AccelerometerProcessing.getInstance().setThreshold(threshVal);
+        float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
+                AccelerometerProcessing.THRESH_INIT);
+        accelerometerProcessing.setThreshold(threshVal);
 
-        // spinners configuration
         // base note spinner:
+        initializeNotesSpinner();
+
+        // scales spinner:
+        initializeScalesSpinner();
+
+        // step intervals spinner:
+        initializeStepsSpinner();
+
+        // get and configure text views
+        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
+        formatThreshTextView(threshVal);
+        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
+        mStepCountTextView.setText(String.valueOf(0));
+        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
+        mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+        mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
+
+        // timer counter
+        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
+        timer.start();
+
+        // UI default setup
+        GraphicalView graphicalView = mAccelGraph.getView(this);
+        graphicalView.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+
+        LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
+        graphLayout.addView(graphicalView);
+
+        // initialize accelerometer
+        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        mAccelDetector = new AccelerometerDetector(sensorManager, graphicalView, mAccelGraph,preferences);
+        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
+            @Override
+            public void onStepCountChange(long eventMsecTime) {
+                ++mStepCount;
+                mStepCountTextView.setText(String.valueOf(mStepCount));
+                mMusicCreator.getAnalyzer().onStep(eventMsecTime);
+                mMusicCreator.invalidateStep(mStepCount);
+                mTempoValTextView.setText(
+                        String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+            }
+        });
+
+        // seek bar configuration
+        initializeSeekBar();
+
+    }
+
+    private void initializeNotesSpinner() {
         ArrayList<String> notesList = new ArrayList<>();
         for ( String key : SynthesizerSequencer.notes.keySet())
         {
@@ -91,8 +145,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
-        // scales spinner:
+    private void initializeScalesSpinner() {
         ArrayList<String> scalesList = new ArrayList<>();
         for ( String key : SynthesizerSequencer.scales.keySet())
         {
@@ -112,8 +167,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
-        // step intervals spinner:
+    private void initializeStepsSpinner() {
         ArrayList<Integer> stepsList = new ArrayList<>();
         int l3 = SynthesizerSequencer.stepIntervals.length;
         for (int i = 0; i < l3; i++)
@@ -134,62 +190,17 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
-        // get and configure text views
-        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        formatThreshTextView(threshVal);
-        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
-        mStepCountTextView.setText(String.valueOf(0));
-        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
-        mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
-        mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
-
-        // timer counter
-        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
-        timer.start();
-
-        // UI default setup
-        GraphicalView view = mAccelGraph.getView(this);
-        view.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // handle the click event on the chart
-                if (mAccelGraph.isPainting)
-                    mAccelGraph.isPainting(false);
-                else {
-                    mAccelGraph.isPainting(true);
-                }
-            }
-        });
-        LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
-        graphLayout.addView(view);
-
-        // initialize accelerometer
-        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager, view, mAccelGraph,preferences);
-        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
-            @Override
-            public void onStepCountChange(long eventMsecTime) {
-                ++mStepCount;
-                mStepCountTextView.setText(String.valueOf(mStepCount));
-                mMusicCreator.getAnalyzer().onStep(eventMsecTime);
-                mMusicCreator.invalidateStep(mStepCount);
-                mTempoValTextView.setText(
-                        String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
-            }
-        });
-        // seek bar configuration
+    private void initializeSeekBar() {
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(130 - 90);
         seekBar.setProgress((int) AccelerometerProcessing.getInstance().getThreshold());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                AccelerometerProcessing.getInstance().changeThreshold(progress);
-                formatThreshTextView(AccelerometerProcessing.getInstance().getThreshold());
+                accelerometerProcessing.setThreshold(AccelerometerProcessing.processThreshold(progress));
+                formatThreshTextView(accelerometerProcessing.getThreshold());
             }
 
             @Override

@@ -40,15 +40,23 @@ public class AccelerometerProcessing {
     // dynamic variables
     private int mInactiveCounter = 0;
     public boolean isActiveCounter = true;
+
     private double mThreshold = THRESH_INIT;
     private double[] mAccelResult = new double[AccelerometerSignals.count];
     private double[] mLastAccelResult = new double[AccelerometerSignals.count];
+
     private SensorEvent mEvent;
 
     // computational variables
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
+
+    public static float processThreshold(float v) {
+        float thresh = THRESH_INIT * (v + 90) / 100;
+        Log.d(TAG, " Thresh: " + thresh);
+        return thresh;
+    }
 
     /**
      * Gets the current SensorEvent data.
@@ -57,6 +65,15 @@ public class AccelerometerProcessing {
     public void setEvent(SensorEvent e) {
         mEvent = e;
     }
+
+    public void setThreshold(float v) {
+        mThreshold = v;
+    }
+
+    public double getThreshold() {
+        return mThreshold;
+    }
+
 
     /**
      * Get event time.
@@ -67,20 +84,6 @@ public class AccelerometerProcessing {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 
-    public void changeThreshold(float v) {
-        final float change = (v + 90) / 100;
-        mThreshold = THRESH_INIT * change;
-        // TODO!
-        Log.d(TAG, "Change: " + change + " Thresh: " + mThreshold);
-    }
-
-    public void setThreshold(float v) {
-        mThreshold = v;
-    }
-
-    public double getThreshold() {
-        return mThreshold;
-    }
 
     /**
      * Initializes the Scalar Kalman Filters one after another.

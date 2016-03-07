@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth;
+package com.dobi.walkingsynth.accelerometer;
 
 /**
  * Created by dobi on 22.10.15.

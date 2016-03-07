@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth;
+package com.dobi.walkingsynth.accelerometer;
 
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
@@ -13,6 +13,15 @@ public class AccelerometerProcessing {
 
     private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
+    private static AccelerometerProcessing instance = null;
+
+    public static AccelerometerProcessing getInstance() {
+
+        if (instance == null)
+            return new AccelerometerProcessing();
+        return instance;
+    }
+
     /**
      * Step detecting parameter. How many periods it is sleeping.
      * If DELAY_GAME: T ~= 20ms => f = 50Hz
@@ -26,24 +35,26 @@ public class AccelerometerProcessing {
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_PERIODS = 12;
-    private static int mInactiveCounter = 0;
-    public static boolean isActiveCounter = true;
-    // dynamic variables
     public static final float THRESH_INIT = 12.72f;
-    private static double mThreshold = THRESH_INIT;
-    private static double[] mAccelResult = new double[AccelerometerSignals.count];
-    private static double[] mLastAccelResult = new double[AccelerometerSignals.count];
-    private static SensorEvent mEvent;
+
+    // dynamic variables
+    private int mInactiveCounter = 0;
+    public boolean isActiveCounter = true;
+    private double mThreshold = THRESH_INIT;
+    private double[] mAccelResult = new double[AccelerometerSignals.count];
+    private double[] mLastAccelResult = new double[AccelerometerSignals.count];
+    private SensorEvent mEvent;
+
     // computational variables
-    private static double[] gravity = new double[3];
-    private static double[] linear_acceleration = new double[3];
-    private static ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
+    private double[] gravity = new double[3];
+    private double[] linear_acceleration = new double[3];
+    private ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
 
     /**
      * Gets the current SensorEvent data.
      * @param e the mEvent.
      */
-    public static void setEvent(SensorEvent e) {
+    public void setEvent(SensorEvent e) {
         mEvent = e;
     }
 
@@ -52,29 +63,29 @@ public class AccelerometerProcessing {
      * @see <a href="http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp">To miliseconds.</a>
      * @return time in milliseconds
      */
-    public static long timestampToMilliseconds() {
+    public long timestampToMilliseconds() {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 
-    public static void changeThreshold(float v) {
+    public void changeThreshold(float v) {
         final float change = (v + 90) / 100;
         mThreshold = THRESH_INIT * change;
         // TODO!
         Log.d(TAG, "Change: " + change + " Thresh: " + mThreshold);
     }
 
-    public static void setThreshold(float v) {
+    public void setThreshold(float v) {
         mThreshold = v;
     }
 
-    public static double getThreshold() {
+    public double getThreshold() {
         return mThreshold;
     }
 
     /**
      * Initializes the Scalar Kalman Filters one after another.
      */
-    public static void initKalman() {
+    public void initKalman() {
         // set filter
         filtersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
         filtersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
@@ -84,14 +95,14 @@ public class AccelerometerProcessing {
     /**
      * Smoothes the signal from accelerometer.
      */
-    private static double filter(double measurement){
+    private double filter(double measurement){
         double f1 = filtersCascade[0].correct(measurement);
         double f2 = filtersCascade[1].correct(f1);
         double f3 = filtersCascade[2].correct(f2);
         return f3;
     }
 
-    public static double calcKalman(int i) {
+    public double calcKalman(int i) {
         mAccelResult[i] = filter(mAccelResult[i]);
         //mAccelResult[i] = Math.abs(mAccelResult[i] - mLastOne);
         //mLastOne = mAccelResult[i];
@@ -101,7 +112,7 @@ public class AccelerometerProcessing {
     /**
      * Filters the signal out of gravity impact.
      */
-    public static void calcFilterGravity() {
+    public void calcFilterGravity() {
         // In this example, alpha is calculated as t / (t + dT),
         // where t is the low-pass filter's time-constant and
         // dT is the mEvent delivery rate.
@@ -118,7 +129,7 @@ public class AccelerometerProcessing {
      * @param i signal identifier.
      * @return the output vector.
      */
-    public static double calcMagnitudeVector(int i) {
+    public double calcMagnitudeVector(int i) {
         // Remove the gravity contribution with the high-pass filter.
         linear_acceleration[0] = mEvent.values[0] - gravity[0];
         linear_acceleration[1] = mEvent.values[1] - gravity[1];
@@ -136,7 +147,7 @@ public class AccelerometerProcessing {
      * @param i signal identifier.
      * @return the output vector.
      */
-    public static double calcGravityDiff(int i) {
+    public double calcGravityDiff(int i) {
         mAccelResult[i] = (
                 mEvent.values[0] * mEvent.values[0] +
                 mEvent.values[1] * mEvent.values[1] +
@@ -151,7 +162,7 @@ public class AccelerometerProcessing {
      * @param i signal identifier.
      * @return the output vector.
      */
-    public static double calcExpMovAvg(int i) {
+    public double calcExpMovAvg(int i) {
         final double alpha = 0.1;
         mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult[i];
         mLastAccelResult[i] = mAccelResult[i];
@@ -165,7 +176,7 @@ public class AccelerometerProcessing {
      * @param i signal identifier.
      * @return step found / not found
      */
-    public static boolean stepDetected(int i) {
+    public boolean stepDetected(int i) {
         if (mInactiveCounter == INACTIVE_PERIODS) {
             mInactiveCounter = 0;
             if (!isActiveCounter)

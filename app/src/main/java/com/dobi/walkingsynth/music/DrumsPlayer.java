@@ -100,7 +100,7 @@ public class DrumsPlayer extends BasePlayer {
     public void invaliateStep(int stepcount) {
         // change pattern when specific amount of steps has been made.
         if (stepcount % mStepInterval == 0) {
-            Log.d(TAG,"Walked steps threshold. New drums rhythm score!");
+            Log.d(TAG,"Walked steps threshold. New csound_part rhythm score!");
             mDrumsSequencer.randHiHat();
         }
     }

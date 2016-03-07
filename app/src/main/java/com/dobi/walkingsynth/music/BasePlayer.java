@@ -6,7 +6,7 @@ import android.util.Log;
 import com.csounds.CsoundObj;
 
 /**
- * Base player functionality for both drums and synths.
+ * Base player functionality for both csound_part and synths.
  */
 public class BasePlayer {
 

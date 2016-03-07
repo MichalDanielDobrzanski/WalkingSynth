@@ -7,24 +7,23 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
+import com.dobi.walkingsynth.accelerometer.AccelerometerDetector;
+import com.dobi.walkingsynth.accelerometer.AccelerometerGraph;
+import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.accelerometer.OnStepCountChangeListener;
 import com.dobi.walkingsynth.music.MusicCreator;
-import com.dobi.walkingsynth.music.SynthesizerPlayer;
 import com.dobi.walkingsynth.music.SynthesizerSequencer;
 import com.dobi.walkingsynth.music.TimeCounter;
 
@@ -39,7 +38,7 @@ import java.util.Locale;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String PREFERENCES_NAME = "Values";
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
@@ -69,16 +68,16 @@ public class MainActivity extends AppCompatActivity {
         // config prefs
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
         float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessing.THRESH_INIT);
-        AccelerometerProcessing.setThreshold(threshVal);
+        AccelerometerProcessing.getInstance().setThreshold(threshVal);
 
         // spinners configuration
         // base note spinner:
-        ArrayList<String> itrvls = new ArrayList<>();
+        ArrayList<String> notesList = new ArrayList<>();
         for ( String key : SynthesizerSequencer.notes.keySet())
         {
-            itrvls.add(key);
+            notesList.add(key);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,notesList);
         Spinner baseNotesSpinner = (Spinner) findViewById(R.id.base_notes_spinner);
         baseNotesSpinner.setAdapter(adapter);
         baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -94,12 +93,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // scales spinner:
-        ArrayList<String> itrvls2 = new ArrayList<>();
+        ArrayList<String> scalesList = new ArrayList<>();
         for ( String key : SynthesizerSequencer.scales.keySet())
         {
-            itrvls2.add(key);
+            scalesList.add(key);
         }
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls2);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,scalesList);
         Spinner scalesSpinner = (Spinner) findViewById(R.id.scale_spinner);
         scalesSpinner.setAdapter(adapter2);
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -115,13 +114,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // step intervals spinner:
-        ArrayList<Integer> itrvls3 = new ArrayList<>();
+        ArrayList<Integer> stepsList = new ArrayList<>();
         int l3 = SynthesizerSequencer.stepIntervals.length;
         for (int i = 0; i < l3; i++)
         {
-            itrvls3.add(SynthesizerSequencer.stepIntervals[i]);
+            stepsList.add(SynthesizerSequencer.stepIntervals[i]);
         }
-        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,itrvls3);
+        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,stepsList);
         Spinner timeIntervalsSpinner = (Spinner)findViewById(R.id.steps_interval_spinner);
         timeIntervalsSpinner.setAdapter(adapter3);
         timeIntervalsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -168,9 +167,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
         graphLayout.addView(view);
 
-        // dynamic button creation
-        //createButtons();
-
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mAccelDetector = new AccelerometerDetector(sensorManager, view, mAccelGraph,preferences);
@@ -188,12 +184,12 @@ public class MainActivity extends AppCompatActivity {
         // seek bar configuration
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(130 - 90);
-        seekBar.setProgress((int) AccelerometerProcessing.getThreshold());
+        seekBar.setProgress((int) AccelerometerProcessing.getInstance().getThreshold());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                AccelerometerProcessing.changeThreshold(progress);
-                formatThreshTextView(AccelerometerProcessing.getThreshold());
+                AccelerometerProcessing.getInstance().changeThreshold(progress);
+                formatThreshTextView(AccelerometerProcessing.getInstance().getThreshold());
             }
 
             @Override
@@ -211,27 +207,6 @@ public class MainActivity extends AppCompatActivity {
     private void formatThreshTextView(double v) {
         final DecimalFormat df = new DecimalFormat("#.##");
         mThreshValTextView.setText(String.valueOf(df.format(v)));
-    }
-
-    private void createButtons() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        LinearLayout layout = (LinearLayout)findViewById(R.id.buttons_layout);
-        for (int i = 0; i < AccelerometerSignals.OPTIONS.length; ++i) {
-            final ToggleButton btn = new ToggleButton(this);
-            btn.setTextOn(AccelerometerSignals.OPTIONS[i]);
-            btn.setTextOff(AccelerometerSignals.OPTIONS[i]);
-            btn.setLayoutParams(params);
-            btn.setChecked(true);
-            final int opt = i; // convert to flag convention
-            btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mAccelDetector.setVisibility(opt, isChecked);
-                }
-            });
-            layout.addView(btn);
-        }
     }
 
     @Override
@@ -260,34 +235,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveThreshold() {
-        preferences.edit().putFloat(PREFERENCES_VALUES_THRESHOLD_KEY, (float) AccelerometerProcessing.getThreshold()).apply();
+        preferences.edit().putFloat(
+                PREFERENCES_VALUES_THRESHOLD_KEY,
+                (float) AccelerometerProcessing.getInstance().getThreshold()).apply();
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume register Listeners");
         mAccelDetector.startDetector();
+        mMusicCreator.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause UNregister Listeners");
+        Log.d(TAG,"OnPause");
         mAccelDetector.stopDetector();
-        mStepCount = 0;
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "OnStop");
         mMusicCreator.destroy();
     }
-
 }

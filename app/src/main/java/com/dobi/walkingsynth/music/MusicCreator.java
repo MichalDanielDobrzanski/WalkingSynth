@@ -2,8 +2,6 @@ package com.dobi.walkingsynth.music;
 
 import android.content.res.Resources;
 
-import com.dobi.walkingsynth.OnStepCountChangeListener;
-
 import java.io.File;
 
 /**

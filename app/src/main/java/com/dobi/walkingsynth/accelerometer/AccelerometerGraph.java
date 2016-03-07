@@ -1,6 +1,7 @@
 package com.dobi.walkingsynth.accelerometer;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -17,20 +18,19 @@ public class AccelerometerGraph {
 
     private static final String TAG = AccelerometerGraph.class.getSimpleName();
 
-    // threshold:
     private static final String THRESH = "Thresh";
-    private TimeSeries mThreshold;
-    // accelerometer signals:
     private static final String TITLE = "Accelerometer data";
+
+    private static final int GRAPH_POINTS = 80;
+
+    private TimeSeries mThreshold;
     private TimeSeries[] mSeries = new TimeSeries[AccelerometerSignals.count];
     private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelerometerSignals.count];
-    // whole graph:
-    private static final int GRAPH_RESOLUTION = 150;
-    private GraphicalView view;
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
-    public boolean isPainting = true;
+    private GraphicalView view;
+
     private int mPointsCount = 0;
     private int[] mOffset = new int[AccelerometerSignals.count];
 
@@ -72,13 +72,12 @@ public class AccelerometerGraph {
             // moving plot
             mSeries[i].add(t, v[i] + mOffset[i]);
             mThreshold.add(t, AccelerometerProcessing.getInstance().getThreshold());
-            if (mPointsCount > GRAPH_RESOLUTION) {
+            if (mPointsCount > GRAPH_POINTS) {
                 mSeries[i].remove(0);
                 mThreshold.remove(0);
             }
         }
-        if (isPainting)
-            view.repaint();
+        view.repaint();
         ++mPointsCount;
     }
 
@@ -92,42 +91,6 @@ public class AccelerometerGraph {
         renderer.setLineWidth(2f);
         renderer.setColor(Color.BLACK);
         mRenderer.addSeriesRenderer(renderer);
-    }
-
-    /**
-     * Stoping and resuming plot repainting.
-     * @param v do painting or not
-     */
-    public void isPainting(boolean v) {
-        isPainting = v;
-    }
-
-    public void setVisibility(int opt, boolean show) {
-        //AccelerometerSignals option = AccelerometerSignals.values()[opt];
-        if (show) {
-            // show current option
-            mRenderers[opt].setColor(Color.BLUE);
-            // show current option
-        } else {
-            mRenderers[opt].setColor(Color.TRANSPARENT);
-        }
-        view.repaint();
-    }
-
-    public void initialize() {
-        // reset the point counter
-        mPointsCount = 0;
-    }
-
-    public void addOffset(int i, int v) {
-        mOffset[i] = v;
-    }
-
-
-    public void clear() {
-//        for (TimeSeries ts : mSeries) {
-//            ts.clear();
-//        }
     }
 
     public GraphicalView getView(Context context){

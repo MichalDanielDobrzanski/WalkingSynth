@@ -1,7 +1,6 @@
-package com.dobi.walkingsynth;
+package com.dobi.walkingsynth.accelerometer;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -72,7 +71,7 @@ public class AccelerometerGraph {
         for (int i = 0; i < AccelerometerSignals.count; ++i) {
             // moving plot
             mSeries[i].add(t, v[i] + mOffset[i]);
-            mThreshold.add(t, AccelerometerProcessing.getThreshold());
+            mThreshold.add(t, AccelerometerProcessing.getInstance().getThreshold());
             if (mPointsCount > GRAPH_RESOLUTION) {
                 mSeries[i].remove(0);
                 mThreshold.remove(0);

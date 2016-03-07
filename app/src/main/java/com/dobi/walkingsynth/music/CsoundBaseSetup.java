@@ -2,7 +2,6 @@ package com.dobi.walkingsynth.music;
 
 import android.content.res.Resources;
 import android.os.Handler;
-import android.util.Log;
 
 import com.csounds.CsoundObj;
 import com.csounds.CsoundObjListener;
@@ -28,17 +27,25 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
 
     private Resources resources;
     private File cacheDir;
+    private File tempFile;
 
     public CsoundBaseSetup(Resources res, File cDir) {
         resources = res;
         cacheDir = cDir;
 
-        String csd = getResourceFileAsString(R.raw.drums);
-        File f = createTempFile(csd);
+        String csd = getResourceFileAsString(R.raw.csound_part);
+        tempFile = createTempFile(csd);
 
         csoundObj.setMessageLoggingEnabled(true);
         csoundObj.addBinding(this);
-        csoundObj.startCsound(f);
+        csoundObj.startCsound(tempFile);
+    }
+
+    public void start() {
+        if (csoundObj.isStopped())
+            csoundObj.startCsound(tempFile);
+        else if(csoundObj.isPaused())
+            csoundObj.play();
     }
 
     public void destroy() {

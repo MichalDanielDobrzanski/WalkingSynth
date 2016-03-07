@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth;
+package com.dobi.walkingsynth.accelerometer;
 
 /**
  * Accelerometer signal names that are used in analysing, processing and plotting.

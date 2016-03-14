@@ -1,7 +1,6 @@
 package com.dobi.walkingsynth.accelerometer;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -12,18 +11,21 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 /**
- * Plotting accelerometer processed data.
+ * Plotting accelerometer data.
  */
-public class AccelerometerGraph {
+public class AccelerometerGraph implements OnThresholdChangeListener {
 
     private static final String TAG = AccelerometerGraph.class.getSimpleName();
 
-    private static final String THRESH = "Thresh";
+    private static final String THRESH = "Threshold";
     private static final String TITLE = "Accelerometer data";
 
-    private static final int GRAPH_POINTS = 80;
+    // resolution:
+    private static final int GRAPH_POINTS_COUNT = 100;
 
     private TimeSeries mThreshold;
+    private double mThresholdValue;
+
     private TimeSeries[] mSeries = new TimeSeries[AccelerometerSignals.count];
     private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelerometerSignals.count];
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
@@ -32,9 +34,13 @@ public class AccelerometerGraph {
     private GraphicalView view;
 
     private int mPointsCount = 0;
-    private int[] mOffset = new int[AccelerometerSignals.count];
 
-    public AccelerometerGraph() {
+    private AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+
+    public AccelerometerGraph(double threshold) {
+
+        mThresholdValue = threshold;
+
         // add single data set to multiple data set
         for (int i = 0; i < AccelerometerSignals.count; i++) {
             mSeries[i] = new TimeSeries(TITLE + (i + 1));
@@ -63,26 +69,7 @@ public class AccelerometerGraph {
     }
 
     /**
-     * Update all graphs on the View.
-     * @param t time argument
-     * @param v values array
-     */
-    public void addNewPoints(double t, double[] v) {
-        for (int i = 0; i < AccelerometerSignals.count; ++i) {
-            // moving plot
-            mSeries[i].add(t, v[i] + mOffset[i]);
-            mThreshold.add(t, AccelerometerProcessing.getInstance().getThreshold());
-            if (mPointsCount > GRAPH_POINTS) {
-                mSeries[i].remove(0);
-                mThreshold.remove(0);
-            }
-        }
-        view.repaint();
-        ++mPointsCount;
-    }
-
-    /**
-     * Adds threshold configuration for plotting.
+     * Adds threshold line to the plot.
      */
     private void addThresholdGraph() {
         mThreshold = new TimeSeries(THRESH);
@@ -93,8 +80,48 @@ public class AccelerometerGraph {
         mRenderer.addSeriesRenderer(renderer);
     }
 
+    /**
+     * Update all graphs on the View.
+     * @param t time plotting argument
+     * @param v an array of values to plot
+     */
+    public void invalidate(double t, double[] v) {
+
+        // signals:
+        for (int i = 0; i < AccelerometerSignals.count; ++i) {
+            mSeries[i].add(t, v[i]);
+            if (mPointsCount > GRAPH_POINTS_COUNT) {
+                mSeries[i].remove(0);
+            }
+        }
+
+        // threshold:
+        mThreshold.add(t, mThresholdValue);
+        if (mPointsCount > GRAPH_POINTS_COUNT) {
+            mThreshold.remove(0);
+        }
+
+        view.repaint();
+        ++mPointsCount;
+    }
+
+    public void reset() {
+        for (int i = 0; i < AccelerometerSignals.count; ++i) {
+            mSeries[i].clear();
+            mThreshold.clear();
+        }
+        mPointsCount = 0;
+    }
+
+
+
     public GraphicalView getView(Context context){
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);
         return view;
+    }
+
+    @Override
+    public void onThresholdChange(double value) {
+        mThresholdValue = value;
     }
 }

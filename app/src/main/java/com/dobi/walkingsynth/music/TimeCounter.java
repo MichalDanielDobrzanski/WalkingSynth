@@ -26,6 +26,7 @@ public class TimeCounter {
 
     public TimeCounter(Handler handler, TextView textView) {
         // associates the handler from other thread with this runnable
+        mStartTime = System.currentTimeMillis();
         mTimerHandler = handler;
         mTextView = textView;
     }
@@ -45,7 +46,14 @@ public class TimeCounter {
     };
 
     public void start() {
-        mStartTime = System.currentTimeMillis();
+        mTimerHandler.postDelayed(mRunnable,0);
+    }
+
+    public void pause() {
+        mTimerHandler.removeCallbacks(mRunnable);
+    }
+
+    public void resume() {
         mTimerHandler.postDelayed(mRunnable,0);
     }
 }

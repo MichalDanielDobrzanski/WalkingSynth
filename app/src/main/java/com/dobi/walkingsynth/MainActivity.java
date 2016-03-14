@@ -45,17 +45,19 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private int mStepCount = 0;
     private AccelerometerDetector mAccelDetector;
-    private AccelerometerGraph mAccelGraph = new AccelerometerGraph();
+    private AccelerometerGraph mAccelGraph;
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
     private TextView mTimeValTextView;
     private MusicCreator mMusicCreator;
 
+    private TimeCounter mTimer;
     private Handler mHandler = new Handler();
 
     // constant reference
-    private final AccelerometerProcessing accelerometerProcessing = AccelerometerProcessing.getInstance();
+    private final AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +70,8 @@ public class MainActivity extends AppCompatActivity {
         // instantiate music analyzer
         mMusicCreator = new MusicCreator(getResources(),getCacheDir());
 
-        // perefences:
-        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-        float threshVal = preferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
-                AccelerometerProcessing.THRESH_INIT);
-        accelerometerProcessing.setThreshold(threshVal);
+        // accelerometer graph setup:
+        mAccelGraph = new AccelerometerGraph(AccelerometerProcessing.THRESH_INIT_VALUE);
 
         // base note spinner:
         initializeNotesSpinner();
@@ -85,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        formatThreshTextView(threshVal);
+        formatThreshTextView(AccelerometerProcessing.THRESH_INIT_VALUE);
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
         mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
@@ -93,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
         // timer counter
-        TimeCounter timer = new TimeCounter(mHandler,mTimeValTextView);
-        timer.start();
+        mTimer = new TimeCounter(mHandler,mTimeValTextView);
+        mTimer.start();
 
         // UI default setup
         GraphicalView graphicalView = mAccelGraph.getView(this);
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager, graphicalView, mAccelGraph,preferences);
+        mAccelDetector = new AccelerometerDetector(sensorManager, mAccelGraph);
         mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
             @Override
             public void onStepCountChange(long eventMsecTime) {
@@ -192,15 +191,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * SeekBar is the publisher.
+     * The subscribers are: AccelerometerGraph and AccelerometerProcessing instances.
+     */
     private void initializeSeekBar() {
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(130 - 90);
-        seekBar.setProgress((int) AccelerometerProcessing.getInstance().getThreshold());
+        seekBar.setProgress((int) AccelerometerProcessing.getInstance().getThresholdValue());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                accelerometerProcessing.setThreshold(AccelerometerProcessing.processThreshold(progress));
-                formatThreshTextView(accelerometerProcessing.getThreshold());
+                double threshold = AccelerometerProcessing.THRESH_INIT_VALUE * (progress + 90) / 100;
+                mAccelerometerProcessing.onThresholdChange(threshold);
+                mAccelGraph.onThresholdChange(threshold);
+                formatThreshTextView(threshold);
             }
 
             @Override
@@ -248,27 +253,29 @@ public class MainActivity extends AppCompatActivity {
     private void saveThreshold() {
         preferences.edit().putFloat(
                 PREFERENCES_VALUES_THRESHOLD_KEY,
-                (float) AccelerometerProcessing.getInstance().getThreshold()).apply();
+                (float) AccelerometerProcessing.getInstance().getThresholdValue()).apply();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mAccelDetector.startDetector();
-        mMusicCreator.start();
+        mMusicCreator.startCSound();
+        mTimer.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG,"OnPause");
+        Log.d(TAG, "OnPause");
         mAccelDetector.stopDetector();
+        mTimer.pause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "OnStop");
-        mMusicCreator.destroy();
+        mMusicCreator.destroyCSound();
     }
 }

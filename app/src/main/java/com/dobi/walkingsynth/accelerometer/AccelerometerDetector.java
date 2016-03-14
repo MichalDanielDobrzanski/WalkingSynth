@@ -25,7 +25,6 @@ public class AccelerometerDetector implements SensorEventListener {
     private double[] mAccelResult = new double[AccelerometerSignals.count];
     private AccelerometerGraph mAccelGraph;
     private AccelerometerProcessing mAccelProcessing = AccelerometerProcessing.getInstance();
-    private GraphicalView mGraphView;
 
     private SensorManager mSensorManager;
     private Sensor mAccel;
@@ -40,7 +39,7 @@ public class AccelerometerDetector implements SensorEventListener {
         mStepListener = listener;
     }
 
-    public AccelerometerDetector(SensorManager sensorManager,GraphicalView view, AccelerometerGraph graph, SharedPreferences prefs) {
+    public AccelerometerDetector(SensorManager sensorManager, AccelerometerGraph graph) {
         mStepListener = null;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
@@ -52,7 +51,6 @@ public class AccelerometerDetector implements SensorEventListener {
             Log.d(TAG, "Failure! No accelerometer.");
         }
         // get graph handles
-        mGraphView = view;
         mAccelGraph = graph;
     }
 
@@ -65,6 +63,7 @@ public class AccelerometerDetector implements SensorEventListener {
 
     public void stopDetector() {
         mSensorManager.unregisterListener(this, mAccel);
+        mAccelGraph.reset();
     }
 
     @Override
@@ -80,7 +79,7 @@ public class AccelerometerDetector implements SensorEventListener {
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventMsecTime);
 
         // update graph with value and timestamp
-        mAccelGraph.addNewPoints(eventMsecTime, mAccelResult);
+        mAccelGraph.invalidate(eventMsecTime, mAccelResult);
 
         // step detection
         if (mAccelProcessing.stepDetected(1)) {

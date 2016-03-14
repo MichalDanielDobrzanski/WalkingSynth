@@ -74,7 +74,7 @@ public class SynthesizerPlayer extends BasePlayer {
     }
 
     private void playCsoundArpNotes() {
-        // when to start | note to play | mod_index | mod_factor
+        // when to startCSound | note to play | mod_index | mod_factor
         mCsoundObj.sendScore(String.format("i4 0.%d 0.11 0.42 9.%02d %d %d 0.2 0.8 0.3 0.1",
                 0,currentRhythmSequence[0],generator.nextInt(5),generator.nextInt(5)));
         mCsoundObj.sendScore(String.format("i4 0.%d 0.15 0.41 9.%02d %d %d 0.2 0.8 0.3 0.1",

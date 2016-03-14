@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Computing and processing accelerometer data.
  */
-public class AccelerometerProcessing {
+public class AccelerometerProcessing implements OnThresholdChangeListener {
 
     private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
@@ -35,15 +35,15 @@ public class AccelerometerProcessing {
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_PERIODS = 12;
-    public static final float THRESH_INIT = 12.72f;
+    public static final float THRESH_INIT_VALUE = 12.72f;
 
     // dynamic variables
     private int mInactiveCounter = 0;
     public boolean isActiveCounter = true;
 
-    private double mThreshold = THRESH_INIT;
-    private double[] mAccelResult = new double[AccelerometerSignals.count];
-    private double[] mLastAccelResult = new double[AccelerometerSignals.count];
+    private static double mThresholdValue = THRESH_INIT_VALUE;
+    private double[] mAccelValues = new double[AccelerometerSignals.count];
+    private double[] mAccelLastValues = new double[AccelerometerSignals.count];
 
     private SensorEvent mEvent;
 
@@ -51,12 +51,6 @@ public class AccelerometerProcessing {
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
     private ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
-
-    public static float processThreshold(float v) {
-        float thresh = THRESH_INIT * (v + 90) / 100;
-        Log.d(TAG, " Thresh: " + thresh);
-        return thresh;
-    }
 
     /**
      * Gets the current SensorEvent data.
@@ -66,12 +60,9 @@ public class AccelerometerProcessing {
         mEvent = e;
     }
 
-    public void setThreshold(float v) {
-        mThreshold = v;
-    }
-
-    public double getThreshold() {
-        return mThreshold;
+    public double getThresholdValue() {
+        Log.d(TAG,"Getting Threshold: " + mThresholdValue);
+        return mThresholdValue;
     }
 
 
@@ -106,10 +97,10 @@ public class AccelerometerProcessing {
     }
 
     public double calcKalman(int i) {
-        mAccelResult[i] = filter(mAccelResult[i]);
-        //mAccelResult[i] = Math.abs(mAccelResult[i] - mLastOne);
-        //mLastOne = mAccelResult[i];
-        return mAccelResult[i];
+        mAccelValues[i] = filter(mAccelValues[i]);
+        //mAccelValues[i] = Math.abs(mAccelValues[i] - mLastOne);
+        //mLastOne = mAccelValues[i];
+        return mAccelValues[i];
     }
 
     /**
@@ -138,11 +129,11 @@ public class AccelerometerProcessing {
         linear_acceleration[1] = mEvent.values[1] - gravity[1];
         linear_acceleration[2] = mEvent.values[2] - gravity[2];
 
-        mAccelResult[i] = Math.sqrt(
+        mAccelValues[i] = Math.sqrt(
                 linear_acceleration[0] * linear_acceleration[0] +
                 linear_acceleration[1] * linear_acceleration[1] +
                 linear_acceleration[2] * linear_acceleration[2]);
-        return mAccelResult[i];
+        return mAccelValues[i];
     }
 
     /**
@@ -151,12 +142,12 @@ public class AccelerometerProcessing {
      * @return the output vector.
      */
     public double calcGravityDiff(int i) {
-        mAccelResult[i] = (
+        mAccelValues[i] = (
                 mEvent.values[0] * mEvent.values[0] +
                 mEvent.values[1] * mEvent.values[1] +
                 mEvent.values[2] * mEvent.values[2]) /
                 (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-        return mAccelResult[i];
+        return mAccelValues[i];
     }
 
     /**
@@ -167,9 +158,9 @@ public class AccelerometerProcessing {
      */
     public double calcExpMovAvg(int i) {
         final double alpha = 0.1;
-        mAccelResult[i] = alpha * mAccelResult[i] + (1 - alpha) * mLastAccelResult[i];
-        mLastAccelResult[i] = mAccelResult[i];
-        return mAccelResult[i];
+        mAccelValues[i] = alpha * mAccelValues[i] + (1 - alpha) * mAccelLastValues[i];
+        mAccelLastValues[i] = mAccelValues[i];
+        return mAccelValues[i];
     }
 
     /**
@@ -185,7 +176,7 @@ public class AccelerometerProcessing {
             if (!isActiveCounter)
                 isActiveCounter = true;
         }
-        if (mAccelResult[i] > mThreshold) {
+        if (mAccelValues[i] > mThresholdValue) {
             if (isActiveCounter) {
                 mInactiveCounter = 0;
                 isActiveCounter = false;
@@ -194,5 +185,11 @@ public class AccelerometerProcessing {
         }
         ++mInactiveCounter;
         return false;
+    }
+
+    @Override
+    public void onThresholdChange(double value) {
+        Log.d(TAG, "Current Threshold is: " + value);
+        mThresholdValue = value;
     }
 }

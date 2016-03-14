@@ -41,14 +41,14 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
         csoundObj.startCsound(tempFile);
     }
 
-    public void start() {
+    public void startCSound() {
         if (csoundObj.isStopped())
             csoundObj.startCsound(tempFile);
         else if(csoundObj.isPaused())
             csoundObj.play();
     }
 
-    public void destroy() {
+    public void destroyCSound() {
         csoundObj.stop();
     }
 

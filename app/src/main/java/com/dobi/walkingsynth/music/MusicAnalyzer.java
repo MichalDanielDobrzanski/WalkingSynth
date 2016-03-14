@@ -79,10 +79,10 @@ public class MusicAnalyzer {
                         if (mBarPosition == 0) {
                             ++mBarCount;
                         }
-                        // update elapsed time and check whether to start new song
+                        // update elapsed time and check whether to startCSound new song
                         mSongElapsed += mPositionInterval;
                         if (mSongElapsed > mSongLength) {
-                            // start a new song
+                            // startCSound a new song
                             calcNewSongLength();
                             mSongElapsed = 0;
                             mBarCount = 0;

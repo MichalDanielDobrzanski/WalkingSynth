@@ -32,6 +32,7 @@ public class TimeCounter {
     }
 
     private Runnable mRunnable = new Runnable() {
+
         @Override
         public void run() {
             milliseconds = System.currentTimeMillis() - mStartTime;

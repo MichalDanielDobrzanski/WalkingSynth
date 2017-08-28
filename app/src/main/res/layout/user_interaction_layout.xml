@@ -1,32 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/user_interaction_layout"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:weightSum="3"
-    android:layout_weight="1">
+    android:layout_height="wrap_content">
 
-<Spinner
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:id="@+id/base_notes_spinner"
-    android:layout_weight="1"
-    android:spinnerMode="dropdown" />
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="4dp">
 
-<Spinner
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:layout_weight="1"
-    android:spinnerMode="dropdown"
-    android:id="@+id/scale_spinner" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteY="0dp"
+            tools:layout_editor_absoluteX="0dp">
 
-<Spinner
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:layout_weight="1"
-    android:spinnerMode="dropdown"
-    android:id="@+id/steps_interval_spinner" />
+            <Spinner
+                android:id="@+id/base_notes_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                card_view:layout_constraintRight_toLeftOf="@+id/scale_spinner"
+                card_view:layout_constraintLeft_toLeftOf="parent"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteY="-1dp" />
+
+            <Spinner
+                android:id="@+id/scale_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                card_view:layout_constraintRight_toLeftOf="@+id/steps_interval_spinner"
+                card_view:layout_constraintLeft_toRightOf="@+id/base_notes_spinner"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                card_view:layout_constraintVertical_bias="0.0" />
+
+            <Spinner
+                android:id="@+id/steps_interval_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                card_view:layout_constraintRight_toRightOf="parent"
+                card_view:layout_constraintLeft_toRightOf="@+id/scale_spinner"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent"
+                card_view:layout_constraintVertical_bias="1.0" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

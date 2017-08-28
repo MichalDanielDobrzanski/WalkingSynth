@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_layout"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:baselineAligned="false"
+    android:layout_weight="1"
+    android:weightSum="10">
+
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:orientation="horizontal"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0"/>
+
+    <TextView
+        android:layout_weight="2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="@string/thresh_val"
+        android:textAlignment="center"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:id="@+id/threshval_textView"
+        android:gravity="center" />
+
+    <SeekBar
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:id="@+id/offset_seekBar"
+        android:layout_gravity="center"
+        android:layout_weight="7"
+        android:foregroundGravity="center" />
+
+</LinearLayout>

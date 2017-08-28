@@ -2,6 +2,8 @@ package com.dobi.walkingsynth.music;
 
 import android.content.res.Resources;
 
+import com.dobi.walkingsynth.music.drums.DrumsPlayer;
+
 import java.io.File;
 
 /**

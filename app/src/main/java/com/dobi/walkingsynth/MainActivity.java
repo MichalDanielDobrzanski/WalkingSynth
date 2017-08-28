@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG, "OnStop");
         mMusicCreator.destroyCSound();
+        Log.d(TAG, "onStop - destroying csound");
     }
 }

@@ -22,7 +22,7 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
 
     private static final String TAG = CsoundBaseSetup.class.getSimpleName();
 
-    protected CsoundObj csoundObj = new CsoundObj(false,true);
+    protected CsoundObj csoundObj = new CsoundObj(false, true);
     protected Handler handler = new Handler();
 
     private Resources resources;

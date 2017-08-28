@@ -1,8 +1,9 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.drums;
 
 import android.util.Log;
 
 import com.csounds.CsoundObj;
+import com.dobi.walkingsynth.music.BasePlayer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -14,11 +15,10 @@ public class DrumsPlayer extends BasePlayer {
 
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
-    protected static int BIT_FLAG_VALUE = 128;
     /**
      * This flag id for checking whether to invalidate the note on specific time interval
      */
-    protected int bitFlag;
+    private int bitFlag;
 
     private int mBarPosition;
 
@@ -39,10 +39,10 @@ public class DrumsPlayer extends BasePlayer {
      * When reached zero, it is set to
      *      1 0 0 0 0 0 0 0
      */
-    protected void moveFlag() {
+    private void moveFlag() {
         bitFlag = bitFlag >> 1;
         if (bitFlag == 0)
-            bitFlag = BIT_FLAG_VALUE;
+            bitFlag = 128;
     }
 
 
@@ -51,8 +51,6 @@ public class DrumsPlayer extends BasePlayer {
      */
     public void invalidate(int pb, int bc, int es) {
         mBarPosition = pb;
-        // read drum pattern from sequencer and play it:
-        //mDrumsSequencer.setTime(es);
         playSequence(mDrumsSequencer.getSequences());
     }
 

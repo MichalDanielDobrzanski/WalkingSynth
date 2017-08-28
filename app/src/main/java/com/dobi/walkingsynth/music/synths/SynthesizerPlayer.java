@@ -4,8 +4,6 @@ import android.util.Log;
 import com.csounds.CsoundObj;
 import com.dobi.walkingsynth.music.base.BasePlayer;
 import com.dobi.walkingsynth.music.utils.BarListener;
-import com.dobi.walkingsynth.music.utils.DistanceListener;
-import com.dobi.walkingsynth.music.utils.PositionListener;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -14,7 +12,7 @@ import java.util.Random;
  * Synthesizer player. Needs to now about the current key and scale and step and beat count.
  * Provides the SynthesizerSequencer with necessary information.
  */
-public class SynthesizerPlayer extends BasePlayer implements DistanceListener, PositionListener, BarListener {
+public class SynthesizerPlayer extends BasePlayer implements BarListener {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
@@ -23,7 +21,6 @@ public class SynthesizerPlayer extends BasePlayer implements DistanceListener, P
 
     private int mCurrentPosition = 0;
     private int mCurrentBar;
-    private long mCurrentDistance;
 
     private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
     private int[] currentRhythmSequence = mSynthesizerSequencer.getRhythmScoreSequence();
@@ -42,11 +39,6 @@ public class SynthesizerPlayer extends BasePlayer implements DistanceListener, P
     @Override
     public void invalidateBar(int bar) {
         mCurrentBar = bar;
-    }
-
-    @Override
-    public void invalidateDistance(long distance) {
-        mCurrentDistance = distance;
     }
 
 

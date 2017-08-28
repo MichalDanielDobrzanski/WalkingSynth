@@ -35,11 +35,9 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
 
     private int mPointsCount = 0;
 
-    private AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+    public AccelerometerGraph() {
 
-    public AccelerometerGraph(double threshold) {
-
-        mThresholdValue = threshold;
+        mThresholdValue = AccelerometerProcessing.THRESH_INIT_VALUE;
 
         // add single data set to multiple data set
         for (int i = 0; i < AccelerometerSignals.count; i++) {
@@ -112,8 +110,6 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
         }
         mPointsCount = 0;
     }
-
-
 
     public GraphicalView getView(Context context){
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);

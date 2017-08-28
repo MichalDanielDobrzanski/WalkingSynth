@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
     private TextView mTimeValTextView;
+
     private MusicCreator mMusicCreator;
 
     private TimeCounter mTimer;
@@ -65,10 +66,10 @@ public class MainActivity extends AppCompatActivity {
         Locale.setDefault(Locale.ENGLISH);
 
         // instantiate music analyzer
-        mMusicCreator = new MusicCreator(getResources(),getCacheDir());
+        mMusicCreator = new MusicCreator(getResources(), getCacheDir());
 
         // accelerometer graph setup:
-        mAccelGraph = new AccelerometerGraph(AccelerometerProcessing.THRESH_INIT_VALUE);
+        mAccelGraph = new AccelerometerGraph();
 
         // base note spinner:
         initializeNotesSpinner();
@@ -82,10 +83,13 @@ public class MainActivity extends AppCompatActivity {
         // get and configure text views
         mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
         formatThreshTextView(AccelerometerProcessing.THRESH_INIT_VALUE);
+
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
+
         mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
         mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
         // timer counter

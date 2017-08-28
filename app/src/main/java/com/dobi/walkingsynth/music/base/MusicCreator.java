@@ -13,23 +13,23 @@ import java.io.File;
  */
 public class MusicCreator extends CsoundBaseSetup {
 
-    private static final String TAG = MusicCreator.class.getSimpleName();
+    private MusicAnalyzer mMusicAnalyzer;
 
-    private MusicAnalyzer mMusicAnalyzer = new MusicAnalyzer();
+    private DrumsPlayer mDrums;
 
-    private DrumsPlayer mDrums = new DrumsPlayer(csoundObj);
-
-    private SynthesizerPlayer mSynth = new SynthesizerPlayer(csoundObj);
+    private SynthesizerPlayer mSynth;
 
     public MusicCreator(Resources res, File cDir) {
         super(res, cDir);
 
+        mMusicAnalyzer = new MusicAnalyzer();
+
+        mDrums = new DrumsPlayer(csoundObj);
         mMusicAnalyzer.addPositionListener(mDrums);
 
+        mSynth = new SynthesizerPlayer(csoundObj);
         mMusicAnalyzer.addPositionListener(mSynth);
         mMusicAnalyzer.addBarListener(mSynth);
-        mMusicAnalyzer.addDistanceListener(mSynth);
-
     }
 
 

@@ -1,8 +1,5 @@
 package com.dobi.walkingsynth.accelerometer;
 
-/**
- * Created by dobi on 21.10.15.
- */
 public final class ScalarKalmanFilter {
 
     private double mX0; // predicted state
@@ -21,12 +18,7 @@ public final class ScalarKalmanFilter {
         mR = r;
     }
 
-    public void init(float initialState, float initialCovariance){
-        mState = initialState;
-        mCovariance = initialCovariance;
-    }
-
-    public double correct(double measuredValue){
+    double correct(double measuredValue){
         // time update - prediction
         mX0 = mF * mState;
         mP0 = mF * mCovariance*mF + mQ;

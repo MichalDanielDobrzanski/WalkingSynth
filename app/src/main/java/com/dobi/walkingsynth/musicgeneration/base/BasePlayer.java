@@ -1,9 +1,9 @@
-package com.dobi.walkingsynth.music.base;
+package com.dobi.walkingsynth.musicgeneration.base;
 
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.music.synths.SynthesizerSequencer;
-import com.dobi.walkingsynth.music.utils.PositionListener;
+import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
+import com.dobi.walkingsynth.musicgeneration.utils.PositionListener;
 
 /**
  * Base player functionality for both csound_part and synths.

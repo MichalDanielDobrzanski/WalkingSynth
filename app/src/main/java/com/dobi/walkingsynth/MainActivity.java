@@ -18,14 +18,14 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.dobi.walkingsynth.accelerometer.AccelerometerDetector;
-import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.accelerometer.OnStepCountChangedListener;
-import com.dobi.walkingsynth.accelerometer.plotting.AChartEngineAccelGraph;
-import com.dobi.walkingsynth.accelerometer.plotting.AccelGraph;
-import com.dobi.walkingsynth.music.base.MusicCreator;
-import com.dobi.walkingsynth.music.synths.SynthesizerSequencer;
-import com.dobi.walkingsynth.music.time.TimeCounter;
+import com.dobi.walkingsynth.stepdetection.steps.StepDetector;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.steps.StepListener;
+import com.dobi.walkingsynth.stepdetection.plotting.AChartEngineAccelGraph;
+import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
+import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
+import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
+import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
     private SharedPreferences preferences;
 
-    private AccelerometerDetector mAccelDetector;
+    private StepDetector mAccelDetector;
 
     private AccelGraph mAccelGraph;
 
@@ -108,10 +108,10 @@ public class MainActivity extends AppCompatActivity {
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new AccelerometerDetector(sensorManager, mAccelGraph);
-        mAccelDetector.setStepCountChangeListener(new OnStepCountChangedListener() {
+        mAccelDetector = new StepDetector(sensorManager, mAccelGraph);
+        mAccelDetector.setStepCountListener(new StepListener() {
             @Override
-            public void onStepCountChange(int stepCount, long milisecStepTime) {
+            public void onStepCount(int stepCount, long milisecStepTime) {
                 mMusicCreator.getAnalyzer().onStep(milisecStepTime);
                 mMusicCreator.invalidateStep(stepCount);
 
@@ -199,8 +199,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 double threshold = AccelerometerProcessing.THRESH_INIT_VALUE * (progress + 90) / 100;
+
                 mAccelerometerProcessing.onThresholdChange(threshold);
+
                 mAccelGraph.onThresholdChange(threshold);
+
                 formatThreshTextView(threshold);
             }
 

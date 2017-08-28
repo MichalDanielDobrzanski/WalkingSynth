@@ -1,8 +1,10 @@
-package com.dobi.walkingsynth.accelerometer;
+package com.dobi.walkingsynth.stepdetection.accelerometer;
 
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.util.Log;
+
+import com.dobi.walkingsynth.stepdetection.plotting.OnThresholdChangeListener;
 
 import java.util.Date;
 
@@ -57,7 +59,7 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
      * Gets the current SensorEvent data.
      * @param e the mEvent.
      */
-    void setEvent(SensorEvent e) {
+    public void setEvent(SensorEvent e) {
         mEvent = e;
     }
 

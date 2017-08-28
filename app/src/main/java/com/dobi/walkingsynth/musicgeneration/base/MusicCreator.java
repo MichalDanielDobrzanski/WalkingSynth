@@ -1,9 +1,9 @@
-package com.dobi.walkingsynth.music.base;
+package com.dobi.walkingsynth.musicgeneration.base;
 
 import android.content.res.Resources;
 
-import com.dobi.walkingsynth.music.drums.DrumsPlayer;
-import com.dobi.walkingsynth.music.synths.SynthesizerPlayer;
+import com.dobi.walkingsynth.musicgeneration.drums.DrumsPlayer;
+import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerPlayer;
 
 import java.io.File;
 

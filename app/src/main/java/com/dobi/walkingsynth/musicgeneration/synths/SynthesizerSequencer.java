@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.music.synths;
+package com.dobi.walkingsynth.musicgeneration.synths;
 
 import android.util.Log;
 

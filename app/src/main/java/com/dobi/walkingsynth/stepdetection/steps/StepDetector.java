@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.accelerometer;
+package com.dobi.walkingsynth.stepdetection.steps;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -6,11 +6,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import com.dobi.walkingsynth.accelerometer.plotting.AccelGraph;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerSignals;
+import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
 
-public class AccelerometerDetector implements SensorEventListener {
+public class StepDetector implements SensorEventListener {
 
-    private static final String TAG = AccelerometerDetector.class.getSimpleName();
+    private static final String TAG = StepDetector.class.getSimpleName();
     /**
      * Suggested periods:
      * DELAY_UI: T ~= 60ms => f = 16,6Hz
@@ -30,17 +32,17 @@ public class AccelerometerDetector implements SensorEventListener {
 
     private Sensor mAccel;
 
-    private OnStepCountChangedListener mStepListener;
+    private StepListener mStepListener;
 
     /**
      * Listener setting for Step Detected event
      * @param listener a listener.
      */
-    public void setStepCountChangeListener(OnStepCountChangedListener listener) {
+    public void setStepCountListener(StepListener listener) {
         mStepListener = listener;
     }
 
-    public AccelerometerDetector(SensorManager sensorManager, AccelGraph graph) {
+    public StepDetector(SensorManager sensorManager, AccelGraph graph) {
         mStepListener = null;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
@@ -88,7 +90,7 @@ public class AccelerometerDetector implements SensorEventListener {
             mStepsCount++;
             // notify potential listeners
             if (mStepListener != null)
-                mStepListener.onStepCountChange(mStepsCount, eventMilisecTime);
+                mStepListener.onStepCount(mStepsCount, eventMilisecTime);
         }
     }
 

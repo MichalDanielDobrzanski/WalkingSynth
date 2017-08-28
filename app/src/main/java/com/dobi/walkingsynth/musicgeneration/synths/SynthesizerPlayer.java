@@ -1,9 +1,9 @@
-package com.dobi.walkingsynth.music.synths;
+package com.dobi.walkingsynth.musicgeneration.synths;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.music.base.BasePlayer;
-import com.dobi.walkingsynth.music.utils.BarListener;
+import com.dobi.walkingsynth.musicgeneration.base.BasePlayer;
+import com.dobi.walkingsynth.musicgeneration.utils.BarListener;
 
 import java.text.DecimalFormat;
 import java.util.Random;

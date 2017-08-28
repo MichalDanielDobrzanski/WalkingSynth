@@ -1,9 +1,9 @@
-package com.dobi.walkingsynth.accelerometer.plotting;
+package com.dobi.walkingsynth.stepdetection.plotting;
 
 import android.content.Context;
 import android.view.View;
 
-public interface AccelGraph {
+public interface AccelGraph extends OnThresholdChangeListener {
 
     /**
      * Update all graphs on the View.
@@ -18,9 +18,5 @@ public interface AccelGraph {
         Returns the view representing this graph
      */
     View createView(Context context);
-
-    void onThresholdChange(double newValue);
-
-
 }
 

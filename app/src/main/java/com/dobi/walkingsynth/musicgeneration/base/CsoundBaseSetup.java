@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.music.base;
+package com.dobi.walkingsynth.musicgeneration.base;
 
 import android.content.res.Resources;
 import android.os.Handler;

@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.accelerometer;
+package com.dobi.walkingsynth.stepdetection.plotting;
 
 public interface OnThresholdChangeListener {
 

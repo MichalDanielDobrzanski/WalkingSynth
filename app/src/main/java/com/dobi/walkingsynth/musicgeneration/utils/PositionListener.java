@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.music.utils;
+package com.dobi.walkingsynth.musicgeneration.utils;
 
 public interface PositionListener {
 

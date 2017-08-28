@@ -1,11 +1,10 @@
-package com.dobi.walkingsynth.accelerometer.plotting;
+package com.dobi.walkingsynth.stepdetection.plotting;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 
-import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.accelerometer.AccelerometerSignals;
-import com.dobi.walkingsynth.accelerometer.OnThresholdChangeListener;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerSignals;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -16,7 +15,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 
-public class AChartEngineAccelGraph implements AccelGraph,  OnThresholdChangeListener {
+public class AChartEngineAccelGraph implements AccelGraph {
 
     private static final String THRESH = "Threshold";
     private static final String TITLE = "Accelerometer data";
@@ -29,6 +28,7 @@ public class AChartEngineAccelGraph implements AccelGraph,  OnThresholdChangeLis
 
     private TimeSeries[] mSeries = new TimeSeries[AccelerometerSignals.count];
     private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelerometerSignals.count];
+
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
@@ -86,7 +86,7 @@ public class AChartEngineAccelGraph implements AccelGraph,  OnThresholdChangeLis
     public void invalidate(double t, double[] v) {
 
         // signals:
-        for (int i = 0; i < AccelerometerSignals.count; ++i) {
+        for (int i = 0; i < v.length; ++i) {
             mSeries[i].add(t, v[i]);
             if (mPointsCount > GRAPH_POINTS_COUNT) {
                 mSeries[i].remove(0);
@@ -106,7 +106,7 @@ public class AChartEngineAccelGraph implements AccelGraph,  OnThresholdChangeLis
     }
 
     public void reset() {
-        for (int i = 0; i < AccelerometerSignals.count; ++i) {
+        for (int i = 0; i < mSeries.length; ++i) {
             mSeries[i].clear();
             mThreshold.clear();
         }

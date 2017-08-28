@@ -1,10 +1,10 @@
-package com.dobi.walkingsynth.music.base;
+package com.dobi.walkingsynth.musicgeneration.base;
 
 import android.util.Log;
 
-import com.dobi.walkingsynth.music.utils.BarListener;
-import com.dobi.walkingsynth.music.utils.DistanceListener;
-import com.dobi.walkingsynth.music.utils.PositionListener;
+import com.dobi.walkingsynth.musicgeneration.utils.BarListener;
+import com.dobi.walkingsynth.musicgeneration.utils.DistanceListener;
+import com.dobi.walkingsynth.musicgeneration.utils.PositionListener;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.music.time;
+package com.dobi.walkingsynth.musicgeneration.time;
 
 import android.os.Handler;
 import android.widget.TextView;

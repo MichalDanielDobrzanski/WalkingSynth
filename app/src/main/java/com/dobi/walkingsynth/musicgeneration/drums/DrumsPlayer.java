@@ -1,9 +1,9 @@
-package com.dobi.walkingsynth.music.drums;
+package com.dobi.walkingsynth.musicgeneration.drums;
 
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.music.base.BasePlayer;
+import com.dobi.walkingsynth.musicgeneration.base.BasePlayer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

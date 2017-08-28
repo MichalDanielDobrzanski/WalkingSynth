@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.music.drums;
+package com.dobi.walkingsynth.musicgeneration.drums;
 
 import android.util.Log;
 

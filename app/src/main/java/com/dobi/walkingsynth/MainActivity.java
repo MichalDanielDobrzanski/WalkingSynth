@@ -19,14 +19,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dobi.walkingsynth.accelerometer.AccelerometerDetector;
-import com.dobi.walkingsynth.accelerometer.AccelerometerGraph;
 import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
 import com.dobi.walkingsynth.accelerometer.OnStepCountChangeListener;
+import com.dobi.walkingsynth.accelerometer.plotting.AChartEngineAccelGraph;
+import com.dobi.walkingsynth.accelerometer.plotting.AccelGraph;
 import com.dobi.walkingsynth.music.base.MusicCreator;
 import com.dobi.walkingsynth.music.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.music.time.TimeCounter;
-
-import org.achartengine.GraphicalView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private int mStepCount = 0;
     private AccelerometerDetector mAccelDetector;
-    private AccelerometerGraph mAccelGraph;
+    private AccelGraph mAccelGraph;
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mMusicCreator = new MusicCreator(getResources(), getCacheDir());
 
         // accelerometer graph setup:
-        mAccelGraph = new AccelerometerGraph();
+        mAccelGraph = new AChartEngineAccelGraph();
 
         // base note spinner:
         initializeNotesSpinner();
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         mTimer.start();
 
         // UI default setup
-        GraphicalView graphicalView = mAccelGraph.getView(this);
+        View graphicalView = mAccelGraph.createView(this);
         graphicalView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
@@ -192,10 +191,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * SeekBar is the publisher.
-     * The subscribers are: AccelerometerGraph and AccelerometerProcessing instances.
-     */
     private void initializeSeekBar() {
         final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
         seekBar.setMax(130 - 90);

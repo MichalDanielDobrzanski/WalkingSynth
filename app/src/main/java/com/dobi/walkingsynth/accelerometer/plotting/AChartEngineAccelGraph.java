@@ -1,6 +1,11 @@
-package com.dobi.walkingsynth.accelerometer;
+package com.dobi.walkingsynth.accelerometer.plotting;
 import android.content.Context;
 import android.graphics.Color;
+import android.view.View;
+
+import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.accelerometer.AccelerometerSignals;
+import com.dobi.walkingsynth.accelerometer.OnThresholdChangeListener;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -10,12 +15,8 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-/**
- * Plotting accelerometer data.
- */
-public class AccelerometerGraph implements OnThresholdChangeListener {
 
-    private static final String TAG = AccelerometerGraph.class.getSimpleName();
+public class AChartEngineAccelGraph implements AccelGraph,  OnThresholdChangeListener {
 
     private static final String THRESH = "Threshold";
     private static final String TITLE = "Accelerometer data";
@@ -31,11 +32,11 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
-    private GraphicalView view;
-
     private int mPointsCount = 0;
 
-    public AccelerometerGraph() {
+    private GraphicalView view;
+
+    public AChartEngineAccelGraph() {
 
         mThresholdValue = AccelerometerProcessing.THRESH_INIT_VALUE;
 
@@ -50,8 +51,10 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
         }
         mRenderers[0].setColor(Color.RED);
         mRenderers[1].setColor(Color.BLUE);
+
         // add measurement line
-        addThresholdGraph();
+        addThresholdLine();
+
         // customize general view
         mRenderer.clearXTextLabels();
         mRenderer.setYTitle("Acc value");
@@ -66,10 +69,7 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
         mRenderer.setZoomEnabled(false, false);
     }
 
-    /**
-     * Adds threshold line to the plot.
-     */
-    private void addThresholdGraph() {
+    private void addThresholdLine() {
         mThreshold = new TimeSeries(THRESH);
         mDataset.addSeries(mThreshold);
         XYSeriesRenderer renderer = new XYSeriesRenderer();
@@ -99,7 +99,9 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
             mThreshold.remove(0);
         }
 
-        view.repaint();
+        if (view != null)
+            view.repaint();
+
         ++mPointsCount;
     }
 
@@ -111,7 +113,8 @@ public class AccelerometerGraph implements OnThresholdChangeListener {
         mPointsCount = 0;
     }
 
-    public GraphicalView getView(Context context){
+    @Override
+    public View createView(Context context) {
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);
         return view;
     }

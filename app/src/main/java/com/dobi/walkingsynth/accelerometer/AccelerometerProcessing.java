@@ -13,13 +13,12 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
 
     private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
-    private static AccelerometerProcessing instance = null;
+    private static AccelerometerProcessing mInstance;
 
     public static AccelerometerProcessing getInstance() {
-
-        if (instance == null)
-            return new AccelerometerProcessing();
-        return instance;
+        if (mInstance == null)
+            mInstance = new AccelerometerProcessing();
+        return mInstance;
     }
 
     /**
@@ -35,11 +34,12 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_PERIODS = 12;
+
     public static final float THRESH_INIT_VALUE = 12.72f;
 
     // dynamic variables
     private int mInactiveCounter = 0;
-    public boolean isActiveCounter = true;
+    private boolean isActiveCounter = true;
 
     private static double mThresholdValue = THRESH_INIT_VALUE;
     private double[] mAccelValues = new double[AccelerometerSignals.count];
@@ -50,13 +50,14 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
     // computational variables
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
+
     private ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
 
     /**
      * Gets the current SensorEvent data.
      * @param e the mEvent.
      */
-    public void setEvent(SensorEvent e) {
+    void setEvent(SensorEvent e) {
         mEvent = e;
     }
 
@@ -64,7 +65,6 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
         Log.d(TAG,"Getting Threshold: " + mThresholdValue);
         return mThresholdValue;
     }
-
 
     /**
      * Get event time.
@@ -74,7 +74,6 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
     public long timestampToMilliseconds() {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
-
 
     /**
      * Initializes the Scalar Kalman Filters one after another.

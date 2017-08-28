@@ -1,13 +1,12 @@
 package com.dobi.walkingsynth.accelerometer;
 
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import org.achartengine.GraphicalView;
+import com.dobi.walkingsynth.accelerometer.plotting.AccelGraph;
 
 /**
  * Configuring accelerometer and handling its results.
@@ -23,8 +22,10 @@ public class AccelerometerDetector implements SensorEventListener {
     public static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
     private double[] mAccelResult = new double[AccelerometerSignals.count];
-    private AccelerometerGraph mAccelGraph;
-    private AccelerometerProcessing mAccelProcessing = AccelerometerProcessing.getInstance();
+
+    private AccelGraph mAccelGraph;
+
+    private AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
 
     private SensorManager mSensorManager;
     private Sensor mAccel;
@@ -39,7 +40,7 @@ public class AccelerometerDetector implements SensorEventListener {
         mStepListener = listener;
     }
 
-    public AccelerometerDetector(SensorManager sensorManager, AccelerometerGraph graph) {
+    public AccelerometerDetector(SensorManager sensorManager, AccelGraph graph) {
         mStepListener = null;
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
@@ -70,19 +71,19 @@ public class AccelerometerDetector implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
 
         // handle accelerometer data
-        mAccelProcessing.setEvent(event);
-        final long eventMsecTime = mAccelProcessing.timestampToMilliseconds();
+        mAccelerometerProcessing.setEvent(event);
+        final long eventMsecTime = mAccelerometerProcessing.timestampToMilliseconds();
 
-        mAccelResult[0] = mAccelProcessing.calcMagnitudeVector(0);
-        mAccelResult[0] = mAccelProcessing.calcExpMovAvg(0);
-        mAccelResult[1] = mAccelProcessing.calcMagnitudeVector(1);
+        mAccelResult[0] = mAccelerometerProcessing.calcMagnitudeVector(0);
+        mAccelResult[0] = mAccelerometerProcessing.calcExpMovAvg(0);
+        mAccelResult[1] = mAccelerometerProcessing.calcMagnitudeVector(1);
         //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventMsecTime);
 
         // update graph with value and timestamp
         mAccelGraph.invalidate(eventMsecTime, mAccelResult);
 
         // step detection
-        if (mAccelProcessing.stepDetected(1)) {
+        if (mAccelerometerProcessing.stepDetected(1)) {
             // step is found!
 
             // notify potential listeners

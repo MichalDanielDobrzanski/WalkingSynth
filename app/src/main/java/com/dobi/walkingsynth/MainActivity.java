@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
@@ -55,9 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private TimeCounter mTimer;
     private Handler mHandler = new Handler();
 
-    // constant reference
     private final AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.dobi.walkingsynth.accelerometer.AccelerometerDetector;
 import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.accelerometer.OnStepCountChangeListener;
+import com.dobi.walkingsynth.accelerometer.OnStepCountChangedListener;
 import com.dobi.walkingsynth.accelerometer.plotting.AChartEngineAccelGraph;
 import com.dobi.walkingsynth.accelerometer.plotting.AccelGraph;
 import com.dobi.walkingsynth.music.base.MusicCreator;
@@ -41,9 +41,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFERENCES_NAME = "Values";
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
     private SharedPreferences preferences;
-    private int mStepCount = 0;
+
     private AccelerometerDetector mAccelDetector;
+
     private AccelGraph mAccelGraph;
+
     private TextView mThreshValTextView;
     private TextView mStepCountTextView;
     private TextView mTempoValTextView;
@@ -107,27 +109,25 @@ public class MainActivity extends AppCompatActivity {
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mAccelDetector = new AccelerometerDetector(sensorManager, mAccelGraph);
-        mAccelDetector.setStepCountChangeListener(new OnStepCountChangeListener() {
+        mAccelDetector.setStepCountChangeListener(new OnStepCountChangedListener() {
             @Override
-            public void onStepCountChange(long eventMsecTime) {
-                ++mStepCount;
-                mStepCountTextView.setText(String.valueOf(mStepCount));
-                mMusicCreator.getAnalyzer().onStep(eventMsecTime);
-                mMusicCreator.invalidateStep(mStepCount);
-                mTempoValTextView.setText(
-                        String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+            public void onStepCountChange(int stepCount, long milisecStepTime) {
+                mMusicCreator.getAnalyzer().onStep(milisecStepTime);
+                mMusicCreator.invalidateStep(stepCount);
+
+                mStepCountTextView.setText(Integer.toString(stepCount));
+
+                mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
         });
 
         // seek bar configuration
         initializeSeekBar();
-
     }
 
     private void initializeNotesSpinner() {
         ArrayList<String> notesList = new ArrayList<>();
-        for ( String key : SynthesizerSequencer.notes.keySet())
-        {
+        for ( String key : SynthesizerSequencer.notes.keySet()) {
             notesList.add(key);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,notesList);

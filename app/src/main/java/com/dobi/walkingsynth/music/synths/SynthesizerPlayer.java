@@ -1,7 +1,11 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.synths;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
+import com.dobi.walkingsynth.music.base.BasePlayer;
+import com.dobi.walkingsynth.music.utils.BarListener;
+import com.dobi.walkingsynth.music.utils.DistanceListener;
+import com.dobi.walkingsynth.music.utils.PositionListener;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -10,29 +14,41 @@ import java.util.Random;
  * Synthesizer player. Needs to now about the current key and scale and step and beat count.
  * Provides the SynthesizerSequencer with necessary information.
  */
-public class SynthesizerPlayer extends BasePlayer {
+public class SynthesizerPlayer extends BasePlayer implements DistanceListener, PositionListener, BarListener {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
-    private int mStepCount = 0;
-    private long mPositionTimeInterval;
-    private Random generator = new Random();
+    private Random generator = new Random(System.currentTimeMillis());
+
+
+    private int mCurrentPosition = 0;
+    private int mCurrentBar;
+    private long mCurrentDistance;
+
+    private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
+    private int[] currentRhythmSequence = mSynthesizerSequencer.getRhythmScoreSequence();
 
     public SynthesizerPlayer(CsoundObj csoundObj) {
         super(csoundObj);
     }
 
-    private SynthesizerSequencer mSynthesizerSequencer = new SynthesizerSequencer();
-
-    private int[] currentRhythmSequence = mSynthesizerSequencer.getRhythmScoreSequence(); // current sequence obtained from sequencer
-
-    protected void invalidate(int pb, int bc, long posti) {
-        //Log.d(TAG,"Bar position: " + pb);
-        //Log.d(TAG,"Sleep for: " + posti);
-        mPositionTimeInterval = posti;
-        if ((pb + 8) % 8 == 0)
-            onBarCountChange(bc);
+    @Override
+    public void invalidatePosition(int position) {
+        mCurrentPosition = position;
+        if ((mCurrentPosition + 8) % 8 == 0)
+            onBarCountChange(mCurrentBar);
     }
+
+    @Override
+    public void invalidateBar(int bar) {
+        mCurrentBar = bar;
+    }
+
+    @Override
+    public void invalidateDistance(long distance) {
+        mCurrentDistance = distance;
+    }
+
 
     // This is called only when full bar has passed in time.
     private void onBarCountChange(int bc) {
@@ -102,7 +118,6 @@ public class SynthesizerPlayer extends BasePlayer {
         mSynthesizerSequencer.invdalidateScale(scale);
         currentRhythmSequence = mSynthesizerSequencer.getRhythmScoreSequence();
     }
-//    public void invalidateStepInterval(int idx) {
-//        mStepInterval = SynthesizerSequencer.stepIntervals[idx];
-//    }
+
+
 }

@@ -1,17 +1,22 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.base;
 
 import android.util.Log;
 
+import com.dobi.walkingsynth.music.utils.BarListener;
+import com.dobi.walkingsynth.music.utils.DistanceListener;
+import com.dobi.walkingsynth.music.utils.PositionListener;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
- * Anaylizing tempo and other parameters.
+ * Analyzes tempo
  */
 public class MusicAnalyzer {
 
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
-    // global steering values:
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 120;
     private static final int MAX_TEMPO_DIFF = 40;
@@ -20,7 +25,7 @@ public class MusicAnalyzer {
      * How many divisions do for a single bar.
      * 8 corresponds to quarter notes.
     */
-    public static final int BAR_INTERVALS = 8; // as for now
+    public static final int BAR_INTERVALS = 8;
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -47,10 +52,28 @@ public class MusicAnalyzer {
      */
     private long mPositionInterval;
 
-    private OnTimeIntervalListener mIntervalListener;
+    private List<PositionListener> mPositionListeners;
 
-    public void setIntervalListener(OnTimeIntervalListener listener) {
-        mIntervalListener = listener;
+    public void addPositionListener(PositionListener listener) {
+        if (mPositionListeners == null)
+            mPositionListeners = new ArrayList<>();
+        mPositionListeners.add(listener);
+    }
+
+    private List<BarListener> mBarListeners;
+
+    public void addBarListener(BarListener listener) {
+        if (mBarListeners == null)
+            mBarListeners = new ArrayList<>();
+        mBarListeners.add(listener);
+    }
+
+    private List<DistanceListener> mDistanceListeners;
+
+    public void addDistanceListener(DistanceListener listener) {
+        if (mDistanceListeners == null)
+            mDistanceListeners = new ArrayList<>();
+        mDistanceListeners.add(listener);
     }
 
     /**
@@ -60,11 +83,8 @@ public class MusicAnalyzer {
     private long mSongLength;
     private long mSongElapsed = 0;
 
-    /**
-     * Entry analysis parameters
-     */
-    public MusicAnalyzer() {
-        mIntervalListener = null;
+
+    MusicAnalyzer() {
         mPositionInterval = calcPositionInterval();
         // calculate the length of a song
         calcNewSongLength();
@@ -89,8 +109,8 @@ public class MusicAnalyzer {
                             ++mSongNumber;
                         }
                         // notify potential listeners
-                        if (mIntervalListener != null)
-                            mIntervalListener.onInterval(mBarPosition, mBarCount, mPositionInterval, calcElapsedSong());
+                        invalidateListeners();
+
                         Log.d(TAG, mBarPosition + " Sleep: " + mPositionInterval);
                     }
                 } catch (InterruptedException e) {
@@ -99,6 +119,25 @@ public class MusicAnalyzer {
             }
         };
         hHatThread.start();
+    }
+
+    private void invalidateListeners() {
+        if (mPositionListeners != null) {
+            for (PositionListener listener : mPositionListeners) {
+                listener.invalidatePosition(mBarPosition);
+                //mBarCount, mPositionInterval, calcElapsedSong()
+            }
+        }
+        if (mBarListeners != null) {
+            for (BarListener listener : mBarListeners) {
+                listener.invalidateBar(mBarPosition);
+            }
+        }
+        if (mDistanceListeners != null) {
+            for (DistanceListener listener : mDistanceListeners) {
+                listener.invalidateDistance(mPositionInterval);
+            }
+        }
     }
 
 
@@ -113,7 +152,7 @@ public class MusicAnalyzer {
     }
 
     /**
-     * Calculate next time interval based on tempo. When (in time) should I invalidate another note.
+     * Calculate next time interval based on tempo. When (in time) should I invalidatePosition another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
      *

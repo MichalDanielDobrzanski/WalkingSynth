@@ -1,9 +1,7 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.synths;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
@@ -15,10 +13,7 @@ public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
-    public static final int[] stepIntervals = new int[]
-    {
-        20, 30, 50, 100
-    };
+    public static final int[] stepIntervals = new int[] { 20, 30, 50, 100 };
 
     // hash map static initialization
     public static LinkedHashMap<String,Integer> notes = new LinkedHashMap<>();

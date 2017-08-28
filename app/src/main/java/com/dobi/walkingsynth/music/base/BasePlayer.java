@@ -1,14 +1,14 @@
-package com.dobi.walkingsynth.music;
-
-import android.util.Log;
+package com.dobi.walkingsynth.music.base;
 
 
 import com.csounds.CsoundObj;
+import com.dobi.walkingsynth.music.synths.SynthesizerSequencer;
+import com.dobi.walkingsynth.music.utils.PositionListener;
 
 /**
  * Base player functionality for both csound_part and synths.
  */
-public class BasePlayer {
+public abstract class BasePlayer implements PositionListener {
 
     protected CsoundObj mCsoundObj;
 
@@ -21,5 +21,4 @@ public class BasePlayer {
     public void invalidateStepInterval(int idx) {
         mStepInterval = SynthesizerSequencer.stepIntervals[idx];
     }
-
 }

@@ -22,9 +22,9 @@ import com.dobi.walkingsynth.accelerometer.AccelerometerDetector;
 import com.dobi.walkingsynth.accelerometer.AccelerometerGraph;
 import com.dobi.walkingsynth.accelerometer.AccelerometerProcessing;
 import com.dobi.walkingsynth.accelerometer.OnStepCountChangeListener;
-import com.dobi.walkingsynth.music.MusicCreator;
-import com.dobi.walkingsynth.music.SynthesizerSequencer;
-import com.dobi.walkingsynth.music.TimeCounter;
+import com.dobi.walkingsynth.music.base.MusicCreator;
+import com.dobi.walkingsynth.music.synths.SynthesizerSequencer;
+import com.dobi.walkingsynth.music.time.TimeCounter;
 
 import org.achartengine.GraphicalView;
 

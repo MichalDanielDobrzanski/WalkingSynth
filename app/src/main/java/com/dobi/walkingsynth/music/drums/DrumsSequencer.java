@@ -27,7 +27,7 @@ public class DrumsSequencer {
     private Random mRandom = new Random();
 
     DrumsSequencer() {
-        initSequence();
+        generateFirstSequence();
 
         // hi hat:
         mDrumsParams[0][0] = 0.11f;
@@ -42,32 +42,22 @@ public class DrumsSequencer {
         mDrumsParams[2][1] = 0.5f;
     }
 
-    private void initSequence() {
+    private void generateFirstSequence() {
         mDrumsSequences.add(170);
         mDrumsSequences.add(8);
         mDrumsSequences.add(128);
         Log.d(TAG, "Count is: " + mDrumsSequences.size());
     }
 
-    public ArrayList<Integer> getSequences() {
+    ArrayList<Integer> getSequences() {
         return mDrumsSequences;
     }
 
-    public float[] getParametrs(int instr) {
-        return mDrumsParams[instr - 1];
+    float[] getParameters(int instrument) {
+        return mDrumsParams[instrument - 1];
     }
 
-    public void randHiHat() {
-        // when time is small draw little hi hats
-        // when time is big draw frequent hi hats
+    void randomizeHiHat() {
         mDrumsSequences.set(0,mRandom.nextInt(256));
-    }
-
-    private int randKick() {
-        return 0;
-    }
-
-    private int randSnare() {
-        return 0;
     }
 }

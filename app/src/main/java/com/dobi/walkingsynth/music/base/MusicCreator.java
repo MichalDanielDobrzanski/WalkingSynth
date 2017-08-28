@@ -1,8 +1,9 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.base;
 
 import android.content.res.Resources;
 
 import com.dobi.walkingsynth.music.drums.DrumsPlayer;
+import com.dobi.walkingsynth.music.synths.SynthesizerPlayer;
 
 import java.io.File;
 
@@ -15,18 +16,20 @@ public class MusicCreator extends CsoundBaseSetup {
     private static final String TAG = MusicCreator.class.getSimpleName();
 
     private MusicAnalyzer mMusicAnalyzer = new MusicAnalyzer();
+
     private DrumsPlayer mDrums = new DrumsPlayer(csoundObj);
+
     private SynthesizerPlayer mSynth = new SynthesizerPlayer(csoundObj);
 
     public MusicCreator(Resources res, File cDir) {
         super(res, cDir);
-        mMusicAnalyzer.setIntervalListener(new OnTimeIntervalListener() {
-            @Override
-            public void onInterval(int pos, int bc, long posti,int el) {
-                mDrums.invalidate(pos, bc, el);
-                mSynth.invalidate(pos, bc, posti);
-            }
-        });
+
+        mMusicAnalyzer.addPositionListener(mDrums);
+
+        mMusicAnalyzer.addPositionListener(mSynth);
+        mMusicAnalyzer.addBarListener(mSynth);
+        mMusicAnalyzer.addDistanceListener(mSynth);
+
     }
 
 

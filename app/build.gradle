@@ -27,4 +27,6 @@ dependencies {
     compile files('libs/achartengine-1.1.0.jar')
 
     compile project(':CsoundAndroid')
+
+    testCompile 'junit:junit:4.12'
 }

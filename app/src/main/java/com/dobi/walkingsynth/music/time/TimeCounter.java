@@ -1,9 +1,7 @@
-package com.dobi.walkingsynth.music;
+package com.dobi.walkingsynth.music.time;
 
 import android.os.Handler;
 import android.widget.TextView;
-
-import org.achartengine.model.TimeSeries;
 
 /**
  * Timer for showing how long the music is being played.

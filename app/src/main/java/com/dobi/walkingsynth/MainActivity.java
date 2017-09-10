@@ -27,7 +27,6 @@ import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
 import com.dobi.walkingsynth.stepdetection.steps.StepDetector;
 import com.dobi.walkingsynth.stepdetection.steps.StepListener;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -72,18 +71,9 @@ public class MainActivity extends AppCompatActivity {
         // accelerometer graph setup:
         mAccelGraph = new AChartEngineAccelGraph();
 
-        // base note spinner:
         initializeNotesSpinner();
-
-        // scales spinner:
         initializeScalesSpinner();
-
-        // step intervals spinner:
         initializeStepsSpinner();
-
-        // get and configure text views
-        mThreshValTextView = (TextView)findViewById(R.id.threshval_textView);
-        formatThreshTextView(AccelerometerProcessing.THRESH_INIT_VALUE);
 
         mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
@@ -192,12 +182,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 double threshold = AccelerometerProcessing.THRESH_INIT_VALUE * (progress + 90) / 100;
-
                 mAccelerometerProcessing.onThresholdChange(threshold);
-
                 mAccelGraph.onThresholdChange(threshold);
-
-                formatThreshTextView(threshold);
             }
 
             @Override
@@ -210,11 +196,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void formatThreshTextView(double v) {
-        final DecimalFormat df = new DecimalFormat("#.##");
-        mThreshValTextView.setText(String.valueOf(df.format(v)));
     }
 
     @Override

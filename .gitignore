@@ -12,16 +12,10 @@ CsoundAndroid/build/
 local.properties
 
 # User-specific configurations
-.idea/*
+.idea/
 *.iml
 app/app.iml
 CsoundAndroid/CsoundAndroid.iml
 
 # OS-specific files
 .DS_Store
-
-
-# my specific excludes
-.externalNativeBuild
-CsoundAndroid/CsoundAndroid.iml
-fix-names.sh

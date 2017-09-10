@@ -1,7 +1,9 @@
 package com.dobi.walkingsynth.stepdetection.plotting;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
 import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerSignals;
@@ -116,6 +118,9 @@ public class AChartEngineAccelGraph implements AccelGraph {
     @Override
     public View createView(Context context) {
         view =  ChartFactory.getLineChartView(context, mDataset, mRenderer);
+        view.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
         return view;
     }
 

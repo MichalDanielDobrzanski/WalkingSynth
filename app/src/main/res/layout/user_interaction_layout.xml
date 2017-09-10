@@ -53,6 +53,29 @@
                 card_view:layout_constraintTop_toTopOf="parent"
                 card_view:layout_constraintVertical_bias="1.0" />
 
+            <TextView
+                android:layout_weight="2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="@string/thresh_val"
+                android:textAlignment="center"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/threshval_textView"
+                android:gravity="center" />
+
+            <SeekBar
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/offset_seekBar"
+                android:layout_gravity="center"
+                android:layout_weight="7"
+                android:foregroundGravity="center" />
+
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>

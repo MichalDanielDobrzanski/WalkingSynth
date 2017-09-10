@@ -13,19 +13,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.dobi.walkingsynth.stepdetection.steps.StepDetector;
-import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.stepdetection.steps.StepListener;
-import com.dobi.walkingsynth.stepdetection.plotting.AChartEngineAccelGraph;
-import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
 import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
+import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.plotting.AChartEngineAccelGraph;
+import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
+import com.dobi.walkingsynth.stepdetection.steps.StepDetector;
+import com.dobi.walkingsynth.stepdetection.steps.StepListener;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -93,18 +93,11 @@ public class MainActivity extends AppCompatActivity {
 
         mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
 
-        // timer counter
         mTimer = new TimeCounter(mHandler,mTimeValTextView);
         mTimer.start();
 
-        // UI default setup
-        View graphicalView = mAccelGraph.createView(this);
-        graphicalView.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
-
-        LinearLayout graphLayout = (LinearLayout)findViewById(R.id.graph_layout);
-        graphLayout.addView(graphicalView);
+        FrameLayout graphFrameLayout = (FrameLayout)findViewById(R.id.graph_frame_layout);
+        graphFrameLayout.addView(mAccelGraph.createView(this));
 
         // initialize accelerometer
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);

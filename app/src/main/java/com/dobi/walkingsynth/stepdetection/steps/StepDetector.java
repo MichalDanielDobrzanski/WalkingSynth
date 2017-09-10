@@ -85,7 +85,7 @@ public class StepDetector implements SensorEventListener {
         mAccelGraph.invalidate(eventMilisecTime, mAccelResult);
 
         // step detection
-        if (mAccelerometerProcessing.stepDetected(1)) {
+        if (mAccelerometerProcessing.stepDetection(1)) {
             // step is found!
             mStepsCount++;
             // notify potential listeners

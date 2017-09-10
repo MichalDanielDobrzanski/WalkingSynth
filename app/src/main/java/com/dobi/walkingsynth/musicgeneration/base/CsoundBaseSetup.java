@@ -38,7 +38,6 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
 
         csoundObj.setMessageLoggingEnabled(true);
         csoundObj.addBinding(this);
-        csoundObj.startCsound(tempFile);
     }
 
     public void startCSound() {
@@ -52,7 +51,7 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
         csoundObj.stop();
     }
 
-    protected String getResourceFileAsString(int resId) {
+    private String getResourceFileAsString(int resId) {
         StringBuilder str = new StringBuilder();
 
         InputStream is = resources.openRawResource(resId);
@@ -70,7 +69,7 @@ public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
         return str.toString();
     }
 
-    protected File createTempFile(String csd) {
+    private File createTempFile(String csd) {
         File f = null;
 
         try {

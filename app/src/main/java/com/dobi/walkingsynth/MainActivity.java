@@ -6,7 +6,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -175,15 +174,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeSeekBar() {
-        final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seekBar);
-        seekBar.setMax(130 - 90);
-        seekBar.setProgress((int) AccelerometerProcessing.getInstance().getThresholdValue());
+        final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seek_bar);
+        seekBar.setProgress(10);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double threshold = AccelerometerProcessing.THRESH_INIT_VALUE * (progress + 90) / 100;
-                mAccelerometerProcessing.onThresholdChange(threshold);
-                mAccelGraph.onThresholdChange(threshold);
+                if (fromUser) {
+                    mAccelerometerProcessing.onProgressChange(progress);
+                    mAccelGraph.onThresholdChange(mAccelerometerProcessing.getThreshold());
+                }
             }
 
             @Override
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveThreshold() {
         preferences.edit().putFloat(
                 PREFERENCES_VALUES_THRESHOLD_KEY,
-                (float) AccelerometerProcessing.getInstance().getThresholdValue()).apply();
+                (float) AccelerometerProcessing.getInstance().getThreshold()).apply();
     }
 
     @Override
@@ -240,15 +239,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "OnPause");
         mAccelDetector.stopDetector();
         mTimer.pause();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         mMusicCreator.destroyCSound();
-        Log.d(TAG, "onStop - destroying csound");
+        super.onStop();
     }
 }

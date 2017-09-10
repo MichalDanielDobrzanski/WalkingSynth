@@ -40,7 +40,7 @@ public class AChartEngineAccelGraph implements AccelGraph {
 
     public AChartEngineAccelGraph() {
 
-        mThresholdValue = AccelerometerProcessing.THRESH_INIT_VALUE;
+        mThresholdValue = AccelerometerProcessing.THRESHOLD_INITIAL;
 
         // add single data set to multiple data set
         for (int i = 0; i < AccelerometerSignals.count; i++) {

@@ -1,27 +1,26 @@
 package com.dobi.walkingsynth.stepdetection.accelerometer;
 
 import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
 import android.util.Log;
-
-import com.dobi.walkingsynth.stepdetection.plotting.OnThresholdChangeListener;
 
 import java.util.Date;
 
 /**
  * Computing and processing accelerometer data.
  */
-public class AccelerometerProcessing implements OnThresholdChangeListener {
+public class AccelerometerProcessing  {
 
-    private static final String TAG = AccelerometerProcessing.class.getSimpleName();
-
-    private static AccelerometerProcessing mInstance;
+    public static final float THRESHOLD_INITIAL = 12.72f;
 
     public static AccelerometerProcessing getInstance() {
         if (mInstance == null)
             mInstance = new AccelerometerProcessing();
         return mInstance;
     }
+
+    private static AccelerometerProcessing mInstance;
+
+    private static final String TAG = AccelerometerProcessing.class.getSimpleName();
 
     /**
      * Step detecting parameter. How many periods it is sleeping.
@@ -36,148 +35,87 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_PERIODS = 12;
+    private static final int OFFSET = 90;
 
-    public static final float THRESH_INIT_VALUE = 12.72f;
+    private float mThreshold;
+    private boolean isActiveCounter;
 
-    // dynamic variables
-    private int mInactiveCounter = 0;
-    private boolean isActiveCounter = true;
-
-    private static double mThresholdValue = THRESH_INIT_VALUE;
-    private double[] mAccelValues = new double[AccelerometerSignals.count];
-    private double[] mAccelLastValues = new double[AccelerometerSignals.count];
+    private double[] mAccelValues;
+    private double[] mAccelLastValues;
+    private double[] mGravity = new double[3];
+    private double[] mLinearAcceleration = new double[3];
 
     private SensorEvent mEvent;
 
-    // computational variables
-    private double[] gravity = new double[3];
-    private double[] linear_acceleration = new double[3];
+    private AccelerometerProcessing() {
+        mThreshold = THRESHOLD_INITIAL;
+        isActiveCounter = true;
+        mAccelValues = new double[AccelerometerSignals.count];
+        mAccelLastValues = new double[AccelerometerSignals.count];
+        mGravity = new double[3];
+        mLinearAcceleration = new double[3];
+    }
 
-    private ScalarKalmanFilter filtersCascade[] = new ScalarKalmanFilter[3];
 
     /**
      * Gets the current SensorEvent data.
-     * @param e the mEvent.
      */
     public void setEvent(SensorEvent e) {
         mEvent = e;
     }
 
-    public double getThresholdValue() {
-        Log.d(TAG,"Getting Threshold: " + mThresholdValue);
-        return mThresholdValue;
+    public double getThreshold() {
+        return mThreshold;
     }
 
     /**
-     * Get event time.
-     * @see <a href="http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp">To miliseconds.</a>
-     * @return time in milliseconds
+     * Get event time. http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp
      */
     public long timestampToMilliseconds() {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 
-    /**
-     * Initializes the Scalar Kalman Filters one after another.
-     */
-    public void initKalman() {
-        // set filter
-        filtersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
-        filtersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
-        filtersCascade[2] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
-    }
-
-    /**
-     * Smoothes the signal from accelerometer.
-     */
-    private double filter(double measurement){
-        double f1 = filtersCascade[0].correct(measurement);
-        double f2 = filtersCascade[1].correct(f1);
-        double f3 = filtersCascade[2].correct(f2);
-        return f3;
-    }
-
-    public double calcKalman(int i) {
-        mAccelValues[i] = filter(mAccelValues[i]);
-        //mAccelValues[i] = Math.abs(mAccelValues[i] - mLastOne);
-        //mLastOne = mAccelValues[i];
-        return mAccelValues[i];
-    }
-
-    /**
-     * Filters the signal out of gravity impact.
-     */
-    public void calcFilterGravity() {
-        // In this example, alpha is calculated as t / (t + dT),
-        // where t is the low-pass filter's time-constant and
-        // dT is the mEvent delivery rate.
-        final float alpha = 0.9f;
-
-        // Isolate the force of gravity with the low-pass filter.
-        gravity[0] = alpha * gravity[0] + (1 - alpha) * mEvent.values[0];
-        gravity[1] = alpha * gravity[1] + (1 - alpha) * mEvent.values[1];
-        gravity[2] = alpha * gravity[2] + (1 - alpha) * mEvent.values[2];
-    }
 
     /**
      * Vector Magnitude |V| = sqrt(x^2 + y^2 + z^2)
-     * @param i signal identifier.
-     * @return the output vector.
      */
-    public double calcMagnitudeVector(int i) {
-        // Remove the gravity contribution with the high-pass filter.
-        linear_acceleration[0] = mEvent.values[0] - gravity[0];
-        linear_acceleration[1] = mEvent.values[1] - gravity[1];
-        linear_acceleration[2] = mEvent.values[2] - gravity[2];
+    public double calcMagnitudeVector(int signal) {
+        // Remove the mGravity contribution with the high-pass filter.
+        mLinearAcceleration[0] = mEvent.values[0] - mGravity[0];
+        mLinearAcceleration[1] = mEvent.values[1] - mGravity[1];
+        mLinearAcceleration[2] = mEvent.values[2] - mGravity[2];
 
-        mAccelValues[i] = Math.sqrt(
-                linear_acceleration[0] * linear_acceleration[0] +
-                linear_acceleration[1] * linear_acceleration[1] +
-                linear_acceleration[2] * linear_acceleration[2]);
-        return mAccelValues[i];
+        mAccelValues[signal] = Math.sqrt(
+                mLinearAcceleration[0] * mLinearAcceleration[0] +
+                mLinearAcceleration[1] * mLinearAcceleration[1] +
+                mLinearAcceleration[2] * mLinearAcceleration[2]);
+        return mAccelValues[signal];
     }
 
     /**
-     * Difference from gravity: (x^2 + y^2 + z^2) / G^2
-     * @param i signal identifier.
-     * @return the output vector.
+     * Exponential moving average http://stackoverflow.com/questions/16392142/android-accelerometer-profiling
      */
-    public double calcGravityDiff(int i) {
-        mAccelValues[i] = (
-                mEvent.values[0] * mEvent.values[0] +
-                mEvent.values[1] * mEvent.values[1] +
-                mEvent.values[2] * mEvent.values[2]) /
-                (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-        return mAccelValues[i];
-    }
-
-    /**
-     * Exponential Moving average.
-     * @see <a href="http://stackoverflow.com/questions/16392142/android-accelerometer-profiling">Stack Overflow discussion</a>
-     * @param i signal identifier.
-     * @return the output vector.
-     */
-    public double calcExpMovAvg(int i) {
+    public double calcExpMovAvg(int signal) {
         final double alpha = 0.1;
-        mAccelValues[i] = alpha * mAccelValues[i] + (1 - alpha) * mAccelLastValues[i];
-        mAccelLastValues[i] = mAccelValues[i];
-        return mAccelValues[i];
+        mAccelValues[signal] = alpha * mAccelValues[signal] + (1 - alpha) * mAccelLastValues[signal];
+        mAccelLastValues[signal] = mAccelValues[signal];
+        return mAccelValues[signal];
     }
+
+    private int mInactiveCounter = 0;
 
     /**
      * My step detection algorithm.
      * When the value is over the threshold, the step is found and the algorithm sleeps for
      * the specified distance which is {@link #INACTIVE_PERIODS this }.
-     * @param i signal identifier.
-     * @return step found / not found
      */
-    public boolean stepDetected(int i) {
+    public boolean stepDetection(int signal) {
         if (mInactiveCounter == INACTIVE_PERIODS) {
             mInactiveCounter = 0;
             if (!isActiveCounter)
                 isActiveCounter = true;
         }
-        if (mAccelValues[i] > mThresholdValue) {
+        if (mAccelValues[signal] > mThreshold) {
             if (isActiveCounter) {
                 mInactiveCounter = 0;
                 isActiveCounter = false;
@@ -188,9 +126,9 @@ public class AccelerometerProcessing implements OnThresholdChangeListener {
         return false;
     }
 
-    @Override
-    public void onThresholdChange(double value) {
-        Log.d(TAG, "Current Threshold is: " + value);
-        mThresholdValue = value;
+    public void onProgressChange(int progress) {
+        float diff = (progress + OFFSET) / 100F;
+        mThreshold = THRESHOLD_INITIAL * diff;
+        Log.d(TAG, "onProgressChange() diff: "  + diff + " threshold:" + mThreshold);
     }
 }

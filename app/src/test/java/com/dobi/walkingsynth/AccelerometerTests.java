@@ -1,10 +1,10 @@
 package com.dobi.walkingsynth;
 
-import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.AccelerometerProcessing;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class AccelerometerTests {
 

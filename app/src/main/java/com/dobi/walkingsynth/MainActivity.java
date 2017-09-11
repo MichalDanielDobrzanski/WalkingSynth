@@ -6,6 +6,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,11 +21,11 @@ import android.widget.TextView;
 import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
-import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.stepdetection.plotting.AChartEngineAccelGraph;
-import com.dobi.walkingsynth.stepdetection.plotting.AccelGraph;
-import com.dobi.walkingsynth.stepdetection.steps.StepDetector;
-import com.dobi.walkingsynth.stepdetection.steps.StepListener;
+import com.dobi.walkingsynth.stepdetection.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.AChartEngineAccelGraph;
+import com.dobi.walkingsynth.stepdetection.AccelGraph;
+import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
+import com.dobi.walkingsynth.stepdetection.StepListener;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences preferences;
 
-    private StepDetector mAccelDetector;
+    private AccelerometerManager mAccelDetector;
 
     private AccelGraph mAccelGraph;
 
@@ -91,10 +92,11 @@ public class MainActivity extends AppCompatActivity {
         mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
 
         mTimer = new TimeCounter(mTimeTextView);
+        mTimer.startTimer();
 
         graphFrameLayout.addView(mAccelGraph.createView(this));
 
-        mAccelDetector = new StepDetector(
+        mAccelDetector = new AccelerometerManager(
                 (SensorManager)getSystemService(Context.SENSOR_SERVICE),
                 mAccelGraph,
                 mAccelerometerProcessing);
@@ -189,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     mAccelerometerProcessing.onProgressChange(progress);
-                    mAccelGraph.onThresholdChange(mAccelerometerProcessing.getThreshold());
                 }
             }
 
@@ -250,8 +251,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        Log.d(TAG, "onStop()");
         mMusicCreator.destroyCSound();
-        mTimer.cancel();
         super.onStop();
     }
 }

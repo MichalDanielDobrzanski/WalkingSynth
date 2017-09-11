@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.stepdetection.accelerometer;
+package com.dobi.walkingsynth.stepdetection;
 
 import android.hardware.SensorEvent;
 import android.util.Log;

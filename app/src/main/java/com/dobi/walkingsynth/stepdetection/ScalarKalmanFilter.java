@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.stepdetection.accelerometer;
+package com.dobi.walkingsynth.stepdetection;
 
 public final class ScalarKalmanFilter {
 

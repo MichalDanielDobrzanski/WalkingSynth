@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,20 +48,22 @@ public class MainActivity extends AppCompatActivity {
     private AccelGraph mAccelGraph;
 
     @BindView(R.id.stepCountTV)
-    private TextView mStepCountTextView;
+    TextView mStepsTextView;
 
     @BindView(R.id.tempoValueTV)
-    private TextView mTempoValueTextView;
+    TextView mTempoTextView;
 
     @BindView(R.id.timeValueTV)
-    private TextView mTimeValueTextView;
+    TextView mTimeTextView;
+
+    @BindView(R.id.graphFL)
+    FrameLayout graphFrameLayout;
 
     private MusicCreator mMusicCreator;
 
-    private TimeCounter mTimer;
-    private Handler mHandler = new Handler();
-
     private AccelerometerProcessing mAccelerometerProcessing;
+
+    private TimeCounter mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,40 +71,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        // set default locale:
         Locale.setDefault(Locale.ENGLISH);
 
         mAccelerometerProcessing = AccelerometerProcessing.getInstance();
 
         mMusicCreator = new MusicCreator(getResources(), getCacheDir());
-
         mAccelGraph = new AChartEngineAccelGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
 
-        mStepCountTextView.setText(String.valueOf(0));
-        mTempoValueTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+        mStepsTextView.setText(String.valueOf(0));
+        mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
 
-        mTimer = new TimeCounter(mHandler, mTimeValueTextView);
-        mTimer.start();
+        mTimer = new TimeCounter(mTimeTextView);
 
-        FrameLayout graphFrameLayout = (FrameLayout)findViewById(R.id.graph_frame_layout);
         graphFrameLayout.addView(mAccelGraph.createView(this));
 
-        // initialize accelerometer
-        SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        mAccelDetector = new StepDetector(sensorManager, mAccelGraph);
-        mAccelDetector.setStepCountListener(new StepListener() {
+        mAccelDetector = new StepDetector(
+                (SensorManager)getSystemService(Context.SENSOR_SERVICE),
+                mAccelGraph,
+                mAccelerometerProcessing);
+
+        mAccelDetector.setOnStepChangeListener(new StepListener() {
             @Override
-            public void onStepCount(int stepCount, long milisecStepTime) {
-                mMusicCreator.getAnalyzer().onStep(milisecStepTime);
+            public void onStepChange(int stepCount, long milliseconds) {
+                mMusicCreator.getAnalyzer().onStep(milliseconds);
                 mMusicCreator.invalidateStep(stepCount);
 
-                mStepCountTextView.setText(String.format(Locale.getDefault(), "%d", stepCount));
+                mStepsTextView.setText(String.format(Locale.getDefault(), "%d", stepCount));
 
-                mTempoValueTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+                mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
         });
 
@@ -237,19 +236,18 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         mAccelDetector.startDetector();
         mMusicCreator.startCSound();
-        mTimer.resume();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
         mAccelDetector.stopDetector();
-        mTimer.pause();
+        super.onPause();
     }
 
     @Override
     protected void onStop() {
         mMusicCreator.destroyCSound();
+        mTimer.cancel();
         super.onStop();
     }
 }

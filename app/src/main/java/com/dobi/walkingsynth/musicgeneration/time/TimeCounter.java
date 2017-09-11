@@ -1,58 +1,58 @@
 package com.dobi.walkingsynth.musicgeneration.time;
 
 import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Timer for showing how long the music is being played.
  */
 public class TimeCounter {
 
-    private final int FPS = 60;
+    private static final int ONE_SECOND = 1000;
 
-    /**
-     * Public accessors for time measurement.
-     */
-    public static long milliseconds = 0;
-    public static int seconds = 0;
-    public static int minutes = 0;
+    private long mInitialTime;
+    private Timer timer;
 
-    private long mStartTime = 0;
+    public TimeCounter(final TextView textView) {
+        final WeakReference<TextView> textViewWeakReference = new WeakReference<>(textView);
 
-    private TextView mTextView;
-    private Handler mTimerHandler;
+        mInitialTime = SystemClock.elapsedRealtime();
 
-    public TimeCounter(Handler handler, TextView textView) {
-        // associates the handler from other thread with this runnable
-        mStartTime = System.currentTimeMillis();
-        mTimerHandler = handler;
-        mTextView = textView;
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                final long newValue = (SystemClock.elapsedRealtime() - mInitialTime) / 1000;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                       textViewWeakReference.get().setText(convertToString(newValue));
+                    }
+                });
+            }
+        }, ONE_SECOND, ONE_SECOND);
     }
 
-    private Runnable mRunnable = new Runnable() {
 
-        @Override
-        public void run() {
-            milliseconds = System.currentTimeMillis() - mStartTime;
-            seconds = (int) (milliseconds / 1000);
-            minutes = seconds / 60;
-            seconds = seconds % 60;
-
-            mTextView.setText(String.format("%d:%02d", minutes, seconds));
-            mTimerHandler.postDelayed(this, 1000 / FPS);
-
-        }
-    };
-
-    public void start() {
-        mTimerHandler.postDelayed(mRunnable,0);
+    private String convertToString(long milliseconds) {
+        int seconds = (int) (milliseconds / 1000);
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+        return outputTimerValue(minutes, seconds);
     }
 
-    public void pause() {
-        mTimerHandler.removeCallbacks(mRunnable);
+    private String outputTimerValue(int minutes, int seconds) {
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 
-    public void resume() {
-        mTimerHandler.postDelayed(mRunnable,0);
+    public void cancel() {
+        timer.cancel();
     }
 }

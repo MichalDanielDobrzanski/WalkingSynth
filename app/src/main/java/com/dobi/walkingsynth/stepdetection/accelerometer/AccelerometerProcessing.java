@@ -108,7 +108,7 @@ public class AccelerometerProcessing  {
      * When the value is over the threshold, the step is found and the algorithm sleeps for
      * the specified distance which is {@link #INACTIVE_PERIODS this }.
      */
-    public boolean stepDetection(int signal) {
+    public boolean detect(int signal) {
         if (mInactiveCounter == INACTIVE_PERIODS) {
             mInactiveCounter = 0;
             if (!isActiveCounter)

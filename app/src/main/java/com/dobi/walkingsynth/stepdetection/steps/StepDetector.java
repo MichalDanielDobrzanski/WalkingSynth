@@ -25,27 +25,22 @@ public class StepDetector implements SensorEventListener {
     private double[] mAccelResult = new double[AccelerometerSignals.count];
 
     private AccelGraph mAccelGraph;
-
-    private AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
-
+    private AccelerometerProcessing mAccelerometerProcessing;
     private SensorManager mSensorManager;
-
     private Sensor mAccel;
-
     private StepListener mStepListener;
 
     /**
      * Listener setting for Step Detected event
      * @param listener a listener.
      */
-    public void setStepCountListener(StepListener listener) {
+    public void setOnStepChangeListener(StepListener listener) {
         mStepListener = listener;
     }
 
-    public StepDetector(SensorManager sensorManager, AccelGraph graph) {
-        mStepListener = null;
+    public StepDetector(SensorManager sensorManager, AccelGraph graph, AccelerometerProcessing accelerometerProcessing) {
         mSensorManager = sensorManager;
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mAccel.getResolution()
                     + " Max range: " + mAccel.getMaximumRange()
@@ -53,12 +48,12 @@ public class StepDetector implements SensorEventListener {
         } else {
             Log.d(TAG, "Failure! No accelerometer.");
         }
-        // get graph handles
+
         mAccelGraph = graph;
+        mAccelerometerProcessing = accelerometerProcessing;
     }
 
     public void startDetector() {
-        // just starts just the accelerometer. It doesn't update the UI.
         if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
@@ -71,26 +66,19 @@ public class StepDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
-        // handle accelerometer data
         mAccelerometerProcessing.setEvent(event);
         final long eventMilisecTime = mAccelerometerProcessing.timestampToMilliseconds();
 
         mAccelResult[0] = mAccelerometerProcessing.calcMagnitudeVector(0);
         mAccelResult[0] = mAccelerometerProcessing.calcExpMovAvg(0);
         mAccelResult[1] = mAccelerometerProcessing.calcMagnitudeVector(1);
-        //Log.d(TAG, "Vec: x= " + mAccelResult[0] + " C=" + eventMilisecTime);
 
-        // update graph with value and timestamp
         mAccelGraph.invalidate(eventMilisecTime, mAccelResult);
 
-        // step detection
-        if (mAccelerometerProcessing.stepDetection(1)) {
-            // step is found!
+        if (mAccelerometerProcessing.detect(1)) {
             mStepsCount++;
-            // notify potential listeners
             if (mStepListener != null)
-                mStepListener.onStepCount(mStepsCount, eventMilisecTime);
+                mStepListener.onStepChange(mStepsCount, eventMilisecTime);
         }
     }
 

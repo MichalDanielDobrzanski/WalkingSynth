@@ -7,35 +7,15 @@
     <string name="accel_grav">\u0394g</string>
     <string name="accel_all">ALL</string>
     <string name="step_detect">steps</string>
-    <string name="steps_count">Steps count:</string>
-    <string name="thresh_val">Threshold</string>
-    <string name="tempo_val">Tempo:</string>
-    <string name="time_val">Time:</string>
+
+    <string name="steps_text">Steps count:</string>
+    <string name="tempo_text">Tempo:</string>
+    <string name="time_text">Time:</string>
 
     <string-array name="nav_drawer_items">
         <item>Threshold</item>
         <item>Info</item>
     </string-array>
-    
-    <!--<string-array name="base_notes">-->
-        <!--<item>C</item>-->
-        <!--<item>C#</item>-->
-        <!--<item>D</item>-->
-        <!--<item>D#</item>-->
-        <!--<item>E</item>-->
-        <!--<item>F</item>-->
-        <!--<item>F#</item>-->
-        <!--<item>G</item>-->
-        <!--<item>G#</item>-->
-        <!--<item>A</item>-->
-        <!--<item>A#</item>-->
-        <!--<item>B</item>-->
-    <!--</string-array>-->
-
-    <!--<string-array name="scales">-->
-        <!--<item>Pentatonic</item>-->
-        <!--<item>Flamenco</item>-->
-    <!--</string-array>-->
 
 
 </resources>

@@ -1,56 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/info_layout"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"
-    android:weightSum="6">
+    android:layout_height="match_parent">
 
     <TextView
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="@string/steps_count"
+        android:layout_height="@dimen/view_height"
+        android:gravity="center"
+        android:text="@string/steps_text"
         android:textAlignment="center"
-        android:gravity="center" />
+        tools:layout_editor_absoluteY="244dp"
+        tools:layout_editor_absoluteX="211dp" />
 
     <TextView
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
         android:id="@+id/stepCountTV"
-        android:gravity="center" />
+        android:layout_width="156dp"
+        android:layout_height="31dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginStart="64dp"
+        android:gravity="center"
+        tools:layout_editor_absoluteY="104dp"
+        tools:layout_editor_absoluteX="171dp" />
 
     <TextView
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="@string/tempo_val"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/view_height"
+        android:layout_marginEnd="128dp"
+        android:layout_marginStart="128dp"
+        android:gravity="center"
+        android:text="@string/tempo_text"
         android:textAlignment="center"
-        android:gravity="center" />
+        tools:layout_editor_absoluteY="286dp"
+        tools:layout_editor_absoluteX="58dp" />
 
     <TextView
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/view_height"
+        android:layout_marginEnd="128dp"
+        android:layout_marginStart="128dp"
+        android:gravity="center"
+        android:text="@string/time_text"
+        android:textAlignment="center"
+        tools:layout_editor_absoluteX="67dp"
+        tools:layout_editor_absoluteY="421dp" />
+
+    <TextView
+        android:layout_width="128dp"
+        android:layout_height="70dp"
         android:id="@+id/tempoValueTV"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="64dp"
+        tools:layout_editor_absoluteY="326dp"
+        tools:layout_editor_absoluteX="180dp" />
 
     <TextView
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="@string/time_val"
-        android:textAlignment="center"
-        android:gravity="center" />
-
-    <TextView
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="97dp"
+        android:layout_height="49dp"
         android:id="@+id/timeValueTV"
-        android:gravity="center" />
+        android:gravity="center"
+        tools:layout_editor_absoluteY="171dp"
+        tools:layout_editor_absoluteX="91dp" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

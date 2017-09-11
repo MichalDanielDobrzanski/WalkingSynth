@@ -32,21 +32,12 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- * Starting point. Sets the whole UI.
- */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String PREFERENCES_NAME = "Values";
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
-
-    private SharedPreferences preferences;
-
-    private AccelerometerManager mAccelerometerManager;
-
-    private AccelometerGraph mAccelGraph;
 
     @BindView(R.id.stepCountTV)
     TextView mStepsTextView;
@@ -60,11 +51,12 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.graphFL)
     FrameLayout graphFrameLayout;
 
+    private SharedPreferences preferences;
+
+    private AccelerometerManager mAccelerometerManager;
+    private AccelometerGraph mAccelGraph;
+
     private MusicCreator mMusicCreator;
-
-    private AccelerometerProcessor mAccelerometerProcessing;
-
-    private TimeCounter mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,42 +70,38 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
-        mAccelerometerProcessing = AccelerometerProcessor.getInstance();
-
         mMusicCreator = new MusicCreator(getResources(), getCacheDir());
         mAccelGraph = new AChartEngineAccelerometerGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
+        initializeSeekBar();
 
         mStepsTextView.setText(String.valueOf(0));
         mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
 
-        mTimer = new TimeCounter(mTimeTextView);
-        mTimer.startTimer();
+        TimeCounter.getInstance().startTimer();
+        TimeCounter.getInstance().setView(mTimeTextView);
 
         graphFrameLayout.addView(mAccelGraph.createView(this));
 
         mAccelerometerManager = new AccelerometerManager(
                 (SensorManager)getSystemService(Context.SENSOR_SERVICE),
-                mAccelGraph,
-                mAccelerometerProcessing);
+                mAccelGraph);
 
         mAccelerometerManager.setOnStepChangeListener(new AccelerometerManager.StepListener() {
             @Override
             public void onStepChange(int stepCount, long milliseconds) {
                 mMusicCreator.getAnalyzer().onStep(milliseconds);
+
                 mMusicCreator.invalidateStep(stepCount);
 
-                mStepsTextView.setText(String.format(Locale.getDefault(), "%d", stepCount));
+                mStepsTextView.setText(formatStep(stepCount));
 
                 mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
         });
-
-        // seek bar configuration
-        initializeSeekBar();
     }
 
     private void initializeNotesSpinner() {
@@ -189,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    mAccelerometerProcessing.onProgressChange(progress);
+                    AccelerometerProcessor.getInstance().onProgressChange(progress);
                 }
             }
 
@@ -205,16 +193,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public String formatStep(int stepCount) {
+        return String.format(Locale.getDefault(), "%d", stepCount);
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_main_menu, menu);
 
-        // set string values for menu
-        String[] titles = getResources().getStringArray(R.array.nav_drawer_items);
-        for (int i = 0; i < titles.length; i++) {
-            menu.getItem(i).setTitle(titles[i]);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -224,12 +212,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_threshold:
                 saveThreshold();
                 return true;
+            case R.id.action_info:
+                // TODO present info about me
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void saveThreshold() {
+        // TODO: make this work
         preferences.edit().putFloat(
                 PREFERENCES_VALUES_THRESHOLD_KEY,
                 (float) AccelerometerProcessor.getInstance().getThreshold()).apply();
@@ -238,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mAccelerometerManager.startAccelerometer();
+        mAccelerometerManager.startAccelerometerAndGraph();
         mMusicCreator.startCSound();
     }
 

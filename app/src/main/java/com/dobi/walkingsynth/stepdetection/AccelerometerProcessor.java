@@ -24,7 +24,7 @@ public class AccelerometerProcessor {
 
     private float mThreshold;
     private boolean isActiveCounter;
-    private double mAccelerometerCurrentValue;
+    private double mAccelerometerValue;
     private double[] mGravity;
     private double[] mLinearAcceleration;
 
@@ -41,8 +41,8 @@ public class AccelerometerProcessor {
         mEvent = e;
     }
 
-    public double getAccelerometerCurrentValue() {
-        return mAccelerometerCurrentValue;
+    public double getAccelerometerValue() {
+        return mAccelerometerValue;
     }
 
     public double getThreshold() {
@@ -66,22 +66,19 @@ public class AccelerometerProcessor {
         mLinearAcceleration[1] = mEvent.values[1] - mGravity[1];
         mLinearAcceleration[2] = mEvent.values[2] - mGravity[2];
 
-        mAccelerometerCurrentValue = Math.sqrt(
+        mAccelerometerValue = Math.sqrt(
                 mLinearAcceleration[0] * mLinearAcceleration[0] +
                 mLinearAcceleration[1] * mLinearAcceleration[1] +
                 mLinearAcceleration[2] * mLinearAcceleration[2]);
     }
 
     /**
-     * Step detecting parameter. How many periods it is sleeping.
-     * If DELAY_GAME: T ~= 20ms => f = 50Hz
-     * and MAX_TEMPO = 240bpms
-     * then:
-     * 60bpm - 1000milliseconds
-     * 240bpm - 250milliseconds
-     *
-     * n - samples
-     * n = 250msec / T
+     * Step detecting parameter. For how many samples it is sleeping.
+     * If accelerometer's DELAY_GAME is T ~= 20ms, this means that f = 50Hz and MAX_TEMPO = 240bpms
+     * 60bpm  - 1000ms
+     * 240bpm - 250ms
+     * n is samples
+     * n = 250ms / T
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_SAMPLE = 12;
@@ -99,7 +96,7 @@ public class AccelerometerProcessor {
             if (!isActiveCounter)
                 isActiveCounter = true;
         }
-        if (isActiveCounter && mAccelerometerCurrentValue > mThreshold) {
+        if (isActiveCounter && mAccelerometerValue > mThreshold) {
             mCurrentSample = 0;
             isActiveCounter = false;
             return true;

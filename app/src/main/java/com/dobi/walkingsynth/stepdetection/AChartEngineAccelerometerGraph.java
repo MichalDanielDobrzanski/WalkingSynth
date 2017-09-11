@@ -91,7 +91,7 @@ public class AChartEngineAccelerometerGraph implements AccelometerGraph {
     }
 
     private double getAccelerometerValue() {
-        return AccelerometerProcessor.getInstance().getAccelerometerCurrentValue() - OFFSET;
+        return AccelerometerProcessor.getInstance().getAccelerometerValue() - OFFSET;
     }
 
     private double getThresholdValue() {
@@ -101,11 +101,11 @@ public class AChartEngineAccelerometerGraph implements AccelometerGraph {
     public void invalidate(long eventTime) {
         Log.d(TAG, "invalidate(...) at time: " + eventTime);
 
-        mAccelerometerSeries.add(eventTime, getAccelerometerValue());
+        mAccelerometerSeries.add(eventTime, padValue(getAccelerometerValue()));
         if (mPointsCount > MAX_POINTS)
             mAccelerometerSeries.remove(0);
 
-        mThresholdSeries.add(eventTime, getThresholdValue());
+        mThresholdSeries.add(eventTime, padValue(getThresholdValue()));
         if (mPointsCount > MAX_POINTS)
             mThresholdSeries.remove(0);
 
@@ -115,7 +115,13 @@ public class AChartEngineAccelerometerGraph implements AccelometerGraph {
         ++mPointsCount;
     }
 
-
+    private double padValue(double inputValue) {
+        if (inputValue < MIN_Y)
+            return MIN_Y;
+        if (inputValue > MAX_Y)
+            return MAX_Y;
+        return inputValue;
+    }
 
     public void reset() {
         mAccelerometerSeries.clear();

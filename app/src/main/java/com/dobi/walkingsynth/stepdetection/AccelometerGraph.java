@@ -5,9 +5,6 @@ import android.view.View;
 
 public interface AccelometerGraph {
 
-    /**
-     * Update all graphs on the View.
-     */
     void invalidate(long time);
 
     void reset();

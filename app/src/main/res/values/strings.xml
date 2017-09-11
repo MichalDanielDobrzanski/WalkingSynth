@@ -12,10 +12,9 @@
     <string name="tempo_text">Tempo:</string>
     <string name="time_text">Time:</string>
 
-    <string-array name="nav_drawer_items">
-        <item>Threshold</item>
-        <item>Info</item>
-    </string-array>
+    <string name="menu_set_threshold">Set Threshold</string>
+    <string name="menu_about">About</string>
+
 
 
 </resources>

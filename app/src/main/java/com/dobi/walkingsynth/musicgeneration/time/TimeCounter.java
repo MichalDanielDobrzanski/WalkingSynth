@@ -20,37 +20,51 @@ public class TimeCounter {
 
     private static final int ONE_SECOND = 1000;
 
+    private boolean mRunning;
     private long mInitialTime;
     private String mLastTime;
     private Timer mTimer;
 
-    private final WeakReference<TextView> mTextViewWeakReference;
+    private WeakReference<TextView> mTextViewWeakReference;
 
-    public TimeCounter(final TextView textView) {
-        mTextViewWeakReference = new WeakReference<>(textView);
+    private TimeCounter() {
         mInitialTime = SystemClock.elapsedRealtime();
         mTimer = new Timer();
+        mRunning = false;
+    }
+
+    private static TimeCounter mInstance = new TimeCounter();
+
+    public static TimeCounter getInstance() {
+        return mInstance;
+    }
+
+    public void setView(TextView textView) {
+        mTextViewWeakReference = new WeakReference<>(textView);
     }
 
     public void startTimer() {
-        mTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
+        if (!mRunning) {
+            mTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
 
-                final long newValue = (SystemClock.elapsedRealtime() - mInitialTime);
-                mLastTime = convertMillisecondsToHumanReadable(newValue);
-                Log.d(TAG, "run: time: " + mLastTime);
+                    final long newValue = (SystemClock.elapsedRealtime() - mInitialTime);
+                    mLastTime = convertMillisecondsToHumanReadable(newValue);
+                    Log.d(TAG, "run: time: " + mLastTime);
 
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        TextView textView = mTextViewWeakReference.get();
-                        if (textView != null)
-                            textView.setText(mLastTime);
-                    }
-                });
-            }
-        }, ONE_SECOND, ONE_SECOND);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView textView = mTextViewWeakReference.get();
+                            if (textView != null)
+                                textView.setText(mLastTime);
+                        }
+                    });
+                }
+            }, ONE_SECOND, ONE_SECOND);
+            mRunning = true;
+        }
     }
 
     private String convertMillisecondsToHumanReadable(long milliseconds) {

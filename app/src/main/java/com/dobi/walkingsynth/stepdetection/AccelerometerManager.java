@@ -33,7 +33,7 @@ public class AccelerometerManager implements SensorEventListener {
         mStepListener = listener;
     }
 
-    public AccelerometerManager(SensorManager sensorManager, AccelometerGraph graph, AccelerometerProcessor accelerometerProcessing) {
+    public AccelerometerManager(SensorManager sensorManager, AccelometerGraph graph) {
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -45,10 +45,10 @@ public class AccelerometerManager implements SensorEventListener {
         }
 
         mAccelGraph = graph;
-        mAccelerometerProcessor = accelerometerProcessing;
+        mAccelerometerProcessor = AccelerometerProcessor.getInstance();
     }
 
-    public void startAccelerometer() {
+    public void startAccelerometerAndGraph() {
         if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }

@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerProcessing;
-import com.dobi.walkingsynth.stepdetection.accelerometer.AccelerometerSignals;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -19,17 +18,15 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 public class AChartEngineAccelGraph implements AccelGraph {
 
-    private static final String THRESH = "Threshold";
-    private static final String TITLE = "Accelerometer data";
+    private static final String THRESHOLD_SERIES_TITLE = "Threshold";
+    private static final String ACCELEROMETER_SERIES_TITLE = "Accelerometer data";
 
-    // resolution:
     private static final int GRAPH_POINTS_COUNT = 100;
 
     private TimeSeries mThreshold;
-    private double mThresholdValue;
+    private TimeSeries mSerie;
 
-    private TimeSeries[] mSeries = new TimeSeries[AccelerometerSignals.count];
-    private XYSeriesRenderer[] mRenderers = new XYSeriesRenderer[AccelerometerSignals.count];
+    private double mThresholdValue;
 
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
@@ -42,64 +39,54 @@ public class AChartEngineAccelGraph implements AccelGraph {
 
         mThresholdValue = AccelerometerProcessing.THRESHOLD_INITIAL;
 
-        // add single data set to multiple data set
-        for (int i = 0; i < AccelerometerSignals.count; i++) {
-            mSeries[i] = new TimeSeries(TITLE + (i + 1));
-            mDataset.addSeries(mSeries[i]);
-            mRenderers[i] = new XYSeriesRenderer();
-            mRenderers[i].setPointStyle(PointStyle.CIRCLE);
-            mRenderers[i].setFillPoints(true);
-            mRenderer.addSeriesRenderer(mRenderers[i]);
-        }
-        mRenderers[0].setColor(Color.RED);
-        mRenderers[1].setColor(Color.BLUE);
+        mSerie = new TimeSeries(ACCELEROMETER_SERIES_TITLE);
+        mDataset.addSeries(mSerie);
 
-        // add measurement line
+        XYSeriesRenderer renderer = new XYSeriesRenderer();
+        renderer.setPointStyle(PointStyle.CIRCLE);
+        renderer.setFillPoints(true);
+        renderer.setColor(Color.BLUE);
+
+        mRenderer.addSeriesRenderer(renderer);
+
         addThresholdLine();
 
-        // customize general view
         mRenderer.clearXTextLabels();
-        mRenderer.setYTitle("Acc value");
         mRenderer.setYAxisMin(0);
         mRenderer.setYAxisMax(20);
         mRenderer.setMarginsColor(Color.WHITE);
         mRenderer.setBackgroundColor(Color.WHITE);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setXLabels(0);
-        mRenderer.setClickEnabled(true);
+
+        mRenderer.setClickEnabled(false);
         mRenderer.setPanEnabled(false, false);
         mRenderer.setZoomEnabled(false, false);
     }
 
     private void addThresholdLine() {
-        mThreshold = new TimeSeries(THRESH);
+        mThreshold = new TimeSeries(THRESHOLD_SERIES_TITLE);
         mDataset.addSeries(mThreshold);
+
         XYSeriesRenderer renderer = new XYSeriesRenderer();
-        renderer.setLineWidth(2f);
+        renderer.setLineWidth(3f);
         renderer.setColor(Color.BLACK);
+
         mRenderer.addSeriesRenderer(renderer);
     }
 
     /**
      * Update all graphs on the View.
-     * @param t time plotting argument
-     * @param v an array of values to plot
      */
-    public void invalidate(double t, double[] v) {
+    public void invalidate(double t, double v) {
 
-        // signals:
-        for (int i = 0; i < v.length; ++i) {
-            mSeries[i].add(t, v[i]);
-            if (mPointsCount > GRAPH_POINTS_COUNT) {
-                mSeries[i].remove(0);
-            }
-        }
+        mSerie.add(t, v);
+        if (mPointsCount > GRAPH_POINTS_COUNT)
+            mSerie.remove(0);
 
-        // threshold:
         mThreshold.add(t, mThresholdValue);
-        if (mPointsCount > GRAPH_POINTS_COUNT) {
+        if (mPointsCount > GRAPH_POINTS_COUNT)
             mThreshold.remove(0);
-        }
 
         if (view != null)
             view.repaint();
@@ -108,10 +95,8 @@ public class AChartEngineAccelGraph implements AccelGraph {
     }
 
     public void reset() {
-        for (int i = 0; i < mSeries.length; ++i) {
-            mSeries[i].clear();
-            mThreshold.clear();
-        }
+        mSerie.clear();
+        mThreshold.clear();
         mPointsCount = 0;
     }
 

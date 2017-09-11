@@ -39,8 +39,8 @@ public class AccelerometerProcessing  {
     private float mThreshold;
     private boolean isActiveCounter;
 
-    private double[] mAccelValues;
-    private double[] mAccelLastValues;
+    private double mAccelerometerCurrentValue;
+
     private double[] mGravity = new double[3];
     private double[] mLinearAcceleration = new double[3];
 
@@ -49,18 +49,16 @@ public class AccelerometerProcessing  {
     private AccelerometerProcessing() {
         mThreshold = THRESHOLD_INITIAL;
         isActiveCounter = true;
-        mAccelValues = new double[AccelerometerSignals.count];
-        mAccelLastValues = new double[AccelerometerSignals.count];
         mGravity = new double[3];
         mLinearAcceleration = new double[3];
     }
 
-
-    /**
-     * Gets the current SensorEvent data.
-     */
     public void setEvent(SensorEvent e) {
         mEvent = e;
+    }
+
+    public double getAccelerometerCurrentValue() {
+        return mAccelerometerCurrentValue;
     }
 
     public double getThreshold() {
@@ -78,27 +76,16 @@ public class AccelerometerProcessing  {
     /**
      * Vector Magnitude |V| = sqrt(x^2 + y^2 + z^2)
      */
-    public double calcMagnitudeVector(int signal) {
+    public void calcMagnitudeVector() {
         // Remove the mGravity contribution with the high-pass filter.
         mLinearAcceleration[0] = mEvent.values[0] - mGravity[0];
         mLinearAcceleration[1] = mEvent.values[1] - mGravity[1];
         mLinearAcceleration[2] = mEvent.values[2] - mGravity[2];
 
-        mAccelValues[signal] = Math.sqrt(
+        mAccelerometerCurrentValue = Math.sqrt(
                 mLinearAcceleration[0] * mLinearAcceleration[0] +
                 mLinearAcceleration[1] * mLinearAcceleration[1] +
                 mLinearAcceleration[2] * mLinearAcceleration[2]);
-        return mAccelValues[signal];
-    }
-
-    /**
-     * Exponential moving average http://stackoverflow.com/questions/16392142/android-accelerometer-profiling
-     */
-    public double calcExpMovAvg(int signal) {
-        final double alpha = 0.1;
-        mAccelValues[signal] = alpha * mAccelValues[signal] + (1 - alpha) * mAccelLastValues[signal];
-        mAccelLastValues[signal] = mAccelValues[signal];
-        return mAccelValues[signal];
     }
 
     private int mInactiveCounter = 0;
@@ -108,13 +95,13 @@ public class AccelerometerProcessing  {
      * When the value is over the threshold, the step is found and the algorithm sleeps for
      * the specified distance which is {@link #INACTIVE_PERIODS this }.
      */
-    public boolean detect(int signal) {
+    public boolean detect() {
         if (mInactiveCounter == INACTIVE_PERIODS) {
             mInactiveCounter = 0;
             if (!isActiveCounter)
                 isActiveCounter = true;
         }
-        if (mAccelValues[signal] > mThreshold) {
+        if (mAccelerometerCurrentValue > mThreshold) {
             if (isActiveCounter) {
                 mInactiveCounter = 0;
                 isActiveCounter = false;

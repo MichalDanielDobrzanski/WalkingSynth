@@ -3,7 +3,6 @@ package com.dobi.walkingsynth.musicgeneration.time;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
@@ -37,12 +36,10 @@ public class TimeCounter {
                     @Override
                     public void run() {
                         textViewWeakReference.get().setText(convertMillisecondsToHumanReadable(newValue));
-                        Log.d(TAG, "TimeCounter: view update. New value: " + newValue);
                     }
                 });
             }
         }, ONE_SECOND, ONE_SECOND);
-        Log.d(TAG, "TimeCounter: created.");
     }
 
 

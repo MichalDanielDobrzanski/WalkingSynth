@@ -7,10 +7,8 @@ public interface AccelGraph extends OnThresholdChangeListener {
 
     /**
      * Update all graphs on the View.
-     * @param t time plotting argument
-     * @param v an array of values to plot
      */
-    void invalidate(double t, double[] v);
+    void invalidate(double t, double v);
 
     void reset();
 

@@ -21,11 +21,10 @@ import android.widget.TextView;
 import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
-import com.dobi.walkingsynth.stepdetection.AccelerometerProcessing;
-import com.dobi.walkingsynth.stepdetection.AChartEngineAccelGraph;
-import com.dobi.walkingsynth.stepdetection.AccelGraph;
+import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
+import com.dobi.walkingsynth.stepdetection.AChartEngineAccelerometerGraph;
+import com.dobi.walkingsynth.stepdetection.AccelometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.stepdetection.StepListener;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -45,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences preferences;
 
-    private AccelerometerManager mAccelDetector;
+    private AccelerometerManager mAccelerometerManager;
 
-    private AccelGraph mAccelGraph;
+    private AccelometerGraph mAccelGraph;
 
     @BindView(R.id.stepCountTV)
     TextView mStepsTextView;
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MusicCreator mMusicCreator;
 
-    private AccelerometerProcessing mAccelerometerProcessing;
+    private AccelerometerProcessor mAccelerometerProcessing;
 
     private TimeCounter mTimer;
 
@@ -79,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
-        mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+        mAccelerometerProcessing = AccelerometerProcessor.getInstance();
 
         mMusicCreator = new MusicCreator(getResources(), getCacheDir());
-        mAccelGraph = new AChartEngineAccelGraph();
+        mAccelGraph = new AChartEngineAccelerometerGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
@@ -96,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
 
         graphFrameLayout.addView(mAccelGraph.createView(this));
 
-        mAccelDetector = new AccelerometerManager(
+        mAccelerometerManager = new AccelerometerManager(
                 (SensorManager)getSystemService(Context.SENSOR_SERVICE),
                 mAccelGraph,
                 mAccelerometerProcessing);
 
-        mAccelDetector.setOnStepChangeListener(new StepListener() {
+        mAccelerometerManager.setOnStepChangeListener(new AccelerometerManager.StepListener() {
             @Override
             public void onStepChange(int stepCount, long milliseconds) {
                 mMusicCreator.getAnalyzer().onStep(milliseconds);
@@ -233,19 +232,19 @@ public class MainActivity extends AppCompatActivity {
     private void saveThreshold() {
         preferences.edit().putFloat(
                 PREFERENCES_VALUES_THRESHOLD_KEY,
-                (float) AccelerometerProcessing.getInstance().getThreshold()).apply();
+                (float) AccelerometerProcessor.getInstance().getThreshold()).apply();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mAccelDetector.startDetector();
+        mAccelerometerManager.startAccelerometer();
         mMusicCreator.startCSound();
     }
 
     @Override
     protected void onPause() {
-        mAccelDetector.stopDetector();
+        mAccelerometerManager.stopAccelerometerAndGraph();
         super.onPause();
     }
 

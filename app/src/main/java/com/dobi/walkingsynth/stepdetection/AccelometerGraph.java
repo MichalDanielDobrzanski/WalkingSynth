@@ -3,7 +3,7 @@ package com.dobi.walkingsynth.stepdetection;
 import android.content.Context;
 import android.view.View;
 
-public interface AccelGraph {
+public interface AccelometerGraph {
 
     /**
      * Update all graphs on the View.

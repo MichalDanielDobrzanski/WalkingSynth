@@ -1,6 +1,6 @@
 package com.dobi.walkingsynth;
 
-import com.dobi.walkingsynth.stepdetection.AccelerometerProcessing;
+import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
 
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class AccelerometerTests {
 
     @Test
     public void thresholdRanges_areValid() {
-        AccelerometerProcessing accelerometerProcessing = AccelerometerProcessing.getInstance();
+        AccelerometerProcessor accelerometerProcessing = AccelerometerProcessor.getInstance();
 
         accelerometerProcessing.onProgressChange(0);
         assertTrue(accelerometerProcessing.getThreshold() > 0);

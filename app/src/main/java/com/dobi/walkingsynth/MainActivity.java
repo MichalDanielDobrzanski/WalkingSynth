@@ -18,13 +18,14 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.dobi.walkingsynth.musicgeneration.base.CsoundMusicCreator;
 import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
-import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
-import com.dobi.walkingsynth.stepdetection.AChartEngineAccelerometerGraph;
-import com.dobi.walkingsynth.stepdetection.AccelometerGraph;
+import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
+import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
+import com.dobi.walkingsynth.stepdetection.AchartEngineAccelerometerGraph;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences preferences;
 
     private AccelerometerManager mAccelerometerManager;
-    private AccelometerGraph mAccelGraph;
+    private AccelerometerGraph mAccelGraph;
 
     private MusicCreator mMusicCreator;
 
@@ -70,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
-        mMusicCreator = new MusicCreator(getResources(), getCacheDir());
-        mAccelGraph = new AChartEngineAccelerometerGraph();
+        mMusicCreator = new CsoundMusicCreator(getResources(), getCacheDir());
+        mAccelGraph = new AchartEngineAccelerometerGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         initializeSeekBar();
 
         mStepsTextView.setText(String.valueOf(0));
-        mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+        mTempoTextView.setText(String.valueOf(mMusicCreator.getTempo()));
 
         TimeCounter.getInstance().startTimer();
         TimeCounter.getInstance().setView(mTimeTextView);
@@ -93,13 +94,11 @@ public class MainActivity extends AppCompatActivity {
         mAccelerometerManager.setOnStepChangeListener(new AccelerometerManager.StepListener() {
             @Override
             public void onStepChange(int stepCount, long milliseconds) {
-                mMusicCreator.getAnalyzer().onStep(milliseconds);
-
-                mMusicCreator.invalidateStep(stepCount);
+                mMusicCreator.onStep(stepCount, milliseconds);
 
                 mStepsTextView.setText(formatStep(stepCount));
 
-                mTempoTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+                mTempoTextView.setText(String.valueOf(mMusicCreator.getTempo()));
             }
         });
     }
@@ -231,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mAccelerometerManager.startAccelerometerAndGraph();
-        mMusicCreator.startCSound();
+        mMusicCreator.start();
     }
 
     @Override
@@ -243,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop()");
-        mMusicCreator.destroyCSound();
+        mMusicCreator.destroy();
         super.onStop();
     }
 }

@@ -16,9 +16,9 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 
-public class AChartEngineAccelerometerGraph implements AccelometerGraph {
+public class AchartEngineAccelerometerGraph implements AccelerometerGraph {
 
-    public static final String TAG = AChartEngineAccelerometerGraph.class.getSimpleName();
+    public static final String TAG = AchartEngineAccelerometerGraph.class.getSimpleName();
 
     private static final String THRESHOLD_SERIES_TITLE = "Threshold";
     private static final String ACCELEROMETER_SERIES_TITLE = "Accelerometer data";
@@ -36,7 +36,7 @@ public class AChartEngineAccelerometerGraph implements AccelometerGraph {
     private XYMultipleSeriesDataset mDataset;
     private GraphicalView view;
 
-    public AChartEngineAccelerometerGraph() {
+    public AchartEngineAccelerometerGraph() {
 
         mRenderer = new XYMultipleSeriesRenderer();
         mDataset = new XYMultipleSeriesDataset();

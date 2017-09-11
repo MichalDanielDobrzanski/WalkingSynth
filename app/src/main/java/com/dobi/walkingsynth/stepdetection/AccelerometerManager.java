@@ -22,7 +22,7 @@ public class AccelerometerManager implements SensorEventListener {
 
     private int mStepsCount = 0;
 
-    private AccelometerGraph mAccelGraph;
+    private AccelerometerGraph mAccelGraph;
     private AccelerometerProcessor mAccelerometerProcessor;
     private SensorManager mSensorManager;
     private Sensor mAccel;
@@ -33,7 +33,7 @@ public class AccelerometerManager implements SensorEventListener {
         mStepListener = listener;
     }
 
-    public AccelerometerManager(SensorManager sensorManager, AccelometerGraph graph) {
+    public AccelerometerManager(SensorManager sensorManager, AccelerometerGraph graph) {
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);

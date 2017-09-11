@@ -1,62 +1,21 @@
 package com.dobi.walkingsynth.musicgeneration.base;
 
-import android.content.res.Resources;
 
-import com.dobi.walkingsynth.musicgeneration.drums.DrumsPlayer;
-import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerPlayer;
+public interface MusicCreator {
 
-import java.io.File;
+    void start();
 
-/**
- * Main entry class for music creation. General class which handles
- * all information passed from UI.
- */
-public class MusicCreator extends CsoundBaseSetup {
+    void destroy();
 
-    private MusicAnalyzer mMusicAnalyzer;
+    int getTempo();
 
-    private DrumsPlayer mDrums;
+    void onStep(int stepCount, long milliseconds); // step count + time of current step occurence
 
-    private SynthesizerPlayer mSynth;
+    void invalidateBaseNote(int pos); // base note has changed
 
-    public MusicCreator(Resources res, File cDir) {
-        super(res, cDir);
+    void invalidateScale(String scale); // scale has been altered
 
-        mMusicAnalyzer = new MusicAnalyzer();
-
-        mDrums = new DrumsPlayer(csoundObj);
-        mMusicAnalyzer.addPositionListener(mDrums);
-
-        mSynth = new SynthesizerPlayer(csoundObj);
-        mMusicAnalyzer.addPositionListener(mSynth);
-        mMusicAnalyzer.addBarListener(mSynth);
-    }
+    void invalidateStepInterval(int idx); // count for special music
 
 
-    public MusicAnalyzer getAnalyzer() {
-        return mMusicAnalyzer;
-    }
-
-    // dynamic from accelerometer
-    public void invalidateStep(int nval) {
-        mDrums.invaliateStep(nval);
-        mSynth.invaliateStep(nval);
-    }
-
-    // from UI spinner
-    public void invalidateBaseNote(int pos)
-    {
-        mSynth.invalidateBaseNote(pos);
-    }
-
-    // from UI spinner
-    public void invalidateScale(String scale) {
-        mSynth.invalidateScale(scale);
-    }
-
-    // from UI spinner
-    public void invalidateStepInterval(int idx) {
-        mDrums.invalidateStepInterval(idx);
-        mSynth.invalidateStepInterval(idx);
-    }
 }

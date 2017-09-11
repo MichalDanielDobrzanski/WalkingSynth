@@ -168,13 +168,9 @@ public class MusicAnalyzer {
         return pi;
     }
 
-    /**
-     * Called when step has been detected.
-     * @param stepTime current step time in milliseconds.
-     */
-    public void onStep(long stepTime) {
-        Log.d(TAG, "onStep");
-        if (isTempoOk(calculateTempo(stepTime))) {
+    public void onStep(long milliseconds) {
+        Log.d(TAG, "onStep(): " + milliseconds);
+        if (validateTempo(calculateTempo(milliseconds))) {
             mPositionInterval = calcPositionInterval();
         }
     }
@@ -197,16 +193,10 @@ public class MusicAnalyzer {
         return tempo;
     }
 
-    /**
-     * Checks whether the calculated tempo is ok.
-     * If it is then this method sets the variable.
-     * @param tempo value to be checked.
-     * @return tempo is ok / not ok.
-     */
-    private boolean isTempoOk(int tempo) {
+    private boolean validateTempo(int tempo) {
         if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF & tempo >= MIN_TEMPO & tempo <= MAX_TEMPO) {
             mTempo = tempo;
-            Log.d(TAG, "Tempo is ok. Value: " + mTempo + "bpm.");
+            Log.d(TAG, "Tempo validated. Value: " + mTempo + "bpm.");
             return true;
         }
         return false;

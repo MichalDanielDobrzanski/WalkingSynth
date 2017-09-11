@@ -29,6 +29,9 @@ import com.dobi.walkingsynth.stepdetection.steps.StepListener;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Starting point. Sets the whole UI.
  */
@@ -38,51 +41,52 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFERENCES_NAME = "Values";
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
+
     private SharedPreferences preferences;
 
     private StepDetector mAccelDetector;
 
     private AccelGraph mAccelGraph;
 
-    private TextView mThreshValTextView;
+    @BindView(R.id.stepCountTV)
     private TextView mStepCountTextView;
-    private TextView mTempoValTextView;
-    private TextView mTimeValTextView;
+
+    @BindView(R.id.tempoValueTV)
+    private TextView mTempoValueTextView;
+
+    @BindView(R.id.timeValueTV)
+    private TextView mTimeValueTextView;
 
     private MusicCreator mMusicCreator;
 
     private TimeCounter mTimer;
     private Handler mHandler = new Handler();
 
-    private final AccelerometerProcessing mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+    private AccelerometerProcessing mAccelerometerProcessing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         // set default locale:
         Locale.setDefault(Locale.ENGLISH);
 
-        // instantiate music analyzer
+        mAccelerometerProcessing = AccelerometerProcessing.getInstance();
+
         mMusicCreator = new MusicCreator(getResources(), getCacheDir());
 
-        // accelerometer graph setup:
         mAccelGraph = new AChartEngineAccelGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
 
-        mStepCountTextView = (TextView)findViewById(R.id.stepcount_textView);
         mStepCountTextView.setText(String.valueOf(0));
+        mTempoValueTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
 
-        mTempoValTextView = (TextView)findViewById(R.id.tempoval_textView);
-        mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
-
-        mTimeValTextView = (TextView)findViewById(R.id.timeVal_textView);
-
-        mTimer = new TimeCounter(mHandler,mTimeValTextView);
+        mTimer = new TimeCounter(mHandler, mTimeValueTextView);
         mTimer.start();
 
         FrameLayout graphFrameLayout = (FrameLayout)findViewById(R.id.graph_frame_layout);
@@ -97,9 +101,9 @@ public class MainActivity extends AppCompatActivity {
                 mMusicCreator.getAnalyzer().onStep(milisecStepTime);
                 mMusicCreator.invalidateStep(stepCount);
 
-                mStepCountTextView.setText(Integer.toString(stepCount));
+                mStepCountTextView.setText(String.format(Locale.getDefault(), "%d", stepCount));
 
-                mTempoValTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
+                mTempoValueTextView.setText(String.valueOf(mMusicCreator.getAnalyzer().getTempo()));
             }
         });
 

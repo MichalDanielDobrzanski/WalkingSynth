@@ -35,7 +35,6 @@ public class AccelerometerProcessing  {
      * n = 250 / 20 ~= 12
      */
     private static final int INACTIVE_PERIODS = 12;
-    private static final int OFFSET = 90;
 
     private float mThreshold;
     private boolean isActiveCounter;
@@ -126,9 +125,11 @@ public class AccelerometerProcessing  {
         return false;
     }
 
+    private static final int OFFSET = 90;
+
     public void onProgressChange(int progress) {
         float diff = (progress + OFFSET) / 100F;
         mThreshold = THRESHOLD_INITIAL * diff;
-        Log.d(TAG, "onProgressChange() diff: "  + diff + " threshold:" + mThreshold);
+        Log.d(TAG, "onProgressChange() threshold: " + mThreshold);
     }
 }

@@ -20,7 +20,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/stepcount_textView"
+        android:id="@+id/stepCountTV"
         android:gravity="center" />
 
     <TextView
@@ -35,7 +35,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/tempoval_textView"
+        android:id="@+id/tempoValueTV"
         android:gravity="center" />
 
     <TextView
@@ -50,7 +50,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/timeVal_textView"
+        android:id="@+id/timeValueTV"
         android:gravity="center" />
 
 </LinearLayout>

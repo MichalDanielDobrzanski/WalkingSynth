@@ -2,7 +2,7 @@ package com.dobi.walkingsynth.musicgeneration.synths;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.base.BasePlayer;
+import com.dobi.walkingsynth.musicgeneration.core.BasePlayer;
 import com.dobi.walkingsynth.musicgeneration.utils.BarListener;
 
 import java.text.DecimalFormat;

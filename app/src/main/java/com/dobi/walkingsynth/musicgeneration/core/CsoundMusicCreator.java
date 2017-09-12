@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.musicgeneration.base;
+package com.dobi.walkingsynth.musicgeneration.core;
 
 import android.content.res.Resources;
 
@@ -7,10 +7,6 @@ import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerPlayer;
 
 import java.io.File;
 
-/**
- * Main entry class for music creation. General class which handles
- * all information passed from UI.
- */
 public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator {
 
     private MusicAnalyzer mMusicAnalyzer;

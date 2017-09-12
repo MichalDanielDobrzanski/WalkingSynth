@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.musicgeneration.base;
+package com.dobi.walkingsynth.musicgeneration.core;
 
 import android.content.res.Resources;
 import android.os.Handler;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 /**
  * Csound initialization and configuration
  */
-public class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
+class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
 
     private static final String TAG = CsoundBaseSetup.class.getSimpleName();
 

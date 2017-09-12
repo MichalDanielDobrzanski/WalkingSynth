@@ -18,8 +18,8 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.dobi.walkingsynth.musicgeneration.base.CsoundMusicCreator;
-import com.dobi.walkingsynth.musicgeneration.base.MusicCreator;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicCreator;
+import com.dobi.walkingsynth.musicgeneration.core.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;

@@ -3,7 +3,7 @@ package com.dobi.walkingsynth.musicgeneration.drums;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.base.BasePlayer;
+import com.dobi.walkingsynth.musicgeneration.core.BasePlayer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

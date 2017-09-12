@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.musicgeneration.base;
+package com.dobi.walkingsynth.musicgeneration.core;
 
 
 import com.csounds.CsoundObj;

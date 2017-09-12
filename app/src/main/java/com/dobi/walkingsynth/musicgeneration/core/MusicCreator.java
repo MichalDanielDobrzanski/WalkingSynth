@@ -1,5 +1,4 @@
-package com.dobi.walkingsynth.musicgeneration.base;
-
+package com.dobi.walkingsynth.musicgeneration.core;
 
 public interface MusicCreator {
 

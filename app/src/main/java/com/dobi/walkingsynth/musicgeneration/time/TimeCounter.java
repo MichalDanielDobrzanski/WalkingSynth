@@ -11,9 +11,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Timer for showing how long the music is being played.
- */
 public class TimeCounter {
 
     public static final String TAG = TimeCounter.class.getSimpleName();

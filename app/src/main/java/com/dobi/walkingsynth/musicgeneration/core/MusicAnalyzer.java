@@ -1,4 +1,4 @@
-package com.dobi.walkingsynth.musicgeneration.base;
+package com.dobi.walkingsynth.musicgeneration.core;
 
 import android.util.Log;
 
@@ -10,10 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Analyzes tempo
- */
-public class MusicAnalyzer {
+class MusicAnalyzer {
 
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
@@ -25,7 +22,7 @@ public class MusicAnalyzer {
      * How many divisions do for a single bar.
      * 8 corresponds to quarter notes.
     */
-    public static final int BAR_INTERVALS = 8;
+    private static final int BAR_INTERVALS = 8;
 
     /**
      * Tempo variable initialized to MIN_TEMPO
@@ -54,7 +51,7 @@ public class MusicAnalyzer {
 
     private List<PositionListener> mPositionListeners;
 
-    public void addPositionListener(PositionListener listener) {
+    void addPositionListener(PositionListener listener) {
         if (mPositionListeners == null)
             mPositionListeners = new ArrayList<>();
         mPositionListeners.add(listener);
@@ -62,7 +59,7 @@ public class MusicAnalyzer {
 
     private List<BarListener> mBarListeners;
 
-    public void addBarListener(BarListener listener) {
+    void addBarListener(BarListener listener) {
         if (mBarListeners == null)
             mBarListeners = new ArrayList<>();
         mBarListeners.add(listener);
@@ -203,7 +200,7 @@ public class MusicAnalyzer {
     }
 
 
-    public int getTempo() {
+    int getTempo() {
         return mTempo;
     }
 

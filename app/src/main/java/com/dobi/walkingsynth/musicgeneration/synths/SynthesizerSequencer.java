@@ -5,71 +5,87 @@ import android.util.Log;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
-/**
- * Sequencing melodies of a synth.
- * "When to play what"
- */
 public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
-    public static final int[] stepIntervals = new int[] { 20, 30, 50, 100 };
+    public static Integer[] stepIntervals = new Integer[] { 20, 30, 50, 100 };
 
-    // hash map static initialization
-    public static LinkedHashMap<String,Integer> notes = new LinkedHashMap<>();
-    public static LinkedHashMap<String,int[]> scales = new LinkedHashMap<>();
-    static {
-        scales.put("Pentatonic",new int[]{ 0, 3, 5, 7, 10, 12 });
-        scales.put("Flamenco",new int[]{ 0, 1, 4, 5, 7, 8, 10, 12 });
+    public static LinkedHashMap<String, int[]> scales = new LinkedHashMap<>();
 
-        notes.put("C",0);
-        notes.put("C#",1);
-        notes.put("D",2);
-        notes.put("D#",3);
-        notes.put("E",4);
-        notes.put("F",5);
-        notes.put("F#",6);
-        notes.put("G",7);
-        notes.put("G#",8);
-        notes.put("A",9);
-        notes.put("A#",10);
-        notes.put("B",11);
+    public enum Notes {
+        C("C"),
+        CSharp("C#"),
+        D("D"),
+        DSharp("D#"),
+        E("E"),
+        F("F"),
+        FSharp("F#"),
+        G("G"),
+        GSharp("G#"),
+        A("A"),
+        ASharp("A#"),
+        B("B");
+
+        private final String note;
+
+        Notes(final String text) {
+            this.note = text;
+        }
+    }
+
+    public enum Scales {
+        Pentatonic(new Integer[] {0, 3, 5, 7, 10, 12}),
+        Flamenco(new Integer[] {0, 1, 4, 5, 7, 8, 10, 12});
+
+        private final Integer[] intervals;
+
+        Scales(Integer[] intervals) {
+            this.intervals = intervals;
+        }
 
     }
 
-    //public static int[] pentatonic = { 0, 3, 5, 7, 10, 12 };
-    //public static int[] flamenco = { 0, 1, 4, 5, 7, 8, 10, 12 };
+    private Notes mBaseNote;
+    private Scales mScale;
+    private int[] mRhythmScoreSequence;
+    private Random generator;
 
-    // dynamic variables for synthesizer playback:
-    private int mBaseNote = notes.entrySet().iterator().next().getValue(); // what is the current base note.
-    private String mScale = scales.entrySet().iterator().next().getKey();  // what scale is in current use.
+    public SynthesizerSequencer() {
+        mBaseNote = Notes.C;
+        mScale = Scales.Pentatonic;
+        mRhythmScoreSequence = new int[4];
+        generator = new Random();
 
-    // randomized sequences:
-    private int[] mRhythmScoreSequence = new int[4];
-    private int[] mArpScoreSequence = new int[4];
+        loadDefaultStepIntervals();
+    }
 
-    private Random generator = new Random();
+    private void loadDefaultStepIntervals() {
+        stepIntervals = new Integer[] { 20, 30, 50, 100 };
+    }
 
-    public int[] getRhythmScoreSequence() {
-        int[] resultScale = scales.get(mScale);
-        int scaleLength = resultScale.length;
+    public int[] invalidateScore() {
+        Integer[] intervals = mScale.intervals;
+        int scaleLength = intervals.length;
 
-        mRhythmScoreSequence[0] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
-        mRhythmScoreSequence[1] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
-        mRhythmScoreSequence[2] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
-        mRhythmScoreSequence[3] = mBaseNote + resultScale[generator.nextInt(scaleLength)];
-        Log.d(TAG,"Output sound sequence: " + mRhythmScoreSequence[0] + ",  " + mRhythmScoreSequence[1]+ ",  "
+        mRhythmScoreSequence[0] = mBaseNote.ordinal() + intervals[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[1] = mBaseNote.ordinal() + intervals[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[2] = mBaseNote.ordinal() + intervals[generator.nextInt(scaleLength)];
+        mRhythmScoreSequence[3] = mBaseNote.ordinal() + intervals[generator.nextInt(scaleLength)];
+
+        Log.d(TAG, "New score: " + mRhythmScoreSequence[0] + ",  " + mRhythmScoreSequence[1]+ ",  "
                 + mRhythmScoreSequence[2] + ",  " + mRhythmScoreSequence[3]);
         return mRhythmScoreSequence;
     }
 
-    // outer invalidations:
-    public void invdalidateBaseNote(int val) {
-        Log.d(TAG, "Current base note: " + val);
-        this.mBaseNote = val;
+    public void invdalidateBaseNote(int baseIndex) {
+        Notes newNote = Notes.values()[baseIndex];
+        Log.d(TAG, "New base note: " + newNote.note);
+        mBaseNote = newNote;
     }
-    public void invdalidateScale(String scale) {
-        Log.d(TAG, "Current scale: " + scale);
-        this.mScale = scale;
+    public void invdalidateScale(int position) {
+        Scales newScale = Scales.values()[position];
+        Log.d(TAG, "New scale: " + newScale.toString());
+        mScale = newScale;
     }
 }

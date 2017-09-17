@@ -14,7 +14,7 @@ public interface MusicCreator {
 
     void invalidateBaseNote(int pos); // base note has changed
 
-    void invalidateScale(String scale); // scale has been altered
+    void invalidateScale(int position); // scale has been altered
 
     void invalidateStepInterval(int idx); // count for special music
 

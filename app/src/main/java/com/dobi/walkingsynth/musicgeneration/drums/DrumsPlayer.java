@@ -34,18 +34,6 @@ public class DrumsPlayer extends BasePlayer {
         playSequences(mDrumsSequencer.getSequences());
     }
 
-    /**
-     * Csound playback for selected instrument.
-     */
-    private void playCsoundNote(int instrument) {
-        final DecimalFormat df = new DecimalFormat("#.##");
-        mCsoundObj.sendScore(
-                String.format("i%d 0 ", instrument)
-                        + df.format(mDrumsSequencer.getParameters(instrument)[0]) + " "
-                        + df.format(mDrumsSequencer.getParameters(instrument)[1])
-        );
-    }
-
     private void playSequences(ArrayList<Integer> sequences) {
         for (int i = 0; i < sequences.size(); ++i) {
             playAt(sequences.get(i), i);
@@ -56,15 +44,24 @@ public class DrumsPlayer extends BasePlayer {
     /**
      * Parsing the sequence (as number) to the playback.
      * The number values are compared with the moving flag.
-     * @param seq sequence of notes to hit (passed as a number)
-     * @param instr selected instrument.
+     * @param binarySequence sequence of notes to hit (passed as a number)
+     * @param instrument selected instrument.
      */
-    private void playAt(int seq, int instr) {
-        if ((seq & bitFlag) > 0) {
-            // when comparison with the flag is successful do the csound playing!
-            playCsoundNote(instr + 1);
-            Log.d("BasePlayer", "I" + (instr + 1) + " at " + mBarPosition);
+    private void playAt(int binarySequence, int instrument) {
+        if ((binarySequence & bitFlag) > 0) {
+            instrument++;
+            playDrumInstrument(instrument);
+            Log.d(TAG, "Instrument" + instrument + " at " + mBarPosition);
         }
+    }
+
+    private void playDrumInstrument(int instrument) {
+        final DecimalFormat df = new DecimalFormat("#.##");
+        mCsoundObj.sendScore(
+                String.format("i%d 0 ", instrument)
+                        + df.format(mDrumsSequencer.getParameters(instrument)[0]) + " "
+                        + df.format(mDrumsSequencer.getParameters(instrument)[1])
+        );
     }
 
 
@@ -88,7 +85,6 @@ public class DrumsPlayer extends BasePlayer {
 
 
     public void invaliateStep(int stepcount) {
-        // change pattern when specific amount of steps has been made.
         if (stepcount % mStepInterval == 0) {
             Log.d(TAG,"Walked steps threshold. New csound_part rhythm score!");
             mDrumsSequencer.randomizeHiHat();

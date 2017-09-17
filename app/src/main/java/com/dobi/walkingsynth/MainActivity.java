@@ -28,7 +28,6 @@ import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
 import com.dobi.walkingsynth.stepdetection.AchartEngineAccelerometerGraph;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -40,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFERENCES_NAME = "Values";
     private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
+    private static final String PREFERENCES_VALUES_BASENOTE_KEY = "base-note";
+    private static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
+    private static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
 
     @BindView(R.id.stepCountTV)
     TextView mStepsTextView;
@@ -56,11 +58,21 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.threshold_seek_bar)
     SeekBar mThresholdSeekBar;
 
+    @BindView(R.id.base_notes_spinner)
+    Spinner baseNotesSpinner;
+
+    @BindView(R.id.steps_interval_spinner)
+    Spinner mStepsIntervalSpinner;
+
+    @BindView(R.id.scales_spinner)
+    Spinner scalesSpinner;
+
     private SharedPreferences mPreferences;
 
     private AccelerometerManager mAccelerometerManager;
 
     private MusicCreator mMusicCreator;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,14 +92,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: Initialized.");
 
             float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
-
             AccelerometerProcessor.getInstance().setThreshold(threshold);
             initializeThresholdSeekBar(threshold);
 
             CsoundMusicCreator.createInstance(getResources(), getCacheDir());
-
             TimeCounter.getInstance().startTimer();
-
         } else {
             initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
         }
@@ -122,12 +131,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeNotesSpinner() {
-        ArrayList<String> notesList = new ArrayList<>();
-        for ( String key : SynthesizerSequencer.notes.keySet()) {
-            notesList.add(key);
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,notesList);
-        Spinner baseNotesSpinner = (Spinner) findViewById(R.id.base_notes_spinner);
+        ArrayAdapter<SynthesizerSequencer.Notes> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item,
+                SynthesizerSequencer.Notes.values());
+
         baseNotesSpinner.setAdapter(adapter);
         baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -143,18 +150,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeScalesSpinner() {
-        ArrayList<String> scalesList = new ArrayList<>();
-        for ( String key : SynthesizerSequencer.scales.keySet())
-        {
-            scalesList.add(key);
-        }
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,scalesList);
-        Spinner scalesSpinner = (Spinner) findViewById(R.id.scale_spinner);
-        scalesSpinner.setAdapter(adapter2);
+        ArrayAdapter<SynthesizerSequencer.Scales> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item,
+                SynthesizerSequencer.Scales.values());
+
+        scalesSpinner.setAdapter(adapter);
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicCreator.invalidateScale(parent.getItemAtPosition(position).toString());
+                mMusicCreator.invalidateScale(position);
             }
 
             @Override
@@ -165,16 +169,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeStepsSpinner() {
-        ArrayList<Integer> stepsList = new ArrayList<>();
-        int l3 = SynthesizerSequencer.stepIntervals.length;
-        for (int i = 0; i < l3; i++)
-        {
-            stepsList.add(SynthesizerSequencer.stepIntervals[i]);
-        }
-        ArrayAdapter<Integer> adapter3 = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,stepsList);
-        Spinner timeIntervalsSpinner = (Spinner)findViewById(R.id.steps_interval_spinner);
-        timeIntervalsSpinner.setAdapter(adapter3);
-        timeIntervalsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item,
+                SynthesizerSequencer.stepIntervals);
+        mStepsIntervalSpinner.setAdapter(adapter);
+        mStepsIntervalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mMusicCreator.invalidateStepInterval(position);
@@ -229,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_threshold:
                 saveThreshold();
                 return true;
+            case R.id.action_save_parameters:
+                saveParameters();
+                return true;
             case R.id.action_info:
                 // TODO present info about me
                 return true;
@@ -237,13 +239,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void saveThreshold() {
-        mPreferences
-                .edit()
+        mPreferences.edit()
                 .putFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
                         (float) AccelerometerProcessor.getInstance().getThreshold())
                 .apply();
         Toast.makeText(this, R.string.toast_threshold_saved, Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveParameters() {
+
+        Toast.makeText(this,R.string.toast_parameters_saved, Toast.LENGTH_SHORT).show();
     }
 
     @Override

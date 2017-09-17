@@ -8,7 +8,6 @@ import com.dobi.walkingsynth.musicgeneration.utils.PositionListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 class MusicAnalyzer {
 
@@ -39,15 +38,14 @@ class MusicAnalyzer {
      * 0 1 2 3 4 5 6 7
      * _ _ _ _ _ _ _ _
      */
-    private int mBarPosition = 0;
-
-    private int mBarCount = 0;
+    private int mBarPosition;
+    private int mBarCount;
 
     private boolean isPlaying = true;
     /**
      * time interval between two positions in a bar.
      */
-    private long mPositionInterval;
+    private long mInterPositionsInterval;
 
     private List<PositionListener> mPositionListeners;
 
@@ -59,7 +57,7 @@ class MusicAnalyzer {
 
     private List<BarListener> mBarListeners;
 
-    void addBarListener(BarListener listener) {
+    public void addBarListener(BarListener listener) {
         if (mBarListeners == null)
             mBarListeners = new ArrayList<>();
         mBarListeners.add(listener);
@@ -73,79 +71,32 @@ class MusicAnalyzer {
         mDistanceListeners.add(listener);
     }
 
-    /**
-     * Song counting variables:
-     */
-    private int mSongNumber = 1;
-    private long mSongLength;
-    private long mSongElapsed = 0;
-
-
     MusicAnalyzer() {
-        mPositionInterval = calcPositionInterval();
-        // calculate the length of a song
-        calcNewSongLength();
-        // time looper
-        Thread hHatThread = new Thread() {
+        mBarCount = 0;
+        mBarPosition = 0;
+        mInterPositionsInterval = calculatePositionsInterval();
+
+        Thread analyzerThread = new Thread() {
             @Override
             public void run() {
                 try {
                     while (isPlaying) {
-                        sleep(mPositionInterval);
+                        sleep(mInterPositionsInterval);
+
                         mBarPosition = (mBarPosition + 1) % BAR_INTERVALS;
                         if (mBarPosition == 0) {
                             ++mBarCount;
                         }
-                        // update elapsed time and check whether to startCSound new song
-                        mSongElapsed += mPositionInterval;
-                        if (mSongElapsed > mSongLength) {
-                            // startCSound a new song
-                            calcNewSongLength();
-                            mSongElapsed = 0;
-                            mBarCount = 0;
-                            ++mSongNumber;
-                        }
-                        // notify potential listeners
-                        invalidateListeners();
 
-                        Log.d(TAG, mBarPosition + " Sleep: " + mPositionInterval);
+                        invalidateListeners();
+                        Log.d(TAG, "Bar position: " + mBarPosition + " Sleep for interval: " + mInterPositionsInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         };
-        hHatThread.start();
-    }
-
-    private void invalidateListeners() {
-        if (mPositionListeners != null) {
-            for (PositionListener listener : mPositionListeners) {
-                listener.invalidatePosition(mBarPosition);
-                //mBarCount, mPositionInterval, calcElapsedSong()
-            }
-        }
-        if (mBarListeners != null) {
-            for (BarListener listener : mBarListeners) {
-                listener.invalidateBar(mBarPosition);
-            }
-        }
-        if (mDistanceListeners != null) {
-            for (DistanceListener listener : mDistanceListeners) {
-                listener.invalidateDistance(mPositionInterval);
-            }
-        }
-    }
-
-
-    private void calcNewSongLength() {
-        Random random = new Random();
-        mSongLength = (random.nextInt(600 - 180) + 180) * 1000; // to milliseconds
-        Log.d(TAG, "Song length: " + ((double) mSongLength / 1000 / 60));
-    }
-
-    private int calcElapsedSong() {
-        return (int)(((double)mSongElapsed / (double)mSongLength) * 100);
+        analyzerThread.start();
     }
 
     /**
@@ -159,17 +110,42 @@ class MusicAnalyzer {
      *
      * @return time distance to the next moment.
      */
-    private long calcPositionInterval() {
-        final long pi =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS * 2;
-        Log.d(TAG, "next Moment: " + pi);
-        return pi;
+    private long calculatePositionsInterval() {
+        final long positions =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS * 2;
+        Log.d(TAG, "next Moment: " + positions);
+        return positions;
+    }
+
+
+    private void invalidateListeners() {
+        if (mPositionListeners != null) {
+            for (PositionListener listener : mPositionListeners) {
+                listener.invalidatePosition(mBarPosition);
+            }
+        }
+        if (mBarListeners != null) {
+            for (BarListener listener : mBarListeners) {
+                listener.invalidateBar(mBarPosition);
+            }
+        }
+        if (mDistanceListeners != null) {
+            for (DistanceListener listener : mDistanceListeners) {
+                listener.invalidateDistance(mInterPositionsInterval);
+            }
+        }
     }
 
     public void onStep(long milliseconds) {
         Log.d(TAG, "onStep(): " + milliseconds);
-        if (validateTempo(calculateTempo(milliseconds))) {
-            mPositionInterval = calcPositionInterval();
+
+        if (validateAndCalculateTempo(milliseconds)) {
+            mInterPositionsInterval = calculatePositionsInterval();
         }
+    }
+
+    private boolean validateAndCalculateTempo(long stepTime) {
+        int tempo = calculateTempo(stepTime);
+        return validateTempo(tempo);
     }
 
     /**
@@ -184,16 +160,17 @@ class MusicAnalyzer {
      * @param stepTime Current time of event to be processed.
      */
     private int calculateTempo(long stepTime) {
-        // calc new tempo
-        final int tempo =  (int)(1 / ((float)(stepTime - mLastStepTime) / (1000 * 60)));
+        final int newTempo =  (int)(1 / ((float)(stepTime - mLastStepTime) / (1000 * 60)));
         mLastStepTime = stepTime;
-        return tempo;
+        return newTempo;
     }
 
     private boolean validateTempo(int tempo) {
-        if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF & tempo >= MIN_TEMPO & tempo <= MAX_TEMPO) {
+        if (Math.abs(tempo - mTempo) < MAX_TEMPO_DIFF &&
+                tempo >= MIN_TEMPO &&
+                tempo <= MAX_TEMPO) {
             mTempo = tempo;
-            Log.d(TAG, "Tempo validated. Value: " + mTempo + "bpm.");
+            Log.d(TAG, "Tempo is valid; value: " + mTempo + "bpm");
             return true;
         }
         return false;

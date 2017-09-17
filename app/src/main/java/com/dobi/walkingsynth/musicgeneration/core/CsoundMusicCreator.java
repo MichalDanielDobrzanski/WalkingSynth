@@ -9,6 +9,8 @@ import java.io.File;
 
 public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator {
 
+    private static final int MAX_STEPS_COUNT = 10000;
+
     private MusicAnalyzer mMusicAnalyzer;
 
     private DrumsPlayer mDrums;
@@ -58,9 +60,11 @@ public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator 
     }
 
     public void onStep(long milliseconds) {
-        mStepCounter++;
+        mStepCounter = (mStepCounter + 1) % MAX_STEPS_COUNT;
+
         mDrums.invaliateStep(mStepCounter);
-        mSynth.invaliateStep(mStepCounter);
+        mSynth.invalidateStep(mStepCounter);
+
         mMusicAnalyzer.onStep(milliseconds);
     }
 
@@ -69,13 +73,12 @@ public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator 
         return mStepCounter;
     }
 
-    public void invalidateBaseNote(int pos)
-    {
+    public void invalidateBaseNote(int pos) {
         mSynth.invalidateBaseNote(pos);
     }
 
-    public void invalidateScale(String scale) {
-        mSynth.invalidateScale(scale);
+    public void invalidateScale(int position) {
+        mSynth.invalidateScale(position);
     }
 
     public void invalidateStepInterval(int idx) {

@@ -36,7 +36,6 @@ public class AccelerometerProcessor {
     }
 
     private float mThreshold;
-    private boolean isActiveCounter;
     private double mAccelerometerValue;
     private double[] mGravity;
     private double[] mLinearAcceleration;
@@ -72,7 +71,6 @@ public class AccelerometerProcessor {
         return (new Date()).getTime() + (mEvent.timestamp - System.nanoTime()) / 1000000L;
     }
 
-
     /**
      * Vector Magnitude |V| = sqrt(x^2 + y^2 + z^2)
      */
@@ -100,6 +98,7 @@ public class AccelerometerProcessor {
     private static final int INACTIVE_SAMPLE = 12;
 
     private int mCurrentSample = 0;
+    private boolean isActiveCounter;
 
     /**
      * My step detection algorithm.

@@ -15,7 +15,10 @@
 
     <string name="menu_set_threshold">Save Threshold</string>
     <string name="menu_about">About</string>
+    <string name="menu_save_parameters">Save music parameters</string>
+
     <string name="toast_threshold_saved">Threshold saved</string>
+    <string name="toast_parameters_saved">Parameters saved</string>
 
 
 </resources>

@@ -8,11 +8,13 @@ import android.util.Log;
 
 public class AccelerometerManager implements SensorEventListener {
 
+    private static final String TAG = AccelerometerManager.class.getSimpleName();
+
     public interface StepListener {
         void onStepDetected(long milliseconds);
+
     }
 
-    private static final String TAG = AccelerometerManager.class.getSimpleName();
     /**
      * Suggested periods:
      * DELAY_UI: T ~= 60ms => f = 16,6Hz
@@ -20,11 +22,10 @@ public class AccelerometerManager implements SensorEventListener {
      */
     private static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
-    private AccelerometerGraph mAccelGraph;
+    private AccelerometerGraph mAccelerometerGraph;
     private AccelerometerProcessor mAccelerometerProcessor;
     private SensorManager mSensorManager;
-    private Sensor mAccel;
-
+    private Sensor mSensor;
     private StepListener mStepListener;
 
     public void setOnStepChangeListener(StepListener listener) {
@@ -34,27 +35,27 @@ public class AccelerometerManager implements SensorEventListener {
     public AccelerometerManager(SensorManager sensorManager, AccelerometerGraph graph) {
         mSensorManager = sensorManager;
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-            mAccel = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mAccel.getResolution()
-                    + " Max range: " + mAccel.getMaximumRange()
-                    + "\n Time interval: " + mAccel.getMinDelay() / 1000 + "ms.");
+            mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mSensor.getResolution()
+                    + " Max range: " + mSensor.getMaximumRange()
+                    + "\n Time interval: " + mSensor.getMinDelay() / 1000 + "ms.");
         } else {
             Log.d(TAG, "Failure! No accelerometer.");
         }
 
-        mAccelGraph = graph;
+        mAccelerometerGraph = graph;
         mAccelerometerProcessor = AccelerometerProcessor.getInstance();
     }
 
     public void startAccelerometerAndGraph() {
-        if (!mSensorManager.registerListener(this, mAccel, CONFIG_SENSOR)) {
+        if (!mSensorManager.registerListener(this, mSensor, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
     }
 
     public void stopAccelerometerAndGraph() {
-        mSensorManager.unregisterListener(this, mAccel);
-        mAccelGraph.reset();
+        mSensorManager.unregisterListener(this, mSensor);
+        mAccelerometerGraph.reset();
     }
 
     @Override
@@ -65,7 +66,7 @@ public class AccelerometerManager implements SensorEventListener {
 
         mAccelerometerProcessor.calcMagnitudeVector();
 
-        mAccelGraph.invalidate(eventTime);
+        mAccelerometerGraph.invalidate(eventTime);
 
         if (mAccelerometerProcessor.detect()) {
             if (mStepListener != null)

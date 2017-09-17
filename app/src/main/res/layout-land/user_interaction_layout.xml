@@ -20,7 +20,7 @@
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <Spinner
-        android:id="@+id/scale_spinner"
+        android:id="@+id/scales_spinner"
         android:layout_width="@dimen/scale_spinner_length"
         android:layout_height="40dp"
         app:layout_constraintBottom_toBottomOf="@+id/base_notes_spinner"
@@ -35,9 +35,9 @@
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toBottomOf="@+id/scale_spinner"
-        app:layout_constraintTop_toTopOf="@+id/scale_spinner"
-        app:layout_constraintLeft_toRightOf="@+id/scale_spinner"
+        app:layout_constraintBottom_toBottomOf="@+id/scales_spinner"
+        app:layout_constraintTop_toTopOf="@+id/scales_spinner"
+        app:layout_constraintLeft_toRightOf="@+id/scales_spinner"
         android:layout_marginLeft="8dp"
         app:layout_constraintVertical_bias="0.0" />
 

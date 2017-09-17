@@ -7,39 +7,41 @@ import java.util.Random;
 
 /**
  * Creating drum sequences and dynamic pattern modifications.
- * "When to play what"
  */
 public class DrumsSequencer {
 
     private static final String TAG = DrumsSequencer.class.getSimpleName();
 
     private enum DrumsTypes {
-        BD,
-        SN,
-        HH;
+        HIHAT,
+        SNARE,
+        BASS_DRUM;
 
         public static int count = DrumsTypes.values().length;
     }
 
-    private ArrayList<Integer> mDrumsSequences = new ArrayList<>(DrumsTypes.count);
-    private float[][] mDrumsParams = new float[DrumsTypes.count][2];
+    private ArrayList<Integer> mDrumsSequences;
+    private float[][] mDrumsParameters;
 
     private Random mRandom = new Random();
 
     DrumsSequencer() {
+        mDrumsSequences = new ArrayList<>(DrumsTypes.count);
+        mDrumsParameters = new float[DrumsTypes.count][2];
+
         generateFirstSequence();
 
         // hi hat:
-        mDrumsParams[0][0] = 0.11f;
-        mDrumsParams[0][1] = 0.2f;
+        mDrumsParameters[0][0] = 0.11f;
+        mDrumsParameters[0][1] = 0.2f;
 
         // snare:
-        mDrumsParams[1][0] = 1f;
-        mDrumsParams[1][1] = 0.5f;
+        mDrumsParameters[1][0] = 1f;
+        mDrumsParameters[1][1] = 0.5f;
 
         // kick:
-        mDrumsParams[2][0] = 60f;
-        mDrumsParams[2][1] = 0.5f;
+        mDrumsParameters[2][0] = 60f;
+        mDrumsParameters[2][1] = 0.5f;
     }
 
     private void generateFirstSequence() {
@@ -54,7 +56,7 @@ public class DrumsSequencer {
     }
 
     float[] getParameters(int instrument) {
-        return mDrumsParams[instrument - 1];
+        return mDrumsParameters[instrument - 1];
     }
 
     void randomizeHiHat() {

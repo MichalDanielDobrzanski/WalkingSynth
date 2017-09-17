@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicCreator;
 import com.dobi.walkingsynth.musicgeneration.core.MusicCreator;
@@ -50,9 +51,12 @@ public class MainActivity extends AppCompatActivity {
     TextView mTimeTextView;
 
     @BindView(R.id.graphFL)
-    FrameLayout graphFrameLayout;
+    FrameLayout mGraphFrameLayout;
 
-    private SharedPreferences preferences;
+    @BindView(R.id.threshold_seek_bar)
+    SeekBar mThresholdSeekBar;
+
+    private SharedPreferences mPreferences;
 
     private AccelerometerManager mAccelerometerManager;
     private AccelerometerGraph mAccelGraph;
@@ -71,13 +75,25 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
+        mPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+        if (savedInstanceState == null) {
+            float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
+            AccelerometerProcessor.getInstance().setThreshold(threshold);
+            initializeThresholdSeekBar(threshold);
+        } else {
+            initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
+        }
+
         mMusicCreator = new CsoundMusicCreator(getResources(), getCacheDir());
+
         mAccelGraph = new AchartEngineAccelerometerGraph();
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
-        initializeSeekBar();
+
+
 
         mStepsTextView.setText(String.valueOf(0));
         mTempoTextView.setText(String.valueOf(mMusicCreator.getTempo()));
@@ -85,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         TimeCounter.getInstance().startTimer();
         TimeCounter.getInstance().setView(mTimeTextView);
 
-        graphFrameLayout.addView(mAccelGraph.createView(this));
+        mGraphFrameLayout.addView(mAccelGraph.createView(this));
 
         mAccelerometerManager = new AccelerometerManager(
                 (SensorManager)getSystemService(Context.SENSOR_SERVICE),
@@ -169,14 +185,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeSeekBar() {
-        final SeekBar seekBar = (SeekBar)findViewById(R.id.offset_seek_bar);
-        seekBar.setProgress(10);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+    private void initializeThresholdSeekBar(float thr) {
+        mThresholdSeekBar.setProgress(AccelerometerProcessor.thresholdToProgress(thr));
+        mThresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    AccelerometerProcessor.getInstance().onProgressChange(progress);
+                    AccelerometerProcessor.getInstance()
+                            .setThreshold(AccelerometerProcessor.progressToThreshold(progress));
                 }
             }
 
@@ -220,10 +236,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveThreshold() {
-        // TODO: make this work
-        preferences.edit().putFloat(
-                PREFERENCES_VALUES_THRESHOLD_KEY,
-                (float) AccelerometerProcessor.getInstance().getThreshold()).apply();
+        mPreferences
+                .edit()
+                .putFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
+                        (float) AccelerometerProcessor.getInstance().getThreshold())
+                .apply();
+        Toast.makeText(this, R.string.toast_threshold_saved, Toast.LENGTH_SHORT).show();
     }
 
     @Override

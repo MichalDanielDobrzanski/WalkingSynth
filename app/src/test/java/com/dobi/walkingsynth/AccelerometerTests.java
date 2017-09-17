@@ -4,28 +4,34 @@ import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static junit.framework.Assert.assertTrue;
 
 public class AccelerometerTests {
 
-    private static int MAX_THRESHOLD = 25;
+    @Test
+    public void thresholdValues_areValid() {
+        AccelerometerProcessor accelerometerProcessor = AccelerometerProcessor.getInstance();
+
+        accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(0));
+
+        assertTrue(accelerometerProcessor.getThreshold() > 0);
+
+        accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(100));
+        //System.out.println("threshold for progress 100: " + accelerometerProcessor.getThreshold());
+
+        assertTrue(accelerometerProcessor.getThreshold() > 0 &&
+                accelerometerProcessor.getThreshold() < AccelerometerProcessor.MAX_THRESHOLD);
+    }
 
     @Test
-    public void thresholdRanges_areValid() {
-        AccelerometerProcessor accelerometerProcessing = AccelerometerProcessor.getInstance();
+    public void progressValues_areValid() {
 
-        accelerometerProcessing.onProgressChange(0);
-        assertTrue(accelerometerProcessing.getThreshold() > 0);
-        assertTrue(accelerometerProcessing.getThreshold() < MAX_THRESHOLD);
+        int progMax = AccelerometerProcessor.thresholdToProgress(AccelerometerProcessor.MAX_THRESHOLD);
+        //System.out.println("progress: " + progMax);
+        assertTrue(progMax == 100);
 
-        accelerometerProcessing.onProgressChange(50);
-        assertTrue(accelerometerProcessing.getThreshold() > 0);
-        assertTrue(accelerometerProcessing.getThreshold() < MAX_THRESHOLD);
-
-        accelerometerProcessing.onProgressChange(100);
-        assertTrue(accelerometerProcessing.getThreshold() > 0);
-        assertTrue(accelerometerProcessing.getThreshold() < MAX_THRESHOLD);
-
+        int progDef = AccelerometerProcessor.thresholdToProgress(AccelerometerProcessor.THRESHOLD_INITIAL);
+        assertTrue(progDef > 0 && progDef < 100);
     }
 
 }

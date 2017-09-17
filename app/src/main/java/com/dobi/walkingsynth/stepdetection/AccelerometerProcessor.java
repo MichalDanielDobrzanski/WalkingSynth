@@ -11,6 +11,9 @@ import java.util.Date;
 public class AccelerometerProcessor {
 
     public static final float THRESHOLD_INITIAL = 12.72f;
+    public static final float MAX_THRESHOLD = 25f;
+    private static final int OFFSET = 90;
+    private static final String TAG = AccelerometerProcessor.class.getSimpleName();
 
     public static AccelerometerProcessor getInstance() {
         if (mInstance == null)
@@ -20,7 +23,17 @@ public class AccelerometerProcessor {
 
     private static AccelerometerProcessor mInstance;
 
-    private static final String TAG = AccelerometerProcessor.class.getSimpleName();
+    public static float progressToThreshold(int progress) {
+        float res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
+        Log.d(TAG, "progressToThreshold() threshold: " + res);
+        return res;
+    }
+
+    public static int thresholdToProgress(float threshold) {
+        int res = (int)(100 * threshold / THRESHOLD_INITIAL) - OFFSET;
+        Log.d(TAG, "thresholdToProgress() progress: " + res);
+        return res > 100 ? 100 : res;
+    }
 
     private float mThreshold;
     private boolean isActiveCounter;
@@ -45,6 +58,9 @@ public class AccelerometerProcessor {
         return mAccelerometerValue;
     }
 
+    public void setThreshold(float mThreshold) {
+        this.mThreshold = mThreshold;
+    }
     public double getThreshold() {
         return mThreshold;
     }
@@ -104,13 +120,5 @@ public class AccelerometerProcessor {
 
         ++mCurrentSample;
         return false;
-    }
-
-    private static final int OFFSET = 90;
-
-    public void onProgressChange(int progress) {
-        float diff = (progress + OFFSET) / 100F;
-        mThreshold = THRESHOLD_INITIAL * diff;
-        Log.d(TAG, "onProgressChange() threshold: " + mThreshold);
     }
 }

@@ -43,14 +43,14 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         card_view:cardCornerRadius="4dp"
-        card_view:layout_constraintLeft_toRightOf="@+id/cardView6"
-        android:layout_marginLeft="8dp"
         android:layout_marginTop="6dp"
         card_view:layout_constraintTop_toBottomOf="@+id/cardView5"
         android:layout_marginRight="6dp"
         card_view:layout_constraintRight_toRightOf="parent"
         card_view:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="6dp"
+        card_view:layout_constraintLeft_toRightOf="@+id/cardView6"
+        android:layout_marginLeft="6dp">
 
         <!-- accelerometer visualization View-->
         <FrameLayout

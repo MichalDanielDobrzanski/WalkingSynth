@@ -21,7 +21,7 @@
 
     <Spinner
         android:id="@+id/scale_spinner"
-        android:layout_width="150dp"
+        android:layout_width="@dimen/scale_spinner_length"
         android:layout_height="40dp"
         app:layout_constraintBottom_toBottomOf="@+id/base_notes_spinner"
         app:layout_constraintTop_toTopOf="parent"
@@ -42,7 +42,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <SeekBar
-        android:id="@+id/offset_seek_bar"
+        android:id="@+id/threshold_seek_bar"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_gravity="center"

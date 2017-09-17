@@ -11,10 +11,11 @@
     <string name="steps_text">Steps count:</string>
     <string name="tempo_text">Tempo:</string>
     <string name="time_text">Time:</string>
+    <string name="time_text_start">00:00</string>
 
-    <string name="menu_set_threshold">Set Threshold</string>
+    <string name="menu_set_threshold">Save Threshold</string>
     <string name="menu_about">About</string>
-
+    <string name="toast_threshold_saved">Threshold saved</string>
 
 
 </resources>

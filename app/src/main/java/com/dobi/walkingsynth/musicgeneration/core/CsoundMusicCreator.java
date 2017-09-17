@@ -15,8 +15,23 @@ public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator 
 
     private SynthesizerPlayer mSynth;
 
-    public CsoundMusicCreator(Resources res, File cDir) {
+    private int mStepCounter;
+
+    private static CsoundMusicCreator mInstance;
+
+    public static void createInstance(Resources res, File cDir) {
+        if (mInstance == null)
+            mInstance = new CsoundMusicCreator(res, cDir);
+    }
+
+    public static CsoundMusicCreator getInstance() {
+        return mInstance;
+    }
+
+    private CsoundMusicCreator(Resources res, File cDir) {
         super(res, cDir);
+
+        mStepCounter = 0;
 
         mMusicAnalyzer = new MusicAnalyzer();
 
@@ -38,14 +53,20 @@ public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator 
         destroyCSound();
     }
 
-    public int getTempo() {
+    public int getCurrentTempo() {
         return mMusicAnalyzer.getTempo();
     }
 
-    public void onStep(int stepCount, long milliseconds) {
-        mDrums.invaliateStep(stepCount);
-        mSynth.invaliateStep(stepCount);
+    public void onStep(long milliseconds) {
+        mStepCounter++;
+        mDrums.invaliateStep(mStepCounter);
+        mSynth.invaliateStep(mStepCounter);
         mMusicAnalyzer.onStep(milliseconds);
+    }
+
+    @Override
+    public int getStepCount() {
+        return mStepCounter;
     }
 
     public void invalidateBaseNote(int pos)

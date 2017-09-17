@@ -25,18 +25,22 @@ public class TimeCounter {
     private WeakReference<TextView> mTextViewWeakReference;
 
     private TimeCounter() {
-        mInitialTime = SystemClock.elapsedRealtime();
-        mTimer = new Timer();
         mRunning = false;
+        mInitialTime = SystemClock.elapsedRealtime();
+        mLastTime = convertMillisecondsToHumanReadable(0);
+        mTimer = new Timer();
     }
 
-    private static TimeCounter mInstance = new TimeCounter();
+    private static TimeCounter mInstance;
 
     public static TimeCounter getInstance() {
+        if (mInstance == null)
+            mInstance = new TimeCounter();
         return mInstance;
     }
 
     public void setView(TextView textView) {
+        textView.setText(mLastTime);
         mTextViewWeakReference = new WeakReference<>(textView);
     }
 
@@ -62,6 +66,11 @@ public class TimeCounter {
             }, ONE_SECOND, ONE_SECOND);
             mRunning = true;
         }
+    }
+
+    public void stopTimer() {
+        mTimer.cancel();
+        mRunning = false;
     }
 
     private String convertMillisecondsToHumanReadable(long milliseconds) {

@@ -9,7 +9,7 @@ import android.util.Log;
 public class AccelerometerManager implements SensorEventListener {
 
     public interface StepListener {
-        void onStepChange(int stepCount, long milliseconds);
+        void onStepDetected(long milliseconds);
     }
 
     private static final String TAG = AccelerometerManager.class.getSimpleName();
@@ -19,8 +19,6 @@ public class AccelerometerManager implements SensorEventListener {
      * DELAY_GAME: T ~= 20ms => f = 50Hz
      */
     private static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
-
-    private int mStepsCount = 0;
 
     private AccelerometerGraph mAccelGraph;
     private AccelerometerProcessor mAccelerometerProcessor;
@@ -70,9 +68,8 @@ public class AccelerometerManager implements SensorEventListener {
         mAccelGraph.invalidate(eventTime);
 
         if (mAccelerometerProcessor.detect()) {
-            mStepsCount++;
             if (mStepListener != null)
-                mStepListener.onStepChange(mStepsCount, eventTime);
+                mStepListener.onStepDetected(eventTime);
         }
     }
 

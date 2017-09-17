@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPreferences;
 
     private AccelerometerManager mAccelerometerManager;
-    private AccelerometerGraph mAccelGraph;
 
     private MusicCreator mMusicCreator;
 
@@ -78,43 +77,46 @@ public class MainActivity extends AppCompatActivity {
         mPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         if (savedInstanceState == null) {
+            Log.d(TAG, "onCreate: Initialized.");
+
             float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
+
             AccelerometerProcessor.getInstance().setThreshold(threshold);
             initializeThresholdSeekBar(threshold);
+
+            CsoundMusicCreator.createInstance(getResources(), getCacheDir());
+
+            TimeCounter.getInstance().startTimer();
+
         } else {
             initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
         }
 
-        mMusicCreator = new CsoundMusicCreator(getResources(), getCacheDir());
+        TimeCounter.getInstance().setView(mTimeTextView);
 
-        mAccelGraph = new AchartEngineAccelerometerGraph();
+        mMusicCreator = CsoundMusicCreator.getInstance();
+
+        mStepsTextView.setText(String.valueOf(formatStep(mMusicCreator.getStepCount())));
+        mTempoTextView.setText(String.valueOf(mMusicCreator.getCurrentTempo()));
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
 
-
-
-        mStepsTextView.setText(String.valueOf(0));
-        mTempoTextView.setText(String.valueOf(mMusicCreator.getTempo()));
-
-        TimeCounter.getInstance().startTimer();
-        TimeCounter.getInstance().setView(mTimeTextView);
-
-        mGraphFrameLayout.addView(mAccelGraph.createView(this));
+        AccelerometerGraph accelerometerGraph = AchartEngineAccelerometerGraph.getInstance();
+        mGraphFrameLayout.addView(accelerometerGraph.createView(this));
 
         mAccelerometerManager = new AccelerometerManager(
                 (SensorManager)getSystemService(Context.SENSOR_SERVICE),
-                mAccelGraph);
+                accelerometerGraph);
 
         mAccelerometerManager.setOnStepChangeListener(new AccelerometerManager.StepListener() {
             @Override
-            public void onStepChange(int stepCount, long milliseconds) {
-                mMusicCreator.onStep(stepCount, milliseconds);
+            public void onStepDetected(long milliseconds) {
+                mMusicCreator.onStep(milliseconds);
 
-                mStepsTextView.setText(formatStep(stepCount));
-
-                mTempoTextView.setText(String.valueOf(mMusicCreator.getTempo()));
+                mStepsTextView.setText(formatStep(mMusicCreator.getStepCount()));
+                mTempoTextView.setText(String.valueOf(mMusicCreator.getCurrentTempo()));
             }
         });
     }
@@ -262,5 +264,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onStop()");
         mMusicCreator.destroy();
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy()");
+        super.onDestroy();
     }
 }

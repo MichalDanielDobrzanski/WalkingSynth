@@ -6,9 +6,11 @@ public interface MusicCreator {
 
     void destroy();
 
-    int getTempo();
+    int getCurrentTempo();
 
-    void onStep(int stepCount, long milliseconds); // step count + time of current step occurence
+    void onStep( long milliseconds); // step count + time of current step occurence
+
+    int getStepCount();
 
     void invalidateBaseNote(int pos); // base note has changed
 

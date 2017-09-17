@@ -62,7 +62,7 @@ class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
             while ((line = r.readLine()) != null) {
                 str.append(line).append("\n");
             }
-        } catch (IOException ios) {
+        } catch (IOException ignored) {
 
         }
 

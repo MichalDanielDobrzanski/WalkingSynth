@@ -36,7 +36,15 @@ public class AchartEngineAccelerometerGraph implements AccelerometerGraph {
     private XYMultipleSeriesDataset mDataset;
     private GraphicalView view;
 
-    public AchartEngineAccelerometerGraph() {
+    private static AchartEngineAccelerometerGraph mInstance;
+
+    public static AchartEngineAccelerometerGraph getInstance() {
+        if (mInstance == null)
+            mInstance = new AchartEngineAccelerometerGraph();
+        return mInstance;
+    }
+
+    private AchartEngineAccelerometerGraph() {
 
         mRenderer = new XYMultipleSeriesRenderer();
         mDataset = new XYMultipleSeriesDataset();

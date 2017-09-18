@@ -1,7 +1,0 @@
-package com.dobi.walkingsynth.musicgeneration.utils;
-
-public interface BarListener {
-
-    // bar count (how many have passed)
-    void invalidateBar(int bar);
-}

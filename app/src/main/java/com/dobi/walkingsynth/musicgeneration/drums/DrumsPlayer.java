@@ -15,26 +15,25 @@ public class DrumsPlayer extends BasePlayer {
 
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
-    /**
-     * This flag id for checking whether to invalidatePosition the note on specific time interval
-     */
     private int bitFlag;
 
-    private int mBarPosition;
+    private DrumsSequencer mDrumsSequencer;
 
-    private DrumsSequencer mDrumsSequencer = new DrumsSequencer();
-
-    public DrumsPlayer(CsoundObj csoundObj) {
-        super(csoundObj);
+    public DrumsPlayer(CsoundObj csoundObj, int steps, DrumsSequencer drumsSequencer) {
+        super(csoundObj, steps);
+        mDrumsSequencer = drumsSequencer;
     }
 
     @Override
-    public void invalidatePosition(int position) {
-        mBarPosition = position;
-        playSequences(mDrumsSequencer.getSequences());
+    public void invalidate(int position, int steps) {
+        Log.d(TAG, "invalidate() position: " + position + " steps: " + steps + "getStepInterval(): " + getStepInterval());
+        if (steps + 1 % (getStepInterval() + 1) == 0) {
+            mDrumsSequencer.randomizeHiHat();
+        }
+        playAllSequences(mDrumsSequencer.getSequences());
     }
 
-    private void playSequences(ArrayList<Integer> sequences) {
+    private void playAllSequences(ArrayList<Integer> sequences) {
         for (int i = 0; i < sequences.size(); ++i) {
             playAt(sequences.get(i), i);
         }
@@ -51,7 +50,6 @@ public class DrumsPlayer extends BasePlayer {
         if ((binarySequence & bitFlag) > 0) {
             instrument++;
             playDrumInstrument(instrument);
-            Log.d(TAG, "Instrument" + instrument + " at " + mBarPosition);
         }
     }
 
@@ -81,14 +79,4 @@ public class DrumsPlayer extends BasePlayer {
         if (bitFlag == 0)
             bitFlag = 128;
     }
-
-
-
-    public void invaliateStep(int stepcount) {
-        if (stepcount % mStepInterval == 0) {
-            Log.d(TAG,"Walked steps threshold. New csound_part rhythm score!");
-            mDrumsSequencer.randomizeHiHat();
-        }
-    }
-
 }

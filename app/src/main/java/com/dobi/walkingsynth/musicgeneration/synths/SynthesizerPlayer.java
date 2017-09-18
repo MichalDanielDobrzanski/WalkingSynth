@@ -3,7 +3,8 @@ import android.util.Log;
 
 import com.csounds.CsoundObj;
 import com.dobi.walkingsynth.musicgeneration.core.BasePlayer;
-import com.dobi.walkingsynth.musicgeneration.utils.BarListener;
+import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 
 import java.util.Locale;
 import java.util.Random;
@@ -12,45 +13,43 @@ import java.util.Random;
  * Synthesizer player. Needs to now about the current key and scale and step and beat count.
  * Provides the SynthesizerSequencer with necessary information.
  */
-public class SynthesizerPlayer extends BasePlayer implements BarListener {
+public class SynthesizerPlayer extends BasePlayer  {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
     private final Locale mLocale;
-    private int mCurrentBar;
+    private int mLastStep;
     private int[] currentRhythmSequence;
     private Random mGenerator = new Random(System.currentTimeMillis());
     private SynthesizerSequencer mSynthesizerSequencer;
 
-    public SynthesizerPlayer(CsoundObj csoundObj) {
-        super(csoundObj);
-
+    public SynthesizerPlayer(CsoundObj csoundObj, int steps, SynthesizerSequencer synthesizerSequencer) {
+        super(csoundObj, steps);
         mLocale = Locale.getDefault();
+        mLastStep = 0;
 
-        mSynthesizerSequencer = new SynthesizerSequencer();
-        currentRhythmSequence = mSynthesizerSequencer.invalidateScore();
+        mSynthesizerSequencer = synthesizerSequencer;
+        currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
     }
 
     @Override
-    public void invalidateBar(int bar) {
-        mCurrentBar = bar;
-    }
-
-    @Override
-    public void invalidatePosition(int position) {
-        if ((position + 8) % 8 == 0)
-            onBarCountChange(mCurrentBar);
-    }
-
-    private void onBarCountChange(int barCount) {
-        Log.d(TAG, "onBarCountChange(): " + barCount);
-        playRhythmScoreSequence(barCount);
+    public void invalidate(int position, int step) {
+        Log.d(TAG, "invalidate: " + position + " step: " + step + " getStepInterval(): " + getStepInterval());
+        if ((position + 8) % 8 == 0) {
+            playRhythmScore(position);
+        }
+        if (step > 0 && mLastStep != step && step % getStepInterval() == 0) {
+            Log.d(TAG, "Walked steps threshold. Playing random score.");
+            currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
+            playCsoundArpNotes();
+            mLastStep = step;
+        }
     }
 
     /**
         Parsing the current sequence and playing it at right time.
      */
-    private void playRhythmScoreSequence(int bc) {
+    private void playRhythmScore(int bc) {
         if (bc % 4 == 0) {
             playCsoundRhythmNote(currentRhythmSequence[0]);
             playCsoundLeadNote(currentRhythmSequence[0]);
@@ -98,21 +97,22 @@ public class SynthesizerPlayer extends BasePlayer implements BarListener {
                 4, currentRhythmSequence[3], mGenerator.nextInt(5), mGenerator.nextInt(5)));
     }
 
-    public void invalidateStep(int steps) {
-        // change pattern when specific amount of steps has been made
-        if (steps % mStepInterval == 0) {
-            Log.d(TAG,"Walked steps threshold. New rhythm score and playing some fancy stuff.");
-            currentRhythmSequence = mSynthesizerSequencer.invalidateScore();
-            playCsoundArpNotes();
-        }
+    @Override
+    public void setScale(Scales scale) {
+        super.setScale(scale);
+        mSynthesizerSequencer.setScale(scale);
+        randomize();
     }
-    public void invalidateBaseNote(int pos) {
-        mSynthesizerSequencer.invdalidateBaseNote(pos);
-        currentRhythmSequence = mSynthesizerSequencer.invalidateScore();
+
+    @Override
+    public void setNote(Notes note) {
+        super.setNote(note);
+        mSynthesizerSequencer.setNote(note);
+        randomize();
     }
-    public void invalidateScale(int position) {
-        mSynthesizerSequencer.invdalidateScale(position);
-        currentRhythmSequence = mSynthesizerSequencer.invalidateScore();
+
+    private void randomize() {
+        currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
     }
 
 

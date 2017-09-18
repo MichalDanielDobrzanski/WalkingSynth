@@ -2,20 +2,19 @@ package com.dobi.walkingsynth.musicgeneration.core;
 
 import android.util.Log;
 
-import com.dobi.walkingsynth.musicgeneration.utils.BarListener;
-import com.dobi.walkingsynth.musicgeneration.utils.DistanceListener;
-import com.dobi.walkingsynth.musicgeneration.utils.PositionListener;
+import com.dobi.walkingsynth.musicgeneration.utils.PositionAndStepListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class MusicAnalyzer {
+public class MusicAnalyzer {
 
     private static final String TAG = MusicAnalyzer.class.getSimpleName();
 
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 120;
     private static final int MAX_TEMPO_DIFF = 40;
+    private static final int MAX_STEPS_COUNT = 10000;
 
     /**
      * How many divisions do for a single bar.
@@ -38,42 +37,24 @@ class MusicAnalyzer {
      * 0 1 2 3 4 5 6 7
      * _ _ _ _ _ _ _ _
      */
-    private int mBarPosition;
-    private int mBarCount;
-
+    private int mPosition;
+    private int mStepCount;
     private boolean isPlaying = true;
-    /**
-     * time interval between two positions in a bar.
-     */
     private long mInterPositionsInterval;
 
-    private List<PositionListener> mPositionListeners;
 
-    void addPositionListener(PositionListener listener) {
+    private List<PositionAndStepListener> mPositionListeners;
+
+
+    void addPositionListener(PositionAndStepListener listener) {
         if (mPositionListeners == null)
             mPositionListeners = new ArrayList<>();
         mPositionListeners.add(listener);
     }
 
-    private List<BarListener> mBarListeners;
 
-    public void addBarListener(BarListener listener) {
-        if (mBarListeners == null)
-            mBarListeners = new ArrayList<>();
-        mBarListeners.add(listener);
-    }
-
-    private List<DistanceListener> mDistanceListeners;
-
-    public void addDistanceListener(DistanceListener listener) {
-        if (mDistanceListeners == null)
-            mDistanceListeners = new ArrayList<>();
-        mDistanceListeners.add(listener);
-    }
-
-    MusicAnalyzer() {
-        mBarCount = 0;
-        mBarPosition = 0;
+    public MusicAnalyzer() {
+        mPosition = 0;
         mInterPositionsInterval = calculatePositionsInterval();
 
         Thread analyzerThread = new Thread() {
@@ -83,13 +64,9 @@ class MusicAnalyzer {
                     while (isPlaying) {
                         sleep(mInterPositionsInterval);
 
-                        mBarPosition = (mBarPosition + 1) % BAR_INTERVALS;
-                        if (mBarPosition == 0) {
-                            ++mBarCount;
-                        }
-
+                        mPosition = (mPosition + 1) % BAR_INTERVALS;
                         invalidateListeners();
-                        Log.d(TAG, "Bar position: " + mBarPosition + " Sleep for interval: " + mInterPositionsInterval);
+                        Log.d(TAG, "Bar position: " + mPosition + " Sleep for interval: " + mInterPositionsInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -100,7 +77,7 @@ class MusicAnalyzer {
     }
 
     /**
-     * Calculate next time interval based on tempo. When (in time) should I invalidatePosition another note.
+     * Calculate next time interval based on tempo. When (in time) should I invalidate another note.
      * 60 / tempo = seconds between beats
      * (60 / tempo) * 1000 = milliseconds between beats
      *
@@ -119,25 +96,15 @@ class MusicAnalyzer {
 
     private void invalidateListeners() {
         if (mPositionListeners != null) {
-            for (PositionListener listener : mPositionListeners) {
-                listener.invalidatePosition(mBarPosition);
-            }
-        }
-        if (mBarListeners != null) {
-            for (BarListener listener : mBarListeners) {
-                listener.invalidateBar(mBarPosition);
-            }
-        }
-        if (mDistanceListeners != null) {
-            for (DistanceListener listener : mDistanceListeners) {
-                listener.invalidateDistance(mInterPositionsInterval);
+            for (PositionAndStepListener listener : mPositionListeners) {
+                listener.invalidate(mPosition, mStepCount);
             }
         }
     }
 
     public void onStep(long milliseconds) {
         Log.d(TAG, "onStep(): " + milliseconds);
-
+        mStepCount = (mStepCount + 1) % MAX_STEPS_COUNT;
         if (validateAndCalculateTempo(milliseconds)) {
             mInterPositionsInterval = calculatePositionsInterval();
         }
@@ -177,8 +144,11 @@ class MusicAnalyzer {
     }
 
 
-    int getTempo() {
+    public int getTempo() {
         return mTempo;
     }
 
+    public int getStepsCount() {
+        return mStepCount;
+    }
 }

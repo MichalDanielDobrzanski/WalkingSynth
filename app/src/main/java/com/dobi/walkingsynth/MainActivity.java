@@ -20,9 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicCreator;
+import com.dobi.walkingsynth.musicgeneration.core.MusicAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.MusicCreator;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
+import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
@@ -88,23 +91,11 @@ public class MainActivity extends AppCompatActivity {
 
         mPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        if (savedInstanceState == null) {
-            Log.d(TAG, "onCreate: Initialized.");
-
-            float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
-            AccelerometerProcessor.getInstance().setThreshold(threshold);
-            initializeThresholdSeekBar(threshold);
-
-            CsoundMusicCreator.createInstance(getResources(), getCacheDir());
-            TimeCounter.getInstance().startTimer();
-        } else {
-            initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
-        }
+        initializeOrRestoreState(savedInstanceState);
 
         TimeCounter.getInstance().setView(mTimeTextView);
 
         mMusicCreator = CsoundMusicCreator.getInstance();
-
         mStepsTextView.setText(String.valueOf(formatStep(mMusicCreator.getStepCount())));
         mTempoTextView.setText(String.valueOf(mMusicCreator.getCurrentTempo()));
 
@@ -130,16 +121,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initializeOrRestoreState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Log.d(TAG, "onCreate: Initialized.");
+
+            float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
+
+            AccelerometerProcessor.getInstance().setThreshold(threshold);
+            initializeThresholdSeekBar(threshold);
+
+            int note = mPreferences.getInt(PREFERENCES_VALUES_BASENOTE_KEY, 0);
+            String scale = mPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scales.Pentatonic.name());
+            int steps = mPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, SynthesizerSequencer.stepIntervals[0]);
+
+            CsoundMusicCreator.createInstance(new MusicAnalyzer(), getResources(), getCacheDir(), note, scale, steps);
+
+            TimeCounter.getInstance().startTimer();
+        } else {
+            initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
+        }
+    }
+
     private void initializeNotesSpinner() {
-        ArrayAdapter<SynthesizerSequencer.Notes> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item,
-                SynthesizerSequencer.Notes.values());
+        ArrayAdapter<Notes> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item, Notes.values());
 
         baseNotesSpinner.setAdapter(adapter);
         baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicCreator.invalidateBaseNote(position);
+                mMusicCreator.invalidateBaseNote(Notes.values()[position]);
             }
 
             @Override
@@ -150,15 +161,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeScalesSpinner() {
-        ArrayAdapter<SynthesizerSequencer.Scales> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item,
-                SynthesizerSequencer.Scales.values());
+        ArrayAdapter<Scales> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item, Scales.values());
 
         scalesSpinner.setAdapter(adapter);
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicCreator.invalidateScale(position);
+                mMusicCreator.invalidateScale(Scales.values()[position]);
             }
 
             @Override
@@ -176,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         mStepsIntervalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicCreator.invalidateStepInterval(position);
+                mMusicCreator.invalidateStep(SynthesizerSequencer.stepIntervals[position]);
             }
 
             @Override

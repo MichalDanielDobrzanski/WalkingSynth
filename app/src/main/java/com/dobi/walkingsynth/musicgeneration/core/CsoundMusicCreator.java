@@ -3,46 +3,51 @@ package com.dobi.walkingsynth.musicgeneration.core;
 import android.content.res.Resources;
 
 import com.dobi.walkingsynth.musicgeneration.drums.DrumsPlayer;
+import com.dobi.walkingsynth.musicgeneration.drums.DrumsSequencer;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerPlayer;
+import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
+import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator {
 
-    private static final int MAX_STEPS_COUNT = 10000;
-
     private MusicAnalyzer mMusicAnalyzer;
 
-    private DrumsPlayer mDrums;
-
-    private SynthesizerPlayer mSynth;
-
-    private int mStepCounter;
+    private List<BasePlayer> mPlayers;
 
     private static CsoundMusicCreator mInstance;
 
-    public static void createInstance(Resources res, File cDir) {
-        if (mInstance == null)
-            mInstance = new CsoundMusicCreator(res, cDir);
+    public static void createInstance(MusicAnalyzer musicAnalyzer, Resources res, File cDir, int note, String scale, int steps) {
+        if (mInstance == null) {
+            mInstance = new CsoundMusicCreator(musicAnalyzer, res, cDir, note, scale, steps);
+        }
     }
 
     public static CsoundMusicCreator getInstance() {
         return mInstance;
     }
 
-    private CsoundMusicCreator(Resources res, File cDir) {
+    private CsoundMusicCreator(MusicAnalyzer musicAnalyzer, Resources res, File cDir, int note, String scale, int steps) {
         super(res, cDir);
 
-        mStepCounter = 0;
+        mMusicAnalyzer = musicAnalyzer;
+        initializePlayers(note, scale, steps);
+    }
 
-        mMusicAnalyzer = new MusicAnalyzer();
+    private void initializePlayers(int note, String scale, int steps) {
+        mPlayers = new ArrayList<>();
 
-        mDrums = new DrumsPlayer(csoundObj);
-        mMusicAnalyzer.addPositionListener(mDrums);
+        DrumsPlayer drums = new DrumsPlayer(csoundObj, steps, new DrumsSequencer());
+        mMusicAnalyzer.addPositionListener(drums);
+        mPlayers.add(drums);
 
-        mSynth = new SynthesizerPlayer(csoundObj);
-        mMusicAnalyzer.addPositionListener(mSynth);
-        mMusicAnalyzer.addBarListener(mSynth);
+        SynthesizerPlayer synth = new SynthesizerPlayer(csoundObj, steps, new SynthesizerSequencer(note, scale));
+        mMusicAnalyzer.addPositionListener(synth);
+        mPlayers.add(synth);
     }
 
     @Override
@@ -60,29 +65,29 @@ public class CsoundMusicCreator extends CsoundBaseSetup implements MusicCreator 
     }
 
     public void onStep(long milliseconds) {
-        mStepCounter = (mStepCounter + 1) % MAX_STEPS_COUNT;
-
-        mDrums.invaliateStep(mStepCounter);
-        mSynth.invalidateStep(mStepCounter);
-
         mMusicAnalyzer.onStep(milliseconds);
     }
 
     @Override
     public int getStepCount() {
-        return mStepCounter;
+        return mMusicAnalyzer.getStepsCount();
     }
 
-    public void invalidateBaseNote(int pos) {
-        mSynth.invalidateBaseNote(pos);
+    public void invalidateBaseNote(Notes note) {
+        for (BasePlayer bp : mPlayers) {
+            bp.setNote(note);
+        }
     }
 
-    public void invalidateScale(int position) {
-        mSynth.invalidateScale(position);
+    public void invalidateScale(Scales scale) {
+        for (BasePlayer bp : mPlayers) {
+            bp.setScale(scale);
+        }
     }
 
-    public void invalidateStepInterval(int idx) {
-        mDrums.invalidateStepInterval(idx);
-        mSynth.invalidateStepInterval(idx);
+    public void invalidateStep(int idx) {
+        for (BasePlayer bp : mPlayers) {
+            bp.setStepInterval(idx);
+        }
     }
 }

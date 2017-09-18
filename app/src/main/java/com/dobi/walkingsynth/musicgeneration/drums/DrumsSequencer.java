@@ -25,7 +25,7 @@ public class DrumsSequencer {
 
     private Random mRandom = new Random();
 
-    DrumsSequencer() {
+    public DrumsSequencer() {
         mDrumsSequences = new ArrayList<>(DrumsTypes.count);
         mDrumsParameters = new float[DrumsTypes.count][2];
 

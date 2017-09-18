@@ -1,5 +1,8 @@
 package com.dobi.walkingsynth.musicgeneration.core;
 
+import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+
 public interface MusicCreator {
 
     void start();
@@ -12,11 +15,11 @@ public interface MusicCreator {
 
     int getStepCount();
 
-    void invalidateBaseNote(int pos); // base note has changed
+    void invalidateBaseNote(Notes note); // base note has changed
 
-    void invalidateScale(int position); // scale has been altered
+    void invalidateScale(Scales position); // scale has been altered
 
-    void invalidateStepInterval(int idx); // count for special music
+    void invalidateStep(int count); // count for special music
 
 
 }

@@ -2,8 +2,8 @@ package com.dobi.walkingsynth.musicgeneration.synths;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.core.BasePlayer;
-import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundPlayer;
+import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 
 import java.util.Locale;
@@ -13,7 +13,7 @@ import java.util.Random;
  * Synthesizer player. Needs to now about the current key and scale and step and beat count.
  * Provides the SynthesizerSequencer with necessary information.
  */
-public class SynthesizerPlayer extends BasePlayer  {
+public class SynthesizerPlayer extends CsoundPlayer {
 
     private static final String TAG = SynthesizerPlayer.class.getSimpleName();
 
@@ -30,20 +30,6 @@ public class SynthesizerPlayer extends BasePlayer  {
 
         mSynthesizerSequencer = synthesizerSequencer;
         currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
-    }
-
-    @Override
-    public void invalidate(int position, int step) {
-        Log.d(TAG, "invalidate: " + position + " step: " + step + " getStepInterval(): " + getStepInterval());
-        if ((position + 8) % 8 == 0) {
-            playRhythmScore(position);
-        }
-        if (step > 0 && mLastStep != step && step % getStepInterval() == 0) {
-            Log.d(TAG, "Walked steps threshold. Playing random score.");
-            currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
-            playCsoundArpNotes();
-            mLastStep = step;
-        }
     }
 
     /**
@@ -105,7 +91,7 @@ public class SynthesizerPlayer extends BasePlayer  {
     }
 
     @Override
-    public void setBaseNote(Notes note) {
+    public void setBaseNote(Note note) {
         super.setBaseNote(note);
         mSynthesizerSequencer.setNote(note);
         randomize();
@@ -116,4 +102,22 @@ public class SynthesizerPlayer extends BasePlayer  {
     }
 
 
+    @Override
+    public void onStep(int step) {
+        Log.d(TAG, "onStep(): step: " + step + " getStepInterval(): " + getStepInterval());
+        if (step > 0 && mLastStep != step && step % getStepInterval() == 0) {
+            Log.d(TAG, "Walked steps threshold. Playing random score.");
+            currentRhythmSequence = mSynthesizerSequencer.getRandomScore();
+            playCsoundArpNotes();
+            mLastStep = step;
+        }
+    }
+
+    @Override
+    public void invalidate(int position) {
+        Log.d(TAG, "invalidate(): " + position);
+        if ((position + 8) % 8 == 0) {
+            playRhythmScore(position);
+        }
+    }
 }

@@ -18,9 +18,9 @@ import java.io.InputStreamReader;
 /**
  * Csound initialization and configuration
  */
-class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
+class CsoundBase implements CsoundObjListener, CsoundBinding {
 
-    private static final String TAG = CsoundBaseSetup.class.getSimpleName();
+    private static final String TAG = CsoundBase.class.getSimpleName();
 
     protected CsoundObj csoundObj = new CsoundObj(false, true);
     protected Handler handler = new Handler();
@@ -29,7 +29,7 @@ class CsoundBaseSetup implements CsoundObjListener, CsoundBinding {
     private File cacheDir;
     private File tempFile;
 
-    public CsoundBaseSetup(Resources res, File cDir) {
+    public CsoundBase(Resources res, File cDir) {
         resources = res;
         cacheDir = cDir;
 

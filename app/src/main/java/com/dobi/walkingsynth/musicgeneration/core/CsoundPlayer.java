@@ -2,21 +2,22 @@ package com.dobi.walkingsynth.musicgeneration.core;
 
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.utils.Notes;
-import com.dobi.walkingsynth.musicgeneration.utils.PositionAndStepListener;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.PositionListener;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsListener;
+import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 
 /**
  * Base player functionality for csound
  */
-public abstract class BasePlayer implements PositionAndStepListener {
+public abstract class CsoundPlayer implements PositionListener, StepsListener {
 
-    private Notes mBaseNote;
+    private Note mBaseNote;
     private Scales mScale;
     private int mStepInterval;
     protected CsoundObj mCsoundObj;
 
-    protected BasePlayer(CsoundObj csoundObj, int steps) {
+    protected CsoundPlayer(CsoundObj csoundObj, int steps) {
         mCsoundObj = csoundObj;
         mStepInterval = steps;
     }
@@ -29,11 +30,11 @@ public abstract class BasePlayer implements PositionAndStepListener {
         return mStepInterval;
     }
 
-    public void setBaseNote(Notes mNote) {
+    public void setBaseNote(Note mNote) {
         this.mBaseNote = mNote;
     }
 
-    public Notes getBaseNote() {
+    public Note getBaseNote() {
         return mBaseNote;
     }
 

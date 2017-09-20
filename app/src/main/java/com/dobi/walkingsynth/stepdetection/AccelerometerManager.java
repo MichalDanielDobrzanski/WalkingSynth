@@ -6,14 +6,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AccelerometerManager implements SensorEventListener {
 
     private static final String TAG = AccelerometerManager.class.getSimpleName();
-
-    public interface StepListener {
-        void onStepDetected(long milliseconds);
-
-    }
 
     /**
      * Suggested periods:
@@ -26,10 +24,12 @@ public class AccelerometerManager implements SensorEventListener {
     private AccelerometerProcessor mAccelerometerProcessor;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    private StepListener mStepListener;
+    private List<OnStepListener> mStepListeners;
 
-    public void setOnStepChangeListener(StepListener listener) {
-        mStepListener = listener;
+    public void addOnStepChangeListener(OnStepListener listener) {
+        if (mStepListeners == null)
+            mStepListeners = new ArrayList<>();
+        mStepListeners.add(listener);
     }
 
     public AccelerometerManager(SensorManager sensorManager, AccelerometerGraph graph) {
@@ -69,8 +69,14 @@ public class AccelerometerManager implements SensorEventListener {
         mAccelerometerGraph.invalidate(eventTime);
 
         if (mAccelerometerProcessor.detect()) {
-            if (mStepListener != null)
-                mStepListener.onStepDetected(eventTime);
+            updateListeners(eventTime);
+        }
+    }
+
+    private void updateListeners(long eventTime) {
+        for (OnStepListener listener :
+                mStepListeners) {
+            listener.onStepDetected(eventTime);
         }
     }
 

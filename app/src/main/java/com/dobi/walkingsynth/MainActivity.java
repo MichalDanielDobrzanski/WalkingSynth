@@ -19,16 +19,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicController;
-import com.dobi.walkingsynth.musicgeneration.core.MusicController;
-import com.dobi.walkingsynth.musicgeneration.core.WalkingMusicAnalyzer;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundAudioController;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicAnalyzer;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundStepsAnalyzer;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.AudioController;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
-import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
 import com.dobi.walkingsynth.stepdetection.AchartEngineAccelerometerGraph;
+import com.dobi.walkingsynth.stepdetection.OnStepListener;
 
 import java.util.Locale;
 
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AccelerometerManager mAccelerometerManager;
 
-    private MusicController mMusicController;
+    private AudioController mAudioController;
 
 
     @Override
@@ -94,31 +98,18 @@ public class MainActivity extends AppCompatActivity {
 
         TimeCounter.getInstance().setView(mTimeTextView);
 
-        mMusicController = CsoundMusicController.getInstance();
-        mStepsTextView.setText(String.valueOf(formatStep(mMusicController.getCurrentStepsCount())));
-        mTempoTextView.setText(String.valueOf(mMusicController.getCurrentTempo()));
+        mAudioController = CsoundAudioController.getInstance();
+
+        mStepsTextView.setText(String.valueOf(formatStep(mAudioController.getStepsAnalyzer().getStepsCount())));
+        mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
 
         initializeNotesSpinner();
         initializeScalesSpinner();
         initializeStepsSpinner();
 
-        AccelerometerGraph accelerometerGraph = AchartEngineAccelerometerGraph.getInstance();
-        mGraphFrameLayout.addView(accelerometerGraph.createView(this));
-
-        mAccelerometerManager = new AccelerometerManager(
-                (SensorManager)getSystemService(Context.SENSOR_SERVICE),
-                accelerometerGraph);
-
-        mAccelerometerManager.setOnStepChangeListener(new AccelerometerManager.StepListener() {
-            @Override
-            public void onStepDetected(long milliseconds) {
-                mMusicController.onStep(milliseconds);
-
-                mStepsTextView.setText(formatStep(mMusicController.getCurrentStepsCount()));
-                mTempoTextView.setText(String.valueOf(mMusicController.getCurrentTempo()));
-            }
-        });
+        initializeAccelerometer();
     }
+
 
     private void initializeOrRestoreState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
@@ -129,14 +120,18 @@ public class MainActivity extends AppCompatActivity {
             AccelerometerProcessor.getInstance().setThreshold(threshold);
             initializeThresholdSeekBar(threshold);
 
-            String note = mPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Notes.C.name());
+            String note = mPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
             String scale = mPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scales.Pentatonic.name());
-            int steps = mPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, WalkingMusicAnalyzer.INITIAL_STEPS_INETRVAL);
+            int steps = mPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, CsoundStepsAnalyzer.INITIAL_STEPS_INTERVAL);
             // TODO: restore these values in UI
 
             Log.d(TAG, "initializeOrRestoreState() note: " + note + " scale: " + scale + " steps: " + steps);
 
-            CsoundMusicController.createInstance(new WalkingMusicAnalyzer(note, scale, steps), getResources(), getCacheDir());
+            CsoundAudioController.createInstance(
+                    new CsoundMusicAnalyzer(note, scale),
+                    new CsoundStepsAnalyzer(steps),
+                    getResources(),
+                    getCacheDir());
 
             TimeCounter.getInstance().startTimer();
         } else {
@@ -145,13 +140,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeNotesSpinner() {
-        ArrayAdapter<Notes> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, Notes.values());
+        ArrayAdapter<Note> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item, Note.values());
         baseNotesSpinner.setAdapter(adapter);
         baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicController.setBaseNote(Notes.values()[position]);
+                mAudioController.getMusicAnalyzer().setBaseNote(Note.values()[position]);
             }
 
             @Override
@@ -169,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicController.setScale(Scales.values()[position]);
+                mAudioController.getMusicAnalyzer().setScale(Scales.values()[position]);
             }
 
             @Override
@@ -181,12 +176,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeStepsSpinner() {
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, mMusicController.getStepsIntervals());
+                R.layout.support_simple_spinner_dropdown_item, mAudioController.getStepsAnalyzer().getStepsIntervals());
         mStepsIntervalSpinner.setAdapter(adapter);
         mStepsIntervalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mMusicController.setStepsInterval(mMusicController.getStepsIntervals()[position]);
+                mAudioController.getStepsAnalyzer().setStepsInterval(mAudioController.getStepsAnalyzer().getStepsIntervals()[position]);
             }
 
             @Override
@@ -223,6 +218,24 @@ public class MainActivity extends AppCompatActivity {
         return String.format(Locale.getDefault(), "%d", stepCount);
     }
 
+    private void initializeAccelerometer() {
+
+        AccelerometerGraph accelerometerGraph = AchartEngineAccelerometerGraph.getInstance();
+        mGraphFrameLayout.addView(accelerometerGraph.createView(this));
+
+        mAccelerometerManager = new AccelerometerManager(
+                (SensorManager)getSystemService(Context.SENSOR_SERVICE), accelerometerGraph);
+
+        mAccelerometerManager.addOnStepChangeListener(mAudioController.getStepsAnalyzer());
+        mAccelerometerManager.addOnStepChangeListener(mAudioController.getMusicAnalyzer());
+        mAccelerometerManager.addOnStepChangeListener(new OnStepListener() {
+            @Override
+            public void onStepDetected(long milliseconds) {
+                mStepsTextView.setText(formatStep(mAudioController.getStepsAnalyzer().getStepsCount()));
+                mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -259,9 +272,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveParameters() {
-        Notes currentBaseNote = mMusicController.getCurrentBaseNote();
-        Scales currentScale = mMusicController.getCurrentScale();
-        int stepsInterval = mMusicController.getCurrentStepsInterval();
+        MusicAnalyzer musicAnalyzer = mAudioController.getMusicAnalyzer();
+        Note currentBaseNote = musicAnalyzer.getBaseNote();
+        Scales currentScale = musicAnalyzer.getScale();
+
+        StepsAnalyzer stepsAnalyzer = mAudioController.getStepsAnalyzer();
+        int stepsInterval = stepsAnalyzer.getStepsInterval();
         mPreferences.edit()
                 .putString(PREFERENCES_VALUES_BASENOTE_KEY, currentBaseNote.note)
                 .putString(PREFERENCES_VALUES_SCALE_KEY, currentScale.name())
@@ -278,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mAccelerometerManager.startAccelerometerAndGraph();
-        mMusicController.start();
+        mAudioController.start();
     }
 
     @Override
@@ -290,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop()");
-        mMusicController.destroy();
+        mAudioController.destroy();
         super.onStop();
     }
 

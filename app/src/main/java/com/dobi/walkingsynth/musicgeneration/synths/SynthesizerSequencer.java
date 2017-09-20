@@ -2,7 +2,7 @@ package com.dobi.walkingsynth.musicgeneration.synths;
 
 import android.util.Log;
 
-import com.dobi.walkingsynth.musicgeneration.utils.Notes;
+import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 
 import java.util.Random;
@@ -11,12 +11,12 @@ public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
-    private Notes mBaseNote;
+    private Note mBaseNote;
     private Scales mScale;
     private int[] mRhythmScoreSequence;
     private Random mGenerator;
 
-    public SynthesizerSequencer(Notes note, Scales scale) {
+    public SynthesizerSequencer(Note note, Scales scale) {
         mBaseNote = note;
         mScale = scale;
         mRhythmScoreSequence = new int[4];
@@ -38,7 +38,7 @@ public class SynthesizerSequencer {
         return mRhythmScoreSequence;
     }
 
-    public void setNote(Notes note) {
+    public void setNote(Note note) {
         mBaseNote = note;
     }
 

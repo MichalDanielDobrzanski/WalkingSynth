@@ -3,7 +3,7 @@ package com.dobi.walkingsynth.musicgeneration.drums;
 import android.util.Log;
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.core.BasePlayer;
+import com.dobi.walkingsynth.musicgeneration.core.CsoundPlayer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Drum and rhythm creating class.
  */
-public class DrumsPlayer extends BasePlayer {
+public class DrumsPlayer extends CsoundPlayer {
 
     private static final String TAG = DrumsPlayer.class.getSimpleName();
 
@@ -22,15 +22,6 @@ public class DrumsPlayer extends BasePlayer {
     public DrumsPlayer(CsoundObj csoundObj, int steps, DrumsSequencer drumsSequencer) {
         super(csoundObj, steps);
         mDrumsSequencer = drumsSequencer;
-    }
-
-    @Override
-    public void invalidate(int position, int steps) {
-        Log.d(TAG, "invalidate() position: " + position + " steps: " + steps + "getStepInterval(): " + getStepInterval());
-        if (steps + 1 % (getStepInterval() + 1) == 0) {
-            mDrumsSequencer.randomizeHiHat();
-        }
-        playAllSequences(mDrumsSequencer.getSequences());
     }
 
     private void playAllSequences(ArrayList<Integer> sequences) {
@@ -78,5 +69,19 @@ public class DrumsPlayer extends BasePlayer {
         bitFlag = bitFlag >> 1;
         if (bitFlag == 0)
             bitFlag = 128;
+    }
+
+    @Override
+    public void onStep(int step) {
+        Log.d(TAG, "invalidate() steps: " + step + "getStepInterval(): " + getStepInterval());
+        if (step + 1 % (getStepInterval() + 1) == 0) {
+            mDrumsSequencer.randomizeHiHat();
+        }
+    }
+
+    @Override
+    public void invalidate(int position) {
+        Log.d(TAG, "invalidate() position: " + position);
+        playAllSequences(mDrumsSequencer.getSequences());
     }
 }

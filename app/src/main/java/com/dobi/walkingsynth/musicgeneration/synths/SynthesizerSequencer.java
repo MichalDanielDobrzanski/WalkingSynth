@@ -11,25 +11,18 @@ public class SynthesizerSequencer {
 
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
-    public static Integer[] stepIntervals = new Integer[] { 20, 30, 50, 100 };
-
     private Notes mBaseNote;
     private Scales mScale;
     private int[] mRhythmScoreSequence;
     private Random mGenerator;
 
-    public SynthesizerSequencer(int note, String scale) {
-        mBaseNote = Notes.values()[note];
-        mScale = Scales.valueOf(scale);
+    public SynthesizerSequencer(Notes note, Scales scale) {
+        mBaseNote = note;
+        mScale = scale;
         mRhythmScoreSequence = new int[4];
         mGenerator = new Random();
-
-        loadDefaultStepIntervals();
     }
 
-    private void loadDefaultStepIntervals() {
-        stepIntervals = new Integer[] { 20, 30, 50, 100 };
-    }
 
     public int[] getRandomScore() {
         Integer[] intervals = mScale.intervals;

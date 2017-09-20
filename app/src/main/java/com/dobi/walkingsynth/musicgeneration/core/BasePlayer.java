@@ -11,7 +11,7 @@ import com.dobi.walkingsynth.musicgeneration.utils.Scales;
  */
 public abstract class BasePlayer implements PositionAndStepListener {
 
-    private Notes mNote;
+    private Notes mBaseNote;
     private Scales mScale;
     private int mStepInterval;
     protected CsoundObj mCsoundObj;
@@ -29,12 +29,12 @@ public abstract class BasePlayer implements PositionAndStepListener {
         return mStepInterval;
     }
 
-    public void setNote(Notes mNote) {
-        this.mNote = mNote;
+    public void setBaseNote(Notes mNote) {
+        this.mBaseNote = mNote;
     }
 
-    public Notes getNote() {
-        return mNote;
+    public Notes getBaseNote() {
+        return mBaseNote;
     }
 
     public void setScale(Scales mScale) {

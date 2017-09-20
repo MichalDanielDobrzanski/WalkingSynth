@@ -105,8 +105,8 @@ public class SynthesizerPlayer extends BasePlayer  {
     }
 
     @Override
-    public void setNote(Notes note) {
-        super.setNote(note);
+    public void setBaseNote(Notes note) {
+        super.setBaseNote(note);
         mSynthesizerSequencer.setNote(note);
         randomize();
     }

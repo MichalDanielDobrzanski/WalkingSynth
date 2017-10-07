@@ -10,7 +10,7 @@ import com.dobi.walkingsynth.musicgeneration.drums.DrumsSequencer;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerPlayer;
 import com.dobi.walkingsynth.musicgeneration.synths.SynthesizerSequencer;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class CsoundAudioController extends CsoundBase implements AudioController
         mPlayers.add(drums);
 
         Note baseNote = musicAnalyzer.getBaseNote();
-        Scales scale = musicAnalyzer.getScale();
+        Scale scale = musicAnalyzer.getScale();
 
         SynthesizerPlayer synth = new SynthesizerPlayer(csoundObj, stepInterval, new SynthesizerSequencer(baseNote, scale));
         mStepsAnalyzer.addStepsListener(synth);

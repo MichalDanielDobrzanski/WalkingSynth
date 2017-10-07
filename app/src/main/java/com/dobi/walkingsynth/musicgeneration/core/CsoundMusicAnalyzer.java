@@ -5,7 +5,7 @@ import android.util.Log;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.PositionListener;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     private long mInterPositionsInterval;
 
     private Note mBaseNote;
-    private Scales mScale;
+    private Scale mScale;
 
     private List<PositionListener> mPositionListeners;
 
@@ -60,12 +60,12 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     }
 
     @Override
-    public void setScale(Scales newScale) {
+    public void setScale(Scale newScale) {
         mScale = newScale;
     }
 
     @Override
-    public Scales getScale() {
+    public Scale getScale() {
         return mScale;
     }
 
@@ -116,8 +116,8 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     }
 
     public CsoundMusicAnalyzer(String note, String scale) {
-        mBaseNote = Note.getByName(note);
-        mScale = Scales.valueOf(scale);
+        mBaseNote = Note.getNoteByName(note);
+        mScale = Scale.valueOf(scale);
         mPosition = 0;
         mInterPositionsInterval = calculatePositionsInterval();
 

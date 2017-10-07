@@ -16,7 +16,7 @@ public enum Note {
 
     public final String note;
 
-    public static Note getByName(String name) {
+    public static Note getNoteByName(String name) {
         if (name.length() > 1) {
             name = name.substring(0,1);
             name = name.concat("Sharp");

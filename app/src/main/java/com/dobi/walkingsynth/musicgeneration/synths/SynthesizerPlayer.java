@@ -4,7 +4,7 @@ import android.util.Log;
 import com.csounds.CsoundObj;
 import com.dobi.walkingsynth.musicgeneration.core.CsoundPlayer;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 import java.util.Locale;
 import java.util.Random;
@@ -84,7 +84,7 @@ public class SynthesizerPlayer extends CsoundPlayer {
     }
 
     @Override
-    public void setScale(Scales scale) {
+    public void setScale(Scale scale) {
         super.setScale(scale);
         mSynthesizerSequencer.setScale(scale);
         randomize();

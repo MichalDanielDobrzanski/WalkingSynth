@@ -1,7 +1,7 @@
 package com.dobi.walkingsynth.musicgeneration.core.interfaces;
 
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.stepdetection.OnStepListener;
 
 public interface MusicAnalyzer extends OnStepListener {
@@ -10,9 +10,9 @@ public interface MusicAnalyzer extends OnStepListener {
 
     Note getBaseNote();
 
-    void setScale(Scales newScale);
+    void setScale(Scale newScale);
 
-    Scales getScale();
+    Scale getScale();
 
     int getTempo();
 

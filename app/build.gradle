@@ -9,6 +9,8 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -21,6 +23,12 @@ android {
     }
     testOptions {
         unitTests.returnDefaultValues = true
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.android.support:support-annotations:25.3.1'
     }
 }
 
@@ -39,4 +47,17 @@ dependencies {
     compile project(':CsoundAndroid')
 
     testCompile 'junit:junit:4.12'
+
+    // Android runner and rules support
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+
+    // Espresso support
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
+    // add this for intent mocking support
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
+
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+
+
 }

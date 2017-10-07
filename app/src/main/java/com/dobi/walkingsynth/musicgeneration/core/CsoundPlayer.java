@@ -5,7 +5,7 @@ import com.csounds.CsoundObj;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.PositionListener;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsListener;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 /**
  * Base player functionality for csound
@@ -13,7 +13,7 @@ import com.dobi.walkingsynth.musicgeneration.utils.Scales;
 public abstract class CsoundPlayer implements PositionListener, StepsListener {
 
     private Note mBaseNote;
-    private Scales mScale;
+    private Scale mScale;
     private int mStepInterval;
     protected CsoundObj mCsoundObj;
 
@@ -38,11 +38,11 @@ public abstract class CsoundPlayer implements PositionListener, StepsListener {
         return mBaseNote;
     }
 
-    public void setScale(Scales mScale) {
+    public void setScale(Scale mScale) {
         this.mScale = mScale;
     }
 
-    public Scales getScale() {
+    public Scale getScale() {
         return mScale;
     }
 

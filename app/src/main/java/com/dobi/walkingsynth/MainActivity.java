@@ -27,7 +27,7 @@ import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scales;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
@@ -65,13 +65,13 @@ public class MainActivity extends AppCompatActivity {
     SeekBar mThresholdSeekBar;
 
     @BindView(R.id.base_notes_spinner)
-    Spinner baseNotesSpinner;
+    Spinner mBaseNoteSpinner;
 
     @BindView(R.id.steps_interval_spinner)
     Spinner mStepsIntervalSpinner;
 
     @BindView(R.id.scales_spinner)
-    Spinner scalesSpinner;
+    Spinner mScaleSpinner;
 
     private SharedPreferences mPreferences;
 
@@ -121,11 +121,10 @@ public class MainActivity extends AppCompatActivity {
             initializeThresholdSeekBar(threshold);
 
             String note = mPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
-            String scale = mPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scales.Pentatonic.name());
+            String scale = mPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
             int steps = mPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, CsoundStepsAnalyzer.INITIAL_STEPS_INTERVAL);
-            // TODO: restore these values in UI
-
             Log.d(TAG, "initializeOrRestoreState() note: " + note + " scale: " + scale + " steps: " + steps);
+            restoreSpinnersState(note, scale, steps);
 
             CsoundAudioController.createInstance(
                     new CsoundMusicAnalyzer(note, scale),
@@ -139,11 +138,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void restoreSpinnersState(String note, String scale, int steps) {
+        Log.d(TAG, "restoreSpinnersState: ");
+        int pos = Note.getNoteByName(note).ordinal();
+        Log.d(TAG, "restoreSpinnersState: set to: " + pos + " for " + note);
+        mBaseNoteSpinner.setSelection(Note.getNoteByName(note).ordinal(), false);
+        mScaleSpinner.setSelection(Scale.valueOf(scale).ordinal(), false);
+    }
+
     private void initializeNotesSpinner() {
         ArrayAdapter<Note> adapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, Note.values());
-        baseNotesSpinner.setAdapter(adapter);
-        baseNotesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mBaseNoteSpinner.setAdapter(adapter);
+        mBaseNoteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mAudioController.getMusicAnalyzer().setBaseNote(Note.values()[position]);
@@ -157,14 +164,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeScalesSpinner() {
-        ArrayAdapter<Scales> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, Scales.values());
+        ArrayAdapter<Scale> adapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item, Scale.values());
 
-        scalesSpinner.setAdapter(adapter);
-        scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mScaleSpinner.setAdapter(adapter);
+        mScaleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mAudioController.getMusicAnalyzer().setScale(Scales.values()[position]);
+                mAudioController.getMusicAnalyzer().setScale(Scale.values()[position]);
             }
 
             @Override
@@ -274,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveParameters() {
         MusicAnalyzer musicAnalyzer = mAudioController.getMusicAnalyzer();
         Note currentBaseNote = musicAnalyzer.getBaseNote();
-        Scales currentScale = musicAnalyzer.getScale();
+        Scale currentScale = musicAnalyzer.getScale();
 
         StepsAnalyzer stepsAnalyzer = mAudioController.getStepsAnalyzer();
         int stepsInterval = stepsAnalyzer.getStepsInterval();

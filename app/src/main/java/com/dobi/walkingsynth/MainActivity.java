@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -31,23 +30,31 @@ import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
-import com.dobi.walkingsynth.stepdetection.AchartEngineAccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.OnStepListener;
+import com.dobi.walkingsynth.view.ParameterView;
+import com.dobi.walkingsynth.view.ParameterViewCallback;
 
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+/**
+ * TODO: refactor to MVP
+ * TODO: create view abstractions in order to separate from implementations
+ * TODO: use Dagger2 a lot
+ * TODO: refactor Csound and accelerometer to use RxJava
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String PREFERENCES_NAME = "Values";
-    private static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
-    private static final String PREFERENCES_VALUES_BASENOTE_KEY = "base-note";
-    private static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
-    private static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
+    public static final String PREFERENCES_VALUES_BASENOTE_KEY = "base-note";
+    public static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
+    public static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
+    public static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
 
     @BindView(R.id.stepCountTV)
     TextView mStepsTextView;
@@ -62,23 +69,36 @@ public class MainActivity extends AppCompatActivity {
     FrameLayout mGraphFrameLayout;
 
     @BindView(R.id.threshold_seek_bar)
-    SeekBar mThresholdSeekBar;
+    SeekBar thresholdSeekBar;
 
-    @BindView(R.id.base_notes_spinner)
-    Spinner mBaseNoteSpinner;
+    @BindView(R.id.base_notes_wheel)
+    ParameterView notesParameterView;
 
     @BindView(R.id.steps_interval_spinner)
-    Spinner mStepsIntervalSpinner;
+    Spinner stepsSpinner;
 
     @BindView(R.id.scales_spinner)
-    Spinner mScaleSpinner;
+    Spinner scalesSpinner;
 
-    private SharedPreferences mPreferences;
+    @Inject
+    SharedPreferences sharedPreferences;
+
+    @Inject
+    TimeCounter timeCounter;
+
+    @Inject
+    AccelerometerProcessor accelerometerProcessor;
+
+    @Inject
+    AccelerometerGraph accelerometerGraph;
+
+    @Inject
+    SensorManager sensorManager;
+
+    private Note currentNote;
 
     private AccelerometerManager mAccelerometerManager;
-
     private AudioController mAudioController;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,20 +112,22 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
-        mPreferences = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+        ((MainApplication)getApplication()).getApplicationComponent().inject(this);
 
         initializeOrRestoreState(savedInstanceState);
 
-        TimeCounter.getInstance().setView(mTimeTextView);
+        timeCounter.setView(mTimeTextView);
 
         mAudioController = CsoundAudioController.getInstance();
 
         mStepsTextView.setText(String.valueOf(formatStep(mAudioController.getStepsAnalyzer().getStepsCount())));
         mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
 
-        initializeNotesSpinner();
-        initializeScalesSpinner();
-        initializeStepsSpinner();
+        initializeNoteView();
+
+        initializeScaleView();
+
+        initializeStepView();
 
         initializeAccelerometer();
     }
@@ -115,15 +137,18 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: Initialized.");
 
-            float threshold = mPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
+            float threshold = sharedPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
 
-            AccelerometerProcessor.getInstance().setThreshold(threshold);
+            accelerometerProcessor.setThreshold(threshold);
+
             initializeThresholdSeekBar(threshold);
 
-            String note = mPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
-            String scale = mPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
-            int steps = mPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, CsoundStepsAnalyzer.INITIAL_STEPS_INTERVAL);
+            String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
+            String scale = sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
+            int steps = sharedPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, CsoundStepsAnalyzer.INITIAL_STEPS_INTERVAL);
+
             Log.d(TAG, "initializeOrRestoreState() note: " + note + " scale: " + scale + " steps: " + steps);
+
             restoreSpinnersState(note, scale, steps);
 
             CsoundAudioController.createInstance(
@@ -132,43 +157,36 @@ public class MainActivity extends AppCompatActivity {
                     getResources(),
                     getCacheDir());
 
-            TimeCounter.getInstance().startTimer();
         } else {
-            initializeThresholdSeekBar((float)AccelerometerProcessor.getInstance().getThreshold());
+            initializeThresholdSeekBar((float)accelerometerProcessor.getThreshold());
         }
     }
 
     private void restoreSpinnersState(String note, String scale, int steps) {
-        Log.d(TAG, "restoreSpinnersState: ");
         int pos = Note.getNoteByName(note).ordinal();
-        Log.d(TAG, "restoreSpinnersState: set to: " + pos + " for " + note);
-        mBaseNoteSpinner.setSelection(Note.getNoteByName(note).ordinal(), false);
-        mScaleSpinner.setSelection(Scale.valueOf(scale).ordinal(), false);
+
+//        notesParameterView.setSelection(Note.getNoteByName(note).ordinal(), false);
+        scalesSpinner.setSelection(Scale.valueOf(scale).ordinal(), false);
     }
 
-    private void initializeNotesSpinner() {
-        ArrayAdapter<Note> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, Note.values());
-        mBaseNoteSpinner.setAdapter(adapter);
-        mBaseNoteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    private void initializeNoteView() {
+        notesParameterView.initialize(Note.toStringArray(), Note.C.name());
+        notesParameterView.setCallback(new ParameterViewCallback() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mAudioController.getMusicAnalyzer().setBaseNote(Note.values()[position]);
-            }
+            public void notify(String newValue) {
+                currentNote = Note.getNoteByName(newValue);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+                mAudioController.getMusicAnalyzer().setBaseNote(currentNote);
             }
         });
     }
 
-    private void initializeScalesSpinner() {
+    private void initializeScaleView() {
         ArrayAdapter<Scale> adapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, Scale.values());
 
-        mScaleSpinner.setAdapter(adapter);
-        mScaleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        scalesSpinner.setAdapter(adapter);
+        scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mAudioController.getMusicAnalyzer().setScale(Scale.values()[position]);
@@ -181,11 +199,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeStepsSpinner() {
+    private void initializeStepView() {
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, mAudioController.getStepsAnalyzer().getStepsIntervals());
-        mStepsIntervalSpinner.setAdapter(adapter);
-        mStepsIntervalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        stepsSpinner.setAdapter(adapter);
+        stepsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mAudioController.getStepsAnalyzer().setStepsInterval(mAudioController.getStepsAnalyzer().getStepsIntervals()[position]);
@@ -199,13 +217,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeThresholdSeekBar(float thr) {
-        mThresholdSeekBar.setProgress(AccelerometerProcessor.thresholdToProgress(thr));
-        mThresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        thresholdSeekBar.setProgress(AccelerometerProcessor.thresholdToProgress(thr));
+        thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    AccelerometerProcessor.getInstance()
-                            .setThreshold(AccelerometerProcessor.progressToThreshold(progress));
+                    accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(progress));
                 }
             }
 
@@ -227,11 +244,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeAccelerometer() {
 
-        AccelerometerGraph accelerometerGraph = AchartEngineAccelerometerGraph.getInstance();
         mGraphFrameLayout.addView(accelerometerGraph.createView(this));
 
-        mAccelerometerManager = new AccelerometerManager(
-                (SensorManager)getSystemService(Context.SENSOR_SERVICE), accelerometerGraph);
+        mAccelerometerManager = new AccelerometerManager(sensorManager, accelerometerGraph, accelerometerProcessor);
 
         mAccelerometerManager.addOnStepChangeListener(mAudioController.getStepsAnalyzer());
         mAccelerometerManager.addOnStepChangeListener(mAudioController.getMusicAnalyzer());
@@ -271,9 +286,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void saveThreshold() {
-        mPreferences.edit()
+        sharedPreferences.edit()
                 .putFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
-                        (float) AccelerometerProcessor.getInstance().getThreshold())
+                        (float) accelerometerProcessor.getThreshold())
                 .apply();
         Toast.makeText(this, R.string.toast_threshold_saved, Toast.LENGTH_SHORT).show();
     }
@@ -285,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
         StepsAnalyzer stepsAnalyzer = mAudioController.getStepsAnalyzer();
         int stepsInterval = stepsAnalyzer.getStepsInterval();
-        mPreferences.edit()
+        sharedPreferences.edit()
                 .putString(PREFERENCES_VALUES_BASENOTE_KEY, currentBaseNote.note)
                 .putString(PREFERENCES_VALUES_SCALE_KEY, currentScale.name())
                 .putInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, stepsInterval)

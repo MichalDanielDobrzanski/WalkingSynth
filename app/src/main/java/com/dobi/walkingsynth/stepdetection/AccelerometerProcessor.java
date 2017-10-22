@@ -10,39 +10,39 @@ import java.util.Date;
  */
 public class AccelerometerProcessor {
 
-    public static final float THRESHOLD_INITIAL = 12.72f;
-    public static final float MAX_THRESHOLD = 25f;
-    private static final int OFFSET = 90;
     private static final String TAG = AccelerometerProcessor.class.getSimpleName();
 
-    public static AccelerometerProcessor getInstance() {
-        if (mInstance == null)
-            mInstance = new AccelerometerProcessor();
-        return mInstance;
-    }
+    public static final float THRESHOLD_INITIAL = 12.72f;
+    public static final float MAX_THRESHOLD = 25f;
 
-    private static AccelerometerProcessor mInstance;
+    private static final int OFFSET = 90;
 
-    public static float progressToThreshold(int progress) {
-        float res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
-        Log.d(TAG, "progressToThreshold() threshold: " + res);
-        return res;
-    }
+    /**
+     * Step detecting parameter. For how many samples it is sleeping.
+     * If accelerometer's DELAY_GAME is T ~= 20ms, this means that f = 50Hz and MAX_TEMPO = 240bpms
+     * 60bpm  - 1000ms
+     * 240bpm - 250ms
+     * n is samples
+     * n = 250ms / T
+     * n = 250 / 20 ~= 12
+     */
+    private static final int INACTIVE_SAMPLE = 12;
 
-    public static int thresholdToProgress(float threshold) {
-        int res = (int)(100 * threshold / THRESHOLD_INITIAL) - OFFSET;
-        Log.d(TAG, "thresholdToProgress() progress: " + res);
-        return res > 100 ? 100 : res;
-    }
+    private int mCurrentSample = 0;
+
+    private boolean isActiveCounter;
 
     private float mThreshold;
+
     private double mAccelerometerValue;
+
     private double[] mGravity;
+
     private double[] mLinearAcceleration;
 
     private SensorEvent mEvent;
 
-    private AccelerometerProcessor() {
+    public AccelerometerProcessor() {
         mThreshold = THRESHOLD_INITIAL;
         isActiveCounter = true;
         mGravity = new double[3];
@@ -60,6 +60,7 @@ public class AccelerometerProcessor {
     public void setThreshold(float mThreshold) {
         this.mThreshold = mThreshold;
     }
+
     public double getThreshold() {
         return mThreshold;
     }
@@ -87,20 +88,6 @@ public class AccelerometerProcessor {
     }
 
     /**
-     * Step detecting parameter. For how many samples it is sleeping.
-     * If accelerometer's DELAY_GAME is T ~= 20ms, this means that f = 50Hz and MAX_TEMPO = 240bpms
-     * 60bpm  - 1000ms
-     * 240bpm - 250ms
-     * n is samples
-     * n = 250ms / T
-     * n = 250 / 20 ~= 12
-     */
-    private static final int INACTIVE_SAMPLE = 12;
-
-    private int mCurrentSample = 0;
-    private boolean isActiveCounter;
-
-    /**
      * My step detection algorithm.
      * When the value is over the threshold, the step is found and the algorithm sleeps for
      * the specified distance which is {@link #INACTIVE_SAMPLE this }.
@@ -120,4 +107,17 @@ public class AccelerometerProcessor {
         ++mCurrentSample;
         return false;
     }
+
+    public static float progressToThreshold(int progress) {
+        float res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
+        Log.d(TAG, "progressToThreshold() threshold: " + res);
+        return res;
+    }
+
+    public static int thresholdToProgress(float threshold) {
+        int res = (int)(100 * threshold / THRESHOLD_INITIAL) - OFFSET;
+        Log.d(TAG, "thresholdToProgress() progress: " + res);
+        return res > 100 ? 100 : res;
+    }
+
 }

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.dobi.walkingsynth"
         minSdkVersion 19
@@ -24,11 +24,13 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
 }
 
 configurations.all {
     resolutionStrategy {
         force 'com.android.support:support-annotations:25.3.1'
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
     }
 }
 
@@ -58,6 +60,15 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
 
     androidTestCompile 'com.android.support.test:runner:1.0.1'
+    testCompile 'org.mockito:mockito-core:1.10.19'
 
+    // dagger 2
+    compile 'com.google.dagger:dagger-android:2.11'
+    compile 'com.google.dagger:dagger-android-support:2.11'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.11'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
+
+    // wheel view
+    compile 'com.github.shchurov:horizontalwheelview:0.9.5'
 
 }

@@ -39,34 +39,45 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
      * 0 1 2 3 4 5 6 7
      * _ _ _ _ _ _ _ _
      */
-    private int mPosition;
-    private boolean isPlaying = true;
-    private long mInterPositionsInterval;
+    private int currnetPosition;
 
-    private Note mBaseNote;
-    private Scale mScale;
+    private boolean isPlaying = true;
+
+    private long interPositionInterval;
+
+    private Note currentNote;
+
+    private Scale currentScale;
 
     private List<PositionListener> mPositionListeners;
 
+    public CsoundMusicAnalyzer(String note, String scale) {
+        currentNote = Note.getNoteByName(note);
+        currentScale = Scale.valueOf(scale);
+        currnetPosition = 0;
+        interPositionInterval = calculateInterPositionInterval();
+
+        startAnalyzingThread();
+    }
 
     @Override
     public void setBaseNote(Note newNote) {
-        mBaseNote = newNote;
+        currentNote = newNote;
     }
 
     @Override
     public Note getBaseNote() {
-        return mBaseNote;
+        return currentNote;
     }
 
     @Override
     public void setScale(Scale newScale) {
-        mScale = newScale;
+        currentScale = newScale;
     }
 
     @Override
     public Scale getScale() {
-        return mScale;
+        return currentScale;
     }
 
     @Override
@@ -78,7 +89,7 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     public void onStepDetected(long milliseconds) {
         Log.d(TAG, "onStepDetected(): " + milliseconds);
         if (validateAndCalculateTempo(milliseconds)) {
-            mInterPositionsInterval = calculatePositionsInterval();
+            interPositionInterval = calculateInterPositionInterval();
         }
     }
 
@@ -115,15 +126,6 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
         return false;
     }
 
-    public CsoundMusicAnalyzer(String note, String scale) {
-        mBaseNote = Note.getNoteByName(note);
-        mScale = Scale.valueOf(scale);
-        mPosition = 0;
-        mInterPositionsInterval = calculatePositionsInterval();
-
-        startAnalyzingThread();
-    }
-
     public void addPositionListener(PositionListener listener) {
         if (mPositionListeners == null)
             mPositionListeners = new ArrayList<>();
@@ -142,9 +144,9 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
      *
      * @return time distance to the next moment.
      */
-    private long calculatePositionsInterval() {
+    private long calculateInterPositionInterval() {
         final long positions =  (long)((60 / (float)mTempo) * 1000 ) / BAR_INTERVALS * 2;
-        Log.d(TAG, "calculatePositionsInterval(): " + positions);
+        Log.d(TAG, "calculateInterPositionInterval(): " + positions);
         return positions;
     }
 
@@ -154,11 +156,11 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
             public void run() {
                 try {
                     while (isPlaying) {
-                        sleep(mInterPositionsInterval);
+                        sleep(interPositionInterval);
 
-                        mPosition = (mPosition + 1) % BAR_INTERVALS;
+                        currnetPosition = (currnetPosition + 1) % BAR_INTERVALS;
                         invalidateListeners();
-                        Log.d(TAG, "Bar position: " + mPosition + " Sleep for interval: " + mInterPositionsInterval);
+                        Log.d(TAG, "Bar position: " + currnetPosition + " Sleep for interval: " + interPositionInterval);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -171,7 +173,7 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     private void invalidateListeners() {
         if (mPositionListeners != null) {
             for (PositionListener listener : mPositionListeners) {
-                listener.invalidate(mPosition);
+                listener.invalidate(currnetPosition);
             }
         }
     }

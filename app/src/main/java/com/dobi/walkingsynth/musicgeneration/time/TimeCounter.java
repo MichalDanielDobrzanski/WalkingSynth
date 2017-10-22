@@ -24,19 +24,11 @@ public class TimeCounter {
 
     private WeakReference<TextView> mTextViewWeakReference;
 
-    private TimeCounter() {
+    public TimeCounter() {
         mRunning = false;
         mInitialTime = SystemClock.elapsedRealtime();
         mLastTime = convertMillisecondsToHumanReadable(0);
         mTimer = new Timer();
-    }
-
-    private static TimeCounter mInstance;
-
-    public static TimeCounter getInstance() {
-        if (mInstance == null)
-            mInstance = new TimeCounter();
-        return mInstance;
     }
 
     public void setView(TextView textView) {

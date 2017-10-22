@@ -6,8 +6,8 @@
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="25dp">
 
-    <Spinner
-        android:id="@+id/base_notes_spinner"
+    <com.dobi.walkingsynth.view.HorizontalWheelParameterView
+        android:id="@+id/base_notes_wheel"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:spinnerMode="dropdown"
@@ -23,10 +23,10 @@
         android:id="@+id/scales_spinner"
         android:layout_width="@dimen/scale_spinner_length"
         android:layout_height="40dp"
-        app:layout_constraintBottom_toBottomOf="@+id/base_notes_spinner"
+        app:layout_constraintBottom_toBottomOf="@+id/base_notes_wheel"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintLeft_toRightOf="@+id/base_notes_spinner"
+        app:layout_constraintLeft_toRightOf="@+id/base_notes_wheel"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp" />
 

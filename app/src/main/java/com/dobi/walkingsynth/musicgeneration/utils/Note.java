@@ -1,6 +1,7 @@
 package com.dobi.walkingsynth.musicgeneration.utils;
 
 public enum Note {
+
     C("C"),
     CSharp("C#"),
     D("D"),
@@ -16,6 +17,10 @@ public enum Note {
 
     public final String note;
 
+    Note(final String text) {
+        this.note = text;
+    }
+
     public static Note getNoteByName(String name) {
         if (name.length() > 1) {
             name = name.substring(0,1);
@@ -24,7 +29,11 @@ public enum Note {
         return Note.valueOf(name);
     }
 
-    Note(final String text) {
-        this.note = text;
+    public static String[] toStringArray() {
+        String[] stringArray = new String[values().length];
+        for (int i = 0; i < values().length; i++) {
+            stringArray[i] = values()[i].note;
+        }
+        return stringArray;
     }
 }

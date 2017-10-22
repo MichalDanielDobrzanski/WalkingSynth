@@ -31,20 +31,16 @@ public class AchartEngineAccelerometerGraph implements AccelerometerGraph {
     private int mPointsCount = 0;
 
     private TimeSeries mThresholdSeries;
+
     private TimeSeries mAccelerometerSeries;
     private XYMultipleSeriesRenderer mRenderer;
     private XYMultipleSeriesDataset mDataset;
     private GraphicalView view;
 
-    private static AchartEngineAccelerometerGraph mInstance;
+    private final AccelerometerProcessor accelerometerProcessor;
 
-    public static AchartEngineAccelerometerGraph getInstance() {
-        if (mInstance == null)
-            mInstance = new AchartEngineAccelerometerGraph();
-        return mInstance;
-    }
-
-    private AchartEngineAccelerometerGraph() {
+    public AchartEngineAccelerometerGraph(AccelerometerProcessor accelerometerProcessor) {
+        this.accelerometerProcessor = accelerometerProcessor;
 
         mRenderer = new XYMultipleSeriesRenderer();
         mDataset = new XYMultipleSeriesDataset();
@@ -99,11 +95,11 @@ public class AchartEngineAccelerometerGraph implements AccelerometerGraph {
     }
 
     private double getAccelerometerValue() {
-        return AccelerometerProcessor.getInstance().getAccelerometerValue() - OFFSET;
+        return accelerometerProcessor.getAccelerometerValue() - OFFSET;
     }
 
     private double getThresholdValue() {
-        return AccelerometerProcessor.getInstance().getThreshold() - OFFSET;
+        return accelerometerProcessor.getThreshold() - OFFSET;
     }
 
     public void invalidate(long eventTime) {

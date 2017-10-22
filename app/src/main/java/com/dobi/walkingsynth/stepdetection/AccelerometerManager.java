@@ -20,62 +20,66 @@ public class AccelerometerManager implements SensorEventListener {
      */
     private static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
-    private AccelerometerGraph mAccelerometerGraph;
-    private AccelerometerProcessor mAccelerometerProcessor;
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
-    private List<OnStepListener> mStepListeners;
+    private AccelerometerGraph accelerometerGraph;
+
+    private AccelerometerProcessor accelerometerProcessor;
+
+    private SensorManager sensorManager;
+
+    private Sensor sensor;
+
+    private List<OnStepListener> onStepListeners;
 
     public void addOnStepChangeListener(OnStepListener listener) {
-        if (mStepListeners == null)
-            mStepListeners = new ArrayList<>();
-        mStepListeners.add(listener);
+        if (onStepListeners == null)
+            onStepListeners = new ArrayList<>();
+        onStepListeners.add(listener);
     }
 
-    public AccelerometerManager(SensorManager sensorManager, AccelerometerGraph graph) {
-        mSensorManager = sensorManager;
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-            mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + mSensor.getResolution()
-                    + " Max range: " + mSensor.getMaximumRange()
-                    + "\n Time interval: " + mSensor.getMinDelay() / 1000 + "ms.");
+    public AccelerometerManager(SensorManager sensorManager, AccelerometerGraph accelerometerGraph, AccelerometerProcessor accelerometerProcessor) {
+        this.sensorManager = sensorManager;
+        if (this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
+            sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + sensor.getResolution()
+                    + " Max range: " + sensor.getMaximumRange()
+                    + "\n Time interval: " + sensor.getMinDelay() / 1000 + "ms.");
         } else {
             Log.d(TAG, "Failure! No accelerometer.");
         }
 
-        mAccelerometerGraph = graph;
-        mAccelerometerProcessor = AccelerometerProcessor.getInstance();
+        this.accelerometerGraph = accelerometerGraph;
+        this.accelerometerProcessor = accelerometerProcessor;
     }
 
     public void startAccelerometerAndGraph() {
-        if (!mSensorManager.registerListener(this, mSensor, CONFIG_SENSOR)) {
+        if (!sensorManager.registerListener(this, sensor, CONFIG_SENSOR)) {
             Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
         }
     }
 
     public void stopAccelerometerAndGraph() {
-        mSensorManager.unregisterListener(this, mSensor);
-        mAccelerometerGraph.reset();
+        sensorManager.unregisterListener(this, sensor);
+        accelerometerGraph.reset();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        mAccelerometerProcessor.setEvent(event);
+        accelerometerProcessor.setEvent(event);
 
-        final long eventTime = mAccelerometerProcessor.timestampToMilliseconds();
+        final long eventTime = accelerometerProcessor.timestampToMilliseconds();
 
-        mAccelerometerProcessor.calcMagnitudeVector();
+        accelerometerProcessor.calcMagnitudeVector();
 
-        mAccelerometerGraph.invalidate(eventTime);
+        accelerometerGraph.invalidate(eventTime);
 
-        if (mAccelerometerProcessor.detect()) {
+        if (accelerometerProcessor.detect()) {
             updateListeners(eventTime);
         }
     }
 
     private void updateListeners(long eventTime) {
         for (OnStepListener listener :
-                mStepListeners) {
+                onStepListeners) {
             listener.onStepDetected(eventTime);
         }
     }

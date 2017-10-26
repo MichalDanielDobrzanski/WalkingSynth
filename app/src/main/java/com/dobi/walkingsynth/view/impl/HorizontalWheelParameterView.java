@@ -1,9 +1,11 @@
-package com.dobi.walkingsynth.view;
+package com.dobi.walkingsynth.view.impl;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
 import com.dobi.walkingsynth.R;
+import com.dobi.walkingsynth.view.ParameterView;
+import com.dobi.walkingsynth.view.ParameterViewCallback;
 import com.github.shchurov.horizontalwheelview.HorizontalWheelView;
 
 public class HorizontalWheelParameterView extends HorizontalWheelView implements ParameterView {
@@ -45,6 +47,7 @@ public class HorizontalWheelParameterView extends HorizontalWheelView implements
 
     @Override
     public void setValue(String value) {
+        // TODO: implement this
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth.stepdetection;
 
 public interface OnStepListener {
-    void onStepDetected(long milliseconds);
-
+    void onStepDetected(long milliseconds, int stepsCount);
 }

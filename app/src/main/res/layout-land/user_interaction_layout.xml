@@ -6,55 +6,88 @@
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="25dp">
 
-    <com.dobi.walkingsynth.view.HorizontalWheelParameterView
-        android:id="@+id/base_notes_wheel"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="50dp"
         android:layout_height="40dp"
-        android:spinnerMode="dropdown"
+        android:layout_marginLeft="8dp"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:text="D#"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintRight_toLeftOf="@+id/guideline2"
+        android:layout_marginRight="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintHorizontal_bias="0.504"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/base_notes_wheel"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <com.dobi.walkingsynth.view.impl.HorizontalWheelParameterView
+        android:id="@+id/base_notes_wheel"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintRight_toLeftOf="@+id/guideline2"
+        android:layout_marginRight="4dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginEnd="4dp" />
 
     <Spinner
         android:id="@+id/scales_spinner"
-        android:layout_width="@dimen/scale_spinner_length"
+        android:layout_width="150dp"
         android:layout_height="40dp"
-        app:layout_constraintBottom_toBottomOf="@+id/base_notes_wheel"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintLeft_toRightOf="@+id/base_notes_wheel"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/threshold_seek_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/steps_interval_spinner"
+        android:layout_marginLeft="4dp"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline2"
+        app:layout_constraintHorizontal_chainStyle="spread_inside" />
 
     <Spinner
         android:id="@+id/steps_interval_spinner"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toBottomOf="@+id/scales_spinner"
-        app:layout_constraintTop_toTopOf="@+id/scales_spinner"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/scales_spinner"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/threshold_seek_bar"
+        android:layout_marginRight="8dp" />
 
     <SeekBar
         android:id="@+id/threshold_seek_bar"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
+        android:layout_marginRight="8dp"
         android:layout_weight="7"
         android:foregroundGravity="center"
         android:max="60"
-        app:layout_constraintBottom_toBottomOf="@+id/steps_interval_spinner"
-        app:layout_constraintTop_toTopOf="@+id/steps_interval_spinner"
-        app:layout_constraintLeft_toRightOf="@+id/steps_interval_spinner"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="4dp"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.0" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline2"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="296dp" />
 
 </android.support.constraint.ConstraintLayout>

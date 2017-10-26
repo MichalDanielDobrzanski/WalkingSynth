@@ -1,7 +1,6 @@
 package com.dobi.walkingsynth;
 
 import android.content.SharedPreferences;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,10 +26,9 @@ import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scale;
-import com.dobi.walkingsynth.stepdetection.AccelerometerGraph;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
 import com.dobi.walkingsynth.stepdetection.OnStepListener;
+import com.dobi.walkingsynth.stepdetection.graph.AccelerometerGraph;
 import com.dobi.walkingsynth.view.ParameterView;
 import com.dobi.walkingsynth.view.ParameterViewCallback;
 
@@ -80,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.scales_spinner)
     Spinner scalesSpinner;
 
+    @BindView(R.id.note_text_view)
+    TextView noteTextView;
+
     @Inject
     SharedPreferences sharedPreferences;
 
@@ -87,17 +88,11 @@ public class MainActivity extends AppCompatActivity {
     TimeCounter timeCounter;
 
     @Inject
-    AccelerometerProcessor accelerometerProcessor;
-
-    @Inject
     AccelerometerGraph accelerometerGraph;
 
     @Inject
-    SensorManager sensorManager;
+    AccelerometerManager accelerometerManager;
 
-    private Note currentNote;
-
-    private AccelerometerManager mAccelerometerManager;
     private AudioController mAudioController;
 
     @Override
@@ -120,9 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAudioController = CsoundAudioController.getInstance();
 
-        mStepsTextView.setText(String.valueOf(formatStep(mAudioController.getStepsAnalyzer().getStepsCount())));
-        mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
-
         initializeNoteView();
 
         initializeScaleView();
@@ -130,18 +122,14 @@ public class MainActivity extends AppCompatActivity {
         initializeStepView();
 
         initializeAccelerometer();
+
+        Log.d(TAG, "onCreate: accelerometerGraph= " + accelerometerGraph.hashCode());
+        Log.d(TAG, "onCreate: accelerometerManager= " + accelerometerManager.hashCode());
     }
 
 
     private void initializeOrRestoreState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            Log.d(TAG, "onCreate: Initialized.");
-
-            float threshold = sharedPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, AccelerometerProcessor.THRESHOLD_INITIAL);
-
-            accelerometerProcessor.setThreshold(threshold);
-
-            initializeThresholdSeekBar(threshold);
 
             String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
             String scale = sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
@@ -156,9 +144,6 @@ public class MainActivity extends AppCompatActivity {
                     new CsoundStepsAnalyzer(steps),
                     getResources(),
                     getCacheDir());
-
-        } else {
-            initializeThresholdSeekBar((float)accelerometerProcessor.getThreshold());
         }
     }
 
@@ -170,13 +155,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeNoteView() {
-        notesParameterView.initialize(Note.toStringArray(), Note.C.name());
+        String firstNote = Note.C.name();
+
+        notesParameterView.initialize(Note.toStringArray(), firstNote);
+
+        noteTextView.setText(firstNote);
+
         notesParameterView.setCallback(new ParameterViewCallback() {
             @Override
             public void notify(String newValue) {
-                currentNote = Note.getNoteByName(newValue);
+                Note currentNote = Note.getNoteByName(newValue);
 
                 mAudioController.getMusicAnalyzer().setBaseNote(currentNote);
+
+                noteTextView.setText(newValue);
             }
         });
     }
@@ -216,13 +208,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeThresholdSeekBar(float thr) {
-        thresholdSeekBar.setProgress(AccelerometerProcessor.thresholdToProgress(thr));
+    private void initializeThresholdSeekBar(double thr) {
+        thresholdSeekBar.setProgress(AccelerometerManager.thresholdToProgress(thr));
+
         thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(progress));
+                    accelerometerManager.setThreshold(AccelerometerManager.progressToThreshold(progress));
                 }
             }
 
@@ -243,21 +236,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeAccelerometer() {
-
         mGraphFrameLayout.addView(accelerometerGraph.createView(this));
 
-        mAccelerometerManager = new AccelerometerManager(sensorManager, accelerometerGraph, accelerometerProcessor);
+        accelerometerManager.addOnStepChangeListener(mAudioController.getStepsAnalyzer());
 
-        mAccelerometerManager.addOnStepChangeListener(mAudioController.getStepsAnalyzer());
-        mAccelerometerManager.addOnStepChangeListener(mAudioController.getMusicAnalyzer());
-        mAccelerometerManager.addOnStepChangeListener(new OnStepListener() {
+        accelerometerManager.addOnStepChangeListener(mAudioController.getMusicAnalyzer());
+
+        accelerometerManager.addOnStepChangeListener(new OnStepListener() {
             @Override
-            public void onStepDetected(long milliseconds) {
-                mStepsTextView.setText(formatStep(mAudioController.getStepsAnalyzer().getStepsCount()));
+            public void onStepDetected(long milliseconds, int stepsCount) {
+                mStepsTextView.setText(formatStep(stepsCount));
                 mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
             }
         });
     }
+
+    // TODO: use LiveData and ViewModels!
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -286,10 +280,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void saveThreshold() {
-        sharedPreferences.edit()
-                .putFloat(PREFERENCES_VALUES_THRESHOLD_KEY,
-                        (float) accelerometerProcessor.getThreshold())
-                .apply();
+        accelerometerManager.saveThreshold();
+
         Toast.makeText(this, R.string.toast_threshold_saved, Toast.LENGTH_SHORT).show();
     }
 
@@ -299,12 +291,15 @@ public class MainActivity extends AppCompatActivity {
         Scale currentScale = musicAnalyzer.getScale();
 
         StepsAnalyzer stepsAnalyzer = mAudioController.getStepsAnalyzer();
+
         int stepsInterval = stepsAnalyzer.getStepsInterval();
+
         sharedPreferences.edit()
                 .putString(PREFERENCES_VALUES_BASENOTE_KEY, currentBaseNote.note)
                 .putString(PREFERENCES_VALUES_SCALE_KEY, currentScale.name())
                 .putInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, stepsInterval)
                 .apply();
+
         Toast.makeText(this, R.string.toast_parameters_saved +
                 " baseNote: " + currentBaseNote +
                 " scale: " + currentScale +
@@ -315,26 +310,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mAccelerometerManager.startAccelerometerAndGraph();
+
+        initializeThresholdSeekBar(accelerometerManager.getThreshold());
+
+        accelerometerManager.resumeAccelerometerAndGraph();
+
         mAudioController.start();
     }
 
     @Override
     protected void onPause() {
-        mAccelerometerManager.stopAccelerometerAndGraph();
+        accelerometerManager.pauseAccelerometerAndGraph();
+
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop()");
+
         mAudioController.destroy();
+
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy()");
+
         super.onDestroy();
     }
 }

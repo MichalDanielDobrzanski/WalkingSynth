@@ -10,9 +10,9 @@ import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dobi.walkingsynth.stepdetection.AchartEngineAccelerometerGraph.TAG;
-
 public class CsoundMusicAnalyzer implements MusicAnalyzer {
+
+    public static final String TAG = CsoundMusicAnalyzer.class.getSimpleName();
 
     private static final int MIN_TEMPO = 60;
     private static final int MAX_TEMPO = 120;
@@ -86,7 +86,7 @@ public class CsoundMusicAnalyzer implements MusicAnalyzer {
     }
 
     @Override
-    public void onStepDetected(long milliseconds) {
+    public void onStepDetected(long milliseconds, int stepCount) {
         Log.d(TAG, "onStepDetected(): " + milliseconds);
         if (validateAndCalculateTempo(milliseconds)) {
             interPositionInterval = calculateInterPositionInterval();

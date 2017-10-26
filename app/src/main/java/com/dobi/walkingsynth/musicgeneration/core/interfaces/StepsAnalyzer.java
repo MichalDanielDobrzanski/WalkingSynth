@@ -8,8 +8,6 @@ public interface StepsAnalyzer extends OnStepListener {
 
     int getStepsInterval();
 
-    int getStepsCount();
-
     Integer[] getStepsIntervals();
 
     void addStepsListener(StepsListener listener);

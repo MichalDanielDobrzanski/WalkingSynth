@@ -1,6 +1,6 @@
 package com.dobi.walkingsynth;
 
-import com.dobi.walkingsynth.stepdetection.AccelerometerProcessor;
+import com.dobi.walkingsynth.stepdetection.detector.AccelerometerStepDetector;
 
 import org.junit.Test;
 
@@ -10,27 +10,27 @@ public class AccelerometerTests {
 
     @Test
     public void thresholdValues_areValid() {
-        AccelerometerProcessor accelerometerProcessor = AccelerometerProcessor.getInstance();
+        AccelerometerStepDetector accelerometerProcessor = AccelerometerStepDetector.getInstance();
 
-        accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(0));
+        accelerometerProcessor.setThreshold(AccelerometerStepDetector.progressToThreshold(0));
 
         assertTrue(accelerometerProcessor.getThreshold() > 0);
 
-        accelerometerProcessor.setThreshold(AccelerometerProcessor.progressToThreshold(100));
+        accelerometerProcessor.setThreshold(AccelerometerStepDetector.progressToThreshold(100));
         //System.out.println("threshold for progress 100: " + accelerometerProcessor.getThreshold());
 
         assertTrue(accelerometerProcessor.getThreshold() > 0 &&
-                accelerometerProcessor.getThreshold() < AccelerometerProcessor.MAX_THRESHOLD);
+                accelerometerProcessor.getThreshold() < AccelerometerStepDetector.MAX_THRESHOLD);
     }
 
     @Test
     public void progressValues_areValid() {
 
-        int progMax = AccelerometerProcessor.thresholdToProgress(AccelerometerProcessor.MAX_THRESHOLD);
+        int progMax = AccelerometerStepDetector.thresholdToProgress(AccelerometerStepDetector.MAX_THRESHOLD);
         //System.out.println("progress: " + progMax);
         assertTrue(progMax == 100);
 
-        int progDef = AccelerometerProcessor.thresholdToProgress(AccelerometerProcessor.THRESHOLD_INITIAL);
+        int progDef = AccelerometerStepDetector.thresholdToProgress(AccelerometerStepDetector.THRESHOLD_INITIAL);
         assertTrue(progDef > 0 && progDef < 100);
     }
 

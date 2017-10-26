@@ -1,7 +1,7 @@
 package com.dobi.walkingsynth;
 
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.view.HorizontalWheelParameterView;
+import com.dobi.walkingsynth.view.impl.HorizontalWheelParameterView;
 import com.dobi.walkingsynth.view.ParameterView;
 
 import org.junit.Before;

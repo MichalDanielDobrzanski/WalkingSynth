@@ -48,6 +48,7 @@ public class HorizontalWheelParameterView extends HorizontalWheelView implements
     @Override
     public void setValue(String value) {
         // TODO: implement this
+        this.currentValue = value;
     }
 
     @Override

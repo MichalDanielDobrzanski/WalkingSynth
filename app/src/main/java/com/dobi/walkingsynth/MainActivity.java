@@ -115,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
 
         mAudioController = CsoundAudioController.getInstance();
 
-        initializeNoteView();
+        String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
+
+        initializeNoteView(note);
 
         initializeScaleView();
 
@@ -127,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: accelerometerManager= " + accelerometerManager.hashCode());
     }
 
-
     private void initializeOrRestoreState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
 
@@ -137,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "initializeOrRestoreState() note: " + note + " scale: " + scale + " steps: " + steps);
 
-            restoreSpinnersState(note, scale, steps);
 
             CsoundAudioController.createInstance(
                     new CsoundMusicAnalyzer(note, scale),
@@ -147,15 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void restoreSpinnersState(String note, String scale, int steps) {
-        int pos = Note.getNoteByName(note).ordinal();
-
-//        notesParameterView.setSelection(Note.getNoteByName(note).ordinal(), false);
-        scalesSpinner.setSelection(Scale.valueOf(scale).ordinal(), false);
-    }
-
-    private void initializeNoteView() {
-        String firstNote = Note.C.name();
+    private void initializeNoteView(String firstNote) {
 
         notesParameterView.initialize(Note.toStringArray(), firstNote);
 

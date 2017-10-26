@@ -7,7 +7,7 @@
     tools:layout_editor_absoluteY="25dp">
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/note_text_view"
         android:layout_width="50dp"
         android:layout_height="40dp"
         android:layout_marginLeft="8dp"

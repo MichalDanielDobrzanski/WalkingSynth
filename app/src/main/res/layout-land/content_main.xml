@@ -21,7 +21,7 @@
         card_view:layout_constraintRight_toRightOf="parent"
         android:id="@+id/cardView5">
 
-        <include layout="@layout/user_interaction_layout" />
+        <include layout="@layout/interaction_layout" />
 
     </android.support.v7.widget.CardView>
 

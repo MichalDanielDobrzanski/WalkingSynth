@@ -8,12 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +26,6 @@ import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.stepdetection.OnStepListener;
 import com.dobi.walkingsynth.stepdetection.graph.AccelerometerGraph;
 import com.dobi.walkingsynth.view.ParameterView;
-import com.dobi.walkingsynth.view.ParameterViewCallback;
 
 import java.util.Locale;
 
@@ -72,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.base_notes_wheel)
     ParameterView notesParameterView;
 
-    @BindView(R.id.steps_interval_spinner)
-    Spinner stepsSpinner;
-
-    @BindView(R.id.scales_spinner)
-    Spinner scalesSpinner;
-
     @BindView(R.id.note_text_view)
     TextView noteTextView;
+
+    @BindView(R.id.steps_view)
+    ParameterView stepsParameterView;
+
+    @BindView(R.id.scales_view)
+    ParameterView scalesParameterView;
 
     @Inject
     SharedPreferences sharedPreferences;
@@ -116,10 +111,10 @@ public class MainActivity extends AppCompatActivity {
         mAudioController = CsoundAudioController.getInstance();
 
         String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
-
         initializeNoteView(note);
 
-        initializeScaleView();
+        String scale = sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
+        initializeScaleView(scale);
 
         initializeStepView();
 
@@ -148,56 +143,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeNoteView(String firstNote) {
-
         notesParameterView.initialize(Note.toStringArray(), firstNote);
 
         noteTextView.setText(firstNote);
 
-        notesParameterView.setCallback(new ParameterViewCallback() {
-            @Override
-            public void notify(String newValue) {
-                Note currentNote = Note.getNoteByName(newValue);
+        notesParameterView.setCallback(n -> {
 
-                mAudioController.getMusicAnalyzer().setBaseNote(currentNote);
+            mAudioController.getMusicAnalyzer().setBaseNote(Note.getNoteByName(n));
 
-                noteTextView.setText(newValue);
-            }
+            noteTextView.setText(n);
         });
     }
 
-    private void initializeScaleView() {
-        ArrayAdapter<Scale> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, Scale.values());
+    private void initializeScaleView(String scale) {
+        scalesParameterView.initialize(Scale.toStringArray(), scale);
 
-        scalesSpinner.setAdapter(adapter);
-        scalesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mAudioController.getMusicAnalyzer().setScale(Scale.values()[position]);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+        scalesParameterView.setCallback(s -> {
+            mAudioController.getMusicAnalyzer().setScale(Scale.getScaleByName(s));
         });
     }
 
     private void initializeStepView() {
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
-                R.layout.support_simple_spinner_dropdown_item, mAudioController.getStepsAnalyzer().getStepsIntervals());
-        stepsSpinner.setAdapter(adapter);
-        stepsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mAudioController.getStepsAnalyzer().setStepsInterval(mAudioController.getStepsAnalyzer().getStepsIntervals()[position]);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
+//                R.layout.support_simple_spinner_dropdown_item, mAudioController.getStepsAnalyzer().getStepsIntervals());
+//        stepsParameterView.setAdapter(adapter);
+//        stepsParameterView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                mAudioController.getStepsAnalyzer().setStepsInterval(mAudioController.getStepsAnalyzer().getStepsIntervals()[position]);
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
     }
 
     private void initializeThresholdSeekBar(double thr) {

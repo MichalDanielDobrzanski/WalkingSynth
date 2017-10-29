@@ -38,7 +38,7 @@
 
         <!-- accelerometer visualization View-->
         <FrameLayout
-            android:id="@+id/graphFL"
+            android:id="@+id/graph_frame_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

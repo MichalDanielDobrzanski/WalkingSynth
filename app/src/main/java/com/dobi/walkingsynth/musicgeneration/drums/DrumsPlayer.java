@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.csounds.CsoundObj;
 import com.dobi.walkingsynth.musicgeneration.core.CsoundPlayer;
+import com.dobi.walkingsynth.musicgeneration.utils.Note;
+import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class DrumsPlayer extends CsoundPlayer {
 
     private void playDrumInstrument(int instrument) {
         final DecimalFormat df = new DecimalFormat("#.##");
-        mCsoundObj.sendScore(
+        csoundObj.sendScore(
                 String.format("i%d 0 ", instrument)
                         + df.format(mDrumsSequencer.getParameters(instrument)[0]) + " "
                         + df.format(mDrumsSequencer.getParameters(instrument)[1])
@@ -73,15 +75,31 @@ public class DrumsPlayer extends CsoundPlayer {
 
     @Override
     public void onStep(int step) {
-        Log.d(TAG, "invalidate() steps: " + step + "getStepInterval(): " + getStepInterval());
-        if (step + 1 % (getStepInterval() + 1) == 0) {
+        Log.d(TAG, "invalidateTempo() steps: " + step + " interval: " + interval);
+
+        if (step + 1 % (interval + 1) == 0) {
             mDrumsSequencer.randomizeHiHat();
         }
     }
 
     @Override
     public void invalidate(int position) {
-        Log.d(TAG, "invalidate() position: " + position);
+        Log.d(TAG, "invalidateTempo() position: " + position);
         playAllSequences(mDrumsSequencer.getSequences());
+    }
+
+    @Override
+    public void invalidateNote(Note note) {
+
+    }
+
+    @Override
+    public void invalidateScale(Scale scale) {
+
+    }
+
+    @Override
+    public void invalidateInterval(int interval) {
+        this.interval = interval;
     }
 }

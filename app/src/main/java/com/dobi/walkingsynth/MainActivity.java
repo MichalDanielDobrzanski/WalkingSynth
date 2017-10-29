@@ -13,7 +13,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.AudioController;
+import com.dobi.walkingsynth.musicgeneration.core.AudioPlayer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scale;
@@ -39,32 +39,32 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    @BindView(R.id.stepCountTV)
-    TextView mStepsTextView;
+    @BindView(R.id.steps_text_view)
+    TextView stepsTextView;
 
-    @BindView(R.id.tempoValueTV)
+    @BindView(R.id.tempo_text_view)
     TextView tempoTextView;
 
-    @BindView(R.id.timeValueTV)
+    @BindView(R.id.time_text_view)
     TextView timeTextView;
 
-    @BindView(R.id.graphFL)
-    FrameLayout mGraphFrameLayout;
-
-    @BindView(R.id.threshold_seek_bar)
-    SeekBar thresholdSeekBar;
-
-    @BindView(R.id.base_notes_wheel)
+    @BindView(R.id.note_parameter_view)
     ParameterView notesParameterView;
 
     @BindView(R.id.note_text_view)
     TextView noteTextView;
 
-    @BindView(R.id.steps_view)
-    ParameterView stepsParameterView;
+    @BindView(R.id.interval_parameter_view)
+    ParameterView intervalParameterView;
 
-    @BindView(R.id.scales_view)
+    @BindView(R.id.scales_parameter_view)
     ParameterView scalesParameterView;
+
+    @BindView(R.id.graph_frame_layout)
+    FrameLayout mGraphFrameLayout;
+
+    @BindView(R.id.threshold_seek_bar)
+    SeekBar thresholdSeekBar;
 
     @Inject
     SharedPreferences sharedPreferences;
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     AccelerometerManager accelerometerManager;
 
     @Inject
-    AudioController audioController;
+    AudioPlayer audioController;
 
     private ApplicationMvp.Presenter presenter;
 
@@ -138,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     private void initializeStepView() {
 //        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
 //                R.layout.support_simple_spinner_dropdown_item, mAudioController.getStepsAnalyzer().getStepsIntervals());
-//        stepsParameterView.setAdapter(adapter);
-//        stepsParameterView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//        intervalParameterView.setAdapter(adapter);
+//        intervalParameterView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 //            @Override
 //            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                mAudioController.getStepsAnalyzer().setStepsInterval(mAudioController.getStepsAnalyzer().getStepsIntervals()[position]);
@@ -224,8 +224,6 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
         initializeThresholdSeekBar(accelerometerManager.getThreshold());
 
-        accelerometerManager.resumeAccelerometerAndGraph();
-
         presenter.onResume();
     }
 
@@ -260,11 +258,17 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     }
 
     @Override
-    public void initialize(Note note, Scale scale, int steps, int tempo, String time) {
+    public void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time) {
         noteTextView.setText(note.note);
+
         scalesParameterView.setValue(scale.name());
-        stepsParameterView.setValue(String.valueOf(steps));
+
+        intervalParameterView.setValue(Integer.toString(steps));
+
+        stepsTextView.setText(String.valueOf(steps));
+
         tempoTextView.setText(String.valueOf(tempo));
+
         timeTextView.setText(time);
     }
 
@@ -280,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
     @Override
     public void showSteps(int steps) {
-        mStepsTextView.setText(formatStep(steps));
+        stepsTextView.setText(formatStep(steps));
 
     }
 

@@ -2,6 +2,7 @@ package com.dobi.walkingsynth;
 
 import android.app.Application;
 
+import com.dobi.walkingsynth.di.DaggerMainApplicationComponent;
 import com.dobi.walkingsynth.di.MainApplicationComponent;
 import com.dobi.walkingsynth.di.MainApplicationModule;
 

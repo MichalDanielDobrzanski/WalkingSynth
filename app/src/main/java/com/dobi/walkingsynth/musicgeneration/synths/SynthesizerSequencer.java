@@ -12,20 +12,21 @@ public class SynthesizerSequencer {
     private static final String TAG = SynthesizerSequencer.class.getSimpleName();
 
     private Note mBaseNote;
-    private Scale mScale;
+    private Scale scale;
     private int[] mRhythmScoreSequence;
     private Random mGenerator;
 
     public SynthesizerSequencer(Note note, Scale scale) {
         mBaseNote = note;
-        mScale = scale;
+        this.scale = scale;
         mRhythmScoreSequence = new int[4];
         mGenerator = new Random();
     }
 
 
     public int[] getRandomScore() {
-        Integer[] intervals = mScale.intervals;
+        Integer[] intervals = scale.intervals;
+
         int scaleLength = intervals.length;
 
         mRhythmScoreSequence[0] = mBaseNote.ordinal() + intervals[mGenerator.nextInt(scaleLength)];
@@ -40,15 +41,5 @@ public class SynthesizerSequencer {
 
     public void setNote(Note note) {
         mBaseNote = note;
-    }
-
-    public void invdalidateScale(int position) {
-        Scale newScale = Scale.values()[position];
-        Log.d(TAG, "New scale: " + newScale.toString());
-        mScale = newScale;
-    }
-
-    public void setScale(Scale scale) {
-        this.mScale = scale;
     }
 }

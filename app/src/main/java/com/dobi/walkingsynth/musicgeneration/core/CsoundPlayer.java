@@ -2,49 +2,31 @@ package com.dobi.walkingsynth.musicgeneration.core;
 
 
 import com.csounds.CsoundObj;
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.PositionListener;
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsListener;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scale;
 
 /**
  * Base player functionality for csound
  */
-public abstract class CsoundPlayer implements PositionListener, StepsListener {
+public abstract class CsoundPlayer implements TempoAnalyzer.PositionListener, StepsAnalyzer.StepsListener {
 
-    private Note mBaseNote;
-    private Scale mScale;
-    private int mStepInterval;
-    protected CsoundObj mCsoundObj;
+    protected Note note;
 
-    protected CsoundPlayer(CsoundObj csoundObj, int steps) {
-        mCsoundObj = csoundObj;
-        mStepInterval = steps;
+    protected Scale scale;
+
+    protected int interval;
+
+    protected CsoundObj csoundObj;
+
+    protected CsoundPlayer(CsoundObj csoundObj, int interval) {
+        this.csoundObj = csoundObj;
+        this.interval = interval;
     }
 
-    public void setStepInterval(int step) {
-        mStepInterval = step;
-    }
+    public abstract void invalidateNote(Note note);
 
-    public int getStepInterval() {
-        return mStepInterval;
-    }
+    public abstract void invalidateScale(Scale scale);
 
-    public void setBaseNote(Note mNote) {
-        this.mBaseNote = mNote;
-    }
-
-    public Note getBaseNote() {
-        return mBaseNote;
-    }
-
-    public void setScale(Scale mScale) {
-        this.mScale = mScale;
-    }
-
-    public Scale getScale() {
-        return mScale;
-    }
-
+    public abstract void invalidateInterval(int interval);
 
 }

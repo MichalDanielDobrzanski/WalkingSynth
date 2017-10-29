@@ -37,9 +37,9 @@ public class MainActivityTests {
         String baseNote = sharedPreferences.getString(MainActivity.PREFERENCES_VALUES_BASENOTE_KEY, Note.C.note);
 
         // TODO FIX IT
-        onView(withId(R.id.base_notes_wheel)).perform(click());
+        onView(withId(R.id.note_parameter_view)).perform(click());
         onData(allOf(is(instanceOf(String.class)), is(baseNote))).perform(click());
-        onView(withId(R.id.base_notes_wheel)).check(matches(withSpinnerText(containsString(baseNote))));
+        onView(withId(R.id.note_parameter_view)).check(matches(withSpinnerText(containsString(baseNote))));
 
     }
 }

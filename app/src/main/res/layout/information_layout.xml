@@ -21,13 +21,13 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/stepCountTV"
+        app:layout_constraintRight_toLeftOf="@+id/steps_text_view"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/stepCountTV"
+        android:id="@+id/steps_text_view"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:gravity="center"
@@ -46,10 +46,10 @@
         android:gravity="center"
         android:text="@string/tempo_text"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/stepCountTV"
-        app:layout_constraintLeft_toRightOf="@+id/stepCountTV"
-        app:layout_constraintRight_toLeftOf="@+id/tempoValueTV"
-        app:layout_constraintTop_toTopOf="@+id/stepCountTV"
+        app:layout_constraintBottom_toBottomOf="@+id/steps_text_view"
+        app:layout_constraintLeft_toRightOf="@+id/steps_text_view"
+        app:layout_constraintRight_toLeftOf="@+id/tempo_text_view"
+        app:layout_constraintTop_toTopOf="@+id/steps_text_view"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -60,14 +60,14 @@
         android:text="@string/time_text"
         android:textAlignment="center"
 
-        app:layout_constraintBottom_toBottomOf="@+id/tempoValueTV"
-        app:layout_constraintLeft_toRightOf="@+id/tempoValueTV"
-        app:layout_constraintRight_toLeftOf="@+id/timeValueTV"
-        app:layout_constraintTop_toTopOf="@+id/tempoValueTV"
+        app:layout_constraintBottom_toBottomOf="@+id/tempo_text_view"
+        app:layout_constraintLeft_toRightOf="@+id/tempo_text_view"
+        app:layout_constraintRight_toLeftOf="@+id/time_text_view"
+        app:layout_constraintTop_toTopOf="@+id/tempo_text_view"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/tempoValueTV"
+        android:id="@+id/tempo_text_view"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:gravity="center"
@@ -80,7 +80,7 @@
         tools:text="101" />
 
     <TextView
-        android:id="@+id/timeValueTV"
+        android:id="@+id/time_text_view"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_marginRight="8dp"

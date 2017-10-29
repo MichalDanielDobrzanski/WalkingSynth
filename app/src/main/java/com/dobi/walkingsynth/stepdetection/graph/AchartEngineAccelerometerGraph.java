@@ -117,7 +117,7 @@ public class AchartEngineAccelerometerGraph implements AccelerometerGraph {
 
         rewriteAccelerometerPast(eventTime, accelerometerValue);
 
-        Log.d(TAG, "invalidate() at time: " + eventTime + " accelValue: " + accelerometerValue + " thresh: " + currentThreshold);
+        Log.d(TAG, "invalidateTempo() at time: " + eventTime + " accelValue: " + accelerometerValue + " thresh: " + currentThreshold);
 
         accelerometerSeries.add(eventTime, padValue(accelerometerValue));
         if (pointCount == MAX_POINTS)

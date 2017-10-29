@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <com.dobi.walkingsynth.view.impl.HorizontalWheelParameterView
-        android:id="@+id/base_notes_wheel"
+        android:id="@+id/note_parameter_view"
         android:layout_width="0dp"
         android:layout_height="40dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -20,7 +20,7 @@
         android:layout_marginEnd="8dp" />
 
     <com.dobi.walkingsynth.view.impl.PickerParameterView
-        android:id="@+id/scales_view"
+        android:id="@+id/scales_parameter_view"
         android:layout_width="150dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
@@ -30,11 +30,11 @@
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/note_text_view"
-        app:layout_constraintTop_toBottomOf="@+id/base_notes_wheel"
+        app:layout_constraintTop_toBottomOf="@+id/note_parameter_view"
         app:layout_constraintVertical_bias="0.0" />
 
     <com.dobi.walkingsynth.view.impl.PickerParameterView
-        android:id="@+id/steps_view"
+        android:id="@+id/interval_parameter_view"
         android:layout_width="50dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
@@ -42,7 +42,7 @@
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/base_notes_wheel" />
+        app:layout_constraintTop_toBottomOf="@+id/note_parameter_view" />
 
     <SeekBar
         android:id="@+id/threshold_seek_bar"
@@ -71,7 +71,7 @@
         android:textAlignment="center"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/base_notes_wheel"
+        app:layout_constraintTop_toBottomOf="@+id/note_parameter_view"
         app:layout_constraintVertical_bias="0.0"
         tools:text="D#"
         android:layout_marginLeft="8dp"

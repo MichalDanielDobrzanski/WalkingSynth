@@ -7,13 +7,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.AudioController;
 import com.dobi.walkingsynth.stepdetection.detector.StepDetector;
 import com.dobi.walkingsynth.stepdetection.graph.AccelerometerGraph;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dobi.walkingsynth.MainActivity.PREFERENCES_VALUES_THRESHOLD_KEY;
+import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_THRESHOLD_KEY;
 
 public class AccelerometerManager implements SensorEventListener {
 
@@ -33,6 +34,8 @@ public class AccelerometerManager implements SensorEventListener {
     private static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
     private final SharedPreferences sharedPreferences;
+
+    private final AudioController audioController;
 
     private AccelerometerGraph accelerometerGraph;
 
@@ -54,8 +57,12 @@ public class AccelerometerManager implements SensorEventListener {
         onStepListeners.add(listener);
     }
 
-    public AccelerometerManager(SharedPreferences sharedPreferences, SensorManager sensorManager, AccelerometerGraph accelerometerGraph, StepDetector stepDetector) {
+    public AccelerometerManager(SharedPreferences sharedPreferences, SensorManager sensorManager,
+                                AccelerometerGraph accelerometerGraph, StepDetector stepDetector,
+                                AudioController audioController) {
+
         this.sharedPreferences = sharedPreferences;
+        this.audioController = audioController;
 
         restoreThreshold();
 

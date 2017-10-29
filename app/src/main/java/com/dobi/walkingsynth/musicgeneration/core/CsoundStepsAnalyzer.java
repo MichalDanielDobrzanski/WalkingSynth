@@ -11,15 +11,15 @@ public class CsoundStepsAnalyzer implements StepsAnalyzer, OnStepListener {
 
     public static final int INITIAL_STEPS_INTERVAL = 10;
 
-    private int mStepCount;
-    private int mStepsInterval;
+    private int stepCount;
+
+    private int stepsInterval = INITIAL_STEPS_INTERVAL;
+
     private Integer[] stepIntervals;
 
     private List<StepsListener> mStepsListeners;
 
-    public CsoundStepsAnalyzer(int steps) {
-        mStepsInterval = steps;
-
+    public CsoundStepsAnalyzer() {
         loadDefaultStepIntervals();
     }
 
@@ -40,7 +40,7 @@ public class CsoundStepsAnalyzer implements StepsAnalyzer, OnStepListener {
 
     @Override
     public int getStepsInterval() {
-        return mStepsInterval;
+        return stepsInterval;
     }
 
     @Override
@@ -50,14 +50,14 @@ public class CsoundStepsAnalyzer implements StepsAnalyzer, OnStepListener {
 
     @Override
     public void onStepDetected(long milliseconds, int stepsCount) {
-        mStepCount = stepsCount;
+        stepCount = stepsCount;
         invalidateListeners();
     }
 
     private void invalidateListeners() {
         if (mStepsListeners != null) {
             for (StepsListener listener : mStepsListeners) {
-                listener.onStep(mStepCount);
+                listener.onStep(stepCount);
             }
         }
     }

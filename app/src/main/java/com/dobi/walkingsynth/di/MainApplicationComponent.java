@@ -5,7 +5,7 @@ import com.dobi.walkingsynth.MainActivity;
 import dagger.Component;
 
 @MainApplicationScope
-@Component(modules = { MainApplicationModule.class, AccelerometerModule.class })
+@Component(modules = { MainApplicationModule.class, AccelerometerModule.class, MusicModule.class })
 public interface MainApplicationComponent {
 
     void inject(MainActivity mainActivity);

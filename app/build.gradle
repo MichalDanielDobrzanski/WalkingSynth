@@ -65,4 +65,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
     // wheel view
     compile 'com.github.shchurov:horizontalwheelview:0.9.5'
+    // number picker
+    compile 'com.shawnlin:number-picker:2.4.4'
 }

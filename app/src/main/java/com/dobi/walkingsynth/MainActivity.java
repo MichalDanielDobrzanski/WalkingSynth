@@ -13,17 +13,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dobi.walkingsynth.musicgeneration.core.CsoundAudioController;
-import com.dobi.walkingsynth.musicgeneration.core.CsoundMusicAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.core.CsoundStepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.AudioController;
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.musicgeneration.utils.Scale;
+import com.dobi.walkingsynth.presenter.MainPresenter;
 import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.stepdetection.OnStepListener;
 import com.dobi.walkingsynth.stepdetection.graph.AccelerometerGraph;
 import com.dobi.walkingsynth.view.ParameterView;
 
@@ -40,23 +35,18 @@ import butterknife.ButterKnife;
  * TODO: use Dagger2 a lot
  * TODO: refactor Csound and accelerometer to use RxJava
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ApplicationMvp.View {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    public static final String PREFERENCES_VALUES_BASENOTE_KEY = "base-note";
-    public static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
-    public static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
-    public static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
 
     @BindView(R.id.stepCountTV)
     TextView mStepsTextView;
 
     @BindView(R.id.tempoValueTV)
-    TextView mTempoTextView;
+    TextView tempoTextView;
 
     @BindView(R.id.timeValueTV)
-    TextView mTimeTextView;
+    TextView timeTextView;
 
     @BindView(R.id.graphFL)
     FrameLayout mGraphFrameLayout;
@@ -88,7 +78,10 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     AccelerometerManager accelerometerManager;
 
-    private AudioController mAudioController;
+    @Inject
+    AudioController audioController;
+
+    private ApplicationMvp.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,65 +95,44 @@ public class MainActivity extends AppCompatActivity {
 
         Locale.setDefault(Locale.ENGLISH);
 
-        ((MainApplication)getApplication()).getApplicationComponent().inject(this);
+        ((MainApplication) getApplication()).getApplicationComponent().inject(this);
 
-        initializeOrRestoreState(savedInstanceState);
+        attachPresenter();
 
-        timeCounter.setView(mTimeTextView);
+        presenter.initialize();
 
-        mAudioController = CsoundAudioController.getInstance();
+        timeCounter.setView(timeTextView);
 
-        String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
-        initializeNoteView(note);
+        initializeNoteView();
 
-        String scale = sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
-        initializeScaleView(scale);
+        initializeScaleView();
 
         initializeStepView();
 
-        initializeAccelerometer();
-
-        Log.d(TAG, "onCreate: accelerometerGraph= " + accelerometerGraph.hashCode());
-        Log.d(TAG, "onCreate: accelerometerManager= " + accelerometerManager.hashCode());
+        mGraphFrameLayout.addView(accelerometerGraph.createView(this));
     }
 
-    private void initializeOrRestoreState(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
-
-            String note = sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name());
-            String scale = sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name());
-            int steps = sharedPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, CsoundStepsAnalyzer.INITIAL_STEPS_INTERVAL);
-
-            Log.d(TAG, "initializeOrRestoreState() note: " + note + " scale: " + scale + " steps: " + steps);
-
-
-            CsoundAudioController.createInstance(
-                    new CsoundMusicAnalyzer(note, scale),
-                    new CsoundStepsAnalyzer(steps),
-                    getResources(),
-                    getCacheDir());
+    private void attachPresenter() {
+        presenter = (ApplicationMvp.Presenter) getLastCustomNonConfigurationInstance();
+        if (presenter == null) {
+            presenter = new MainPresenter(sharedPreferences, accelerometerManager, audioController);
         }
+        Log.d(TAG, "attachPresenter: hashCode= " + presenter.hashCode());
+        presenter.attachView(this);
     }
 
-    private void initializeNoteView(String firstNote) {
-        notesParameterView.initialize(Note.toStringArray(), firstNote);
+    private void initializeNoteView() {
+        notesParameterView.initialize(Note.toStringArray(), presenter.getNote().note);
 
-        noteTextView.setText(firstNote);
+        noteTextView.setText(presenter.getNote().note);
 
-        notesParameterView.setCallback(n -> {
-
-            mAudioController.getMusicAnalyzer().setBaseNote(Note.getNoteByName(n));
-
-            noteTextView.setText(n);
-        });
+        notesParameterView.setCallback(n -> presenter.setNote(Note.getNoteByName(n)));
     }
 
-    private void initializeScaleView(String scale) {
-        scalesParameterView.initialize(Scale.toStringArray(), scale);
+    private void initializeScaleView() {
+        scalesParameterView.initialize(Scale.toStringArray(), presenter.getScale().name());
 
-        scalesParameterView.setCallback(s -> {
-            mAudioController.getMusicAnalyzer().setScale(Scale.getScaleByName(s));
-        });
+        scalesParameterView.setCallback(s -> presenter.setScale(Scale.getScaleByName(s)));
     }
 
     private void initializeStepView() {
@@ -207,24 +179,6 @@ public class MainActivity extends AppCompatActivity {
         return String.format(Locale.getDefault(), "%d", stepCount);
     }
 
-    private void initializeAccelerometer() {
-        mGraphFrameLayout.addView(accelerometerGraph.createView(this));
-
-        accelerometerManager.addOnStepChangeListener(mAudioController.getStepsAnalyzer());
-
-        accelerometerManager.addOnStepChangeListener(mAudioController.getMusicAnalyzer());
-
-        accelerometerManager.addOnStepChangeListener(new OnStepListener() {
-            @Override
-            public void onStepDetected(long milliseconds, int stepsCount) {
-                mStepsTextView.setText(formatStep(stepsCount));
-                mTempoTextView.setText(String.valueOf(mAudioController.getMusicAnalyzer().getTempo()));
-            }
-        });
-    }
-
-    // TODO: use LiveData and ViewModels!
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -258,25 +212,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveParameters() {
-        MusicAnalyzer musicAnalyzer = mAudioController.getMusicAnalyzer();
-        Note currentBaseNote = musicAnalyzer.getBaseNote();
-        Scale currentScale = musicAnalyzer.getScale();
+        presenter.saveState();
 
-        StepsAnalyzer stepsAnalyzer = mAudioController.getStepsAnalyzer();
-
-        int stepsInterval = stepsAnalyzer.getStepsInterval();
-
-        sharedPreferences.edit()
-                .putString(PREFERENCES_VALUES_BASENOTE_KEY, currentBaseNote.note)
-                .putString(PREFERENCES_VALUES_SCALE_KEY, currentScale.name())
-                .putInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, stepsInterval)
-                .apply();
-
-        Toast.makeText(this, R.string.toast_parameters_saved +
-                " baseNote: " + currentBaseNote +
-                " scale: " + currentScale +
-                " stepsInterval: " + stepsInterval,
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.toast_parameters_saved + " baseNote: " + presenter.getNote() +
+                " scale: " + presenter.getScale() + " interval: " + presenter.getInterval(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -287,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
         accelerometerManager.resumeAccelerometerAndGraph();
 
-        mAudioController.start();
+        presenter.onResume();
     }
 
     @Override
@@ -301,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         Log.d(TAG, "onStop()");
 
-        mAudioController.destroy();
+        presenter.onStop();
 
         super.onStop();
     }
@@ -310,6 +249,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy()");
 
+        presenter.detachView();
+
         super.onDestroy();
+    }
+
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return presenter;
+    }
+
+    @Override
+    public void initialize(Note note, Scale scale, int steps, int tempo, String time) {
+        noteTextView.setText(note.note);
+        scalesParameterView.setValue(scale.name());
+        stepsParameterView.setValue(String.valueOf(steps));
+        tempoTextView.setText(String.valueOf(tempo));
+        timeTextView.setText(time);
+    }
+
+    @Override
+    public void showNote(Note note) {
+        noteTextView.setText(note.note);
+    }
+
+    @Override
+    public void showScale(Scale scale) {
+
+    }
+
+    @Override
+    public void showSteps(int steps) {
+        mStepsTextView.setText(formatStep(steps));
+
+    }
+
+    @Override
+    public void showTempo(int tempo) {
+        tempoTextView.setText(String.valueOf(tempo));
+    }
+
+    @Override
+    public void showTime(String time) {
+
     }
 }

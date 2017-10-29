@@ -2,8 +2,8 @@ package com.dobi.walkingsynth.musicgeneration.core;
 
 import android.content.res.Resources;
 
-import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.AudioController;
+import com.dobi.walkingsynth.musicgeneration.core.interfaces.MusicAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.core.interfaces.StepsAnalyzer;
 import com.dobi.walkingsynth.musicgeneration.drums.DrumsPlayer;
 import com.dobi.walkingsynth.musicgeneration.drums.DrumsSequencer;
@@ -18,35 +18,25 @@ import java.util.List;
 
 public class CsoundAudioController extends CsoundBase implements AudioController {
 
-    private StepsAnalyzer mStepsAnalyzer;
-    private MusicAnalyzer mMusicAnalyzer;
+    private StepsAnalyzer stepsAnalyzer;
+
+    private MusicAnalyzer musicAnalyzer;
+
     private List<CsoundPlayer> mPlayers;
 
-    private static CsoundAudioController mInstance;
+    public CsoundAudioController(MusicAnalyzer musicAnalyzer, StepsAnalyzer stepsAnalyzer, Resources res, File file) {
+        super(res, file);
 
-    public static void createInstance(MusicAnalyzer musicAnalyzer, StepsAnalyzer stepsAnalyzer, Resources res, File cDir) {
-        if (mInstance == null) {
-            mInstance = new CsoundAudioController(musicAnalyzer, stepsAnalyzer, res, cDir);
-        }
-    }
-
-    public static CsoundAudioController getInstance() {
-        return mInstance;
-    }
-
-    private CsoundAudioController(MusicAnalyzer musicAnalyzer, StepsAnalyzer stepsAnalyzer, Resources res, File cDir) {
-        super(res, cDir);
-
-        mMusicAnalyzer = musicAnalyzer;
-        mStepsAnalyzer = stepsAnalyzer;
+        this.musicAnalyzer = musicAnalyzer;
+        this.stepsAnalyzer = stepsAnalyzer;
 
         mPlayers = new ArrayList<>();
 
-        int stepInterval = mStepsAnalyzer.getStepsInterval();
+        int stepInterval = this.stepsAnalyzer.getStepsInterval();
 
         DrumsPlayer drums = new DrumsPlayer(csoundObj, stepInterval, new DrumsSequencer());
-        mStepsAnalyzer.addStepsListener(drums);
-        mMusicAnalyzer.addPositionListener(drums);
+        this.stepsAnalyzer.addStepsListener(drums);
+        this.musicAnalyzer.addPositionListener(drums);
 
         mPlayers.add(drums);
 
@@ -54,18 +44,18 @@ public class CsoundAudioController extends CsoundBase implements AudioController
         Scale scale = musicAnalyzer.getScale();
 
         SynthesizerPlayer synth = new SynthesizerPlayer(csoundObj, stepInterval, new SynthesizerSequencer(baseNote, scale));
-        mStepsAnalyzer.addStepsListener(synth);
-        mMusicAnalyzer.addPositionListener(synth);
+        this.stepsAnalyzer.addStepsListener(synth);
+        this.musicAnalyzer.addPositionListener(synth);
 
         mPlayers.add(synth);
     }
 
     public MusicAnalyzer getMusicAnalyzer() {
-        return mMusicAnalyzer;
+        return musicAnalyzer;
     }
 
     public StepsAnalyzer getStepsAnalyzer() {
-        return mStepsAnalyzer;
+        return stepsAnalyzer;
     }
 
     @Override

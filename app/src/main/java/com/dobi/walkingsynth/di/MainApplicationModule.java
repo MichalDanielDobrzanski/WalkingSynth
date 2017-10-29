@@ -2,9 +2,12 @@ package com.dobi.walkingsynth.di;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.hardware.SensorManager;
 
 import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
+
+import java.io.File;
 
 import dagger.Module;
 import dagger.Provides;
@@ -13,6 +16,11 @@ import dagger.Provides;
 public class MainApplicationModule {
 
     public static final String PREFERENCES_NAME = "Values";
+
+    public static final String PREFERENCES_VALUES_BASENOTE_KEY = "base-note";
+    public static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
+    public static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
+    public static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
 
     private Context context;
 
@@ -26,6 +34,17 @@ public class MainApplicationModule {
         return context;
     }
 
+    @Provides
+    @MainApplicationScope
+    File providesFile(Context context) {
+        return context.getCacheDir();
+    }
+
+    @Provides
+    @MainApplicationScope
+    Resources providesResources(Context context) {
+        return context.getResources();
+    }
 
     @Provides
     @MainApplicationScope

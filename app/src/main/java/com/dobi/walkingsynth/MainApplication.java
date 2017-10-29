@@ -19,7 +19,7 @@ public class MainApplication extends Application {
                 .build();
     }
 
-    MainApplicationComponent getApplicationComponent() {
+    public MainApplicationComponent getApplicationComponent() {
         return mainApplicationComponent;
     }
 }

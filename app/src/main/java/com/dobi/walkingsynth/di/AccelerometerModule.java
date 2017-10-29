@@ -3,12 +3,11 @@ package com.dobi.walkingsynth.di;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 
-import com.dobi.walkingsynth.musicgeneration.core.AudioPlayer;
-import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.stepdetection.detector.AccelerometerStepDetector;
-import com.dobi.walkingsynth.stepdetection.detector.StepDetector;
-import com.dobi.walkingsynth.stepdetection.graph.AccelerometerGraph;
-import com.dobi.walkingsynth.stepdetection.graph.AchartEngineAccelerometerGraph;
+import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
+import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
+import com.dobi.walkingsynth.model.stepdetection.StepDetector;
+import com.dobi.walkingsynth.view.GraphView;
+import com.dobi.walkingsynth.view.impl.AchartEngineGraphView;
 
 import dagger.Module;
 import dagger.Provides;
@@ -19,19 +18,19 @@ public class AccelerometerModule {
     @Provides
     @MainApplicationScope
     StepDetector providesStepDetector() {
-        return new AccelerometerStepDetector();
+        return new StepDetector();
     }
 
     @Provides
     @MainApplicationScope
-    AccelerometerGraph providesAchartEngineAccelerometerGraph() {
-        return new AchartEngineAccelerometerGraph();
+    GraphView providesAchartEngineAccelerometerGraph() {
+        return new AchartEngineGraphView();
     }
 
     @Provides
     @MainApplicationScope
     AccelerometerManager providesAccelerometerManager(SharedPreferences sharedPreferences, SensorManager sensorManager,
-                                                      AccelerometerGraph accelerometerGraph, StepDetector stepDetector,
+                                                      GraphView accelerometerGraph, StepDetector stepDetector,
                                                       AudioPlayer audioController) {
         AccelerometerManager accelerometerManager = new AccelerometerManager(sharedPreferences,
                 sensorManager, accelerometerGraph, stepDetector, audioController);

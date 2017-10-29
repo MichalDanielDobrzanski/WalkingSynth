@@ -1,6 +1,6 @@
 package com.dobi.walkingsynth.di;
 
-import com.dobi.walkingsynth.MainActivity;
+import com.dobi.walkingsynth.view.MainActivity;
 
 import dagger.Component;
 

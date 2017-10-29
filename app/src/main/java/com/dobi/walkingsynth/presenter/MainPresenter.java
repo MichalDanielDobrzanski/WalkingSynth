@@ -4,19 +4,19 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.dobi.walkingsynth.ApplicationMvp;
-import com.dobi.walkingsynth.musicgeneration.core.AudioPlayer;
-import com.dobi.walkingsynth.musicgeneration.core.StepsAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.core.TempoAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scale;
-import com.dobi.walkingsynth.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.stepdetection.OnStepListener;
+import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
+import com.dobi.walkingsynth.model.musicgeneration.core.StepsAnalyzer;
+import com.dobi.walkingsynth.model.musicgeneration.core.TempoAnalyzer;
+import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
+import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
+import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
 
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_BASENOTE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_SCALE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_STEPS_INTERVAL_KEY;
 
-public class MainPresenter implements ApplicationMvp.Presenter, OnStepListener, TempoAnalyzer.TempoListener {
+public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerManager.OnStepListener,
+        TempoAnalyzer.TempoListener {
 
     public static final String TAG = MainPresenter.class.getSimpleName();
 

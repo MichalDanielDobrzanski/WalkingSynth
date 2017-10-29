@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.dobi.walkingsynth.view.impl.HorizontalWheelParameterView
+    <com.dobi.walkingsynth.view.impl.WheelParameterView
         android:id="@+id/note_parameter_view"
         android:layout_width="0dp"
         android:layout_height="40dp"
@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/note_parameter_view"
         app:layout_constraintVertical_bias="0.0" />
 
-    <com.dobi.walkingsynth.view.impl.PickerParameterView
+    <com.dobi.walkingsynth.view.impl.OldPickerParameterView
         android:id="@+id/interval_parameter_view"
         android:layout_width="50dp"
         android:layout_height="40dp"

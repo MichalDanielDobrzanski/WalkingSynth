@@ -1,7 +1,7 @@
 package com.dobi.walkingsynth;
 
-import com.dobi.walkingsynth.musicgeneration.utils.Note;
-import com.dobi.walkingsynth.musicgeneration.utils.Scale;
+import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
+import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 
 public interface ApplicationMvp {
 

@@ -2,10 +2,10 @@ package com.dobi.walkingsynth.di;
 
 import android.content.res.Resources;
 
-import com.dobi.walkingsynth.musicgeneration.core.CsoundAudioPlayer;
-import com.dobi.walkingsynth.musicgeneration.core.StepsAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.core.TempoAnalyzer;
-import com.dobi.walkingsynth.musicgeneration.core.AudioPlayer;
+import com.dobi.walkingsynth.model.musicgeneration.core.CsoundAudioPlayer;
+import com.dobi.walkingsynth.model.musicgeneration.core.StepsAnalyzer;
+import com.dobi.walkingsynth.model.musicgeneration.core.TempoAnalyzer;
+import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
 
 import java.io.File;
 

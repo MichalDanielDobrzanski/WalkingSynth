@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.hardware.SensorManager;
 
-import com.dobi.walkingsynth.musicgeneration.time.TimeCounter;
+import com.dobi.walkingsynth.model.musicgeneration.time.TimeCounter;
 
 import java.io.File;
 

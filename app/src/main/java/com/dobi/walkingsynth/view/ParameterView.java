@@ -8,5 +8,11 @@ public interface ParameterView {
 
     String getCurrentValue();
 
-    void setCallback(ParameterViewCallback callback);
+    void setCallback(Callback callback);
+
+    interface Callback {
+
+        void notify(String newValue);
+    }
+
 }

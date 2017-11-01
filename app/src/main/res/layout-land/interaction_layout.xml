@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/note_text_view"
         android:layout_width="50dp"
-        android:layout_height="22dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -39,9 +39,10 @@
     <com.dobi.walkingsynth.view.impl.PickerParameterView
         android:id="@+id/scales_parameter_view"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/interval_parameter_view"
         app:layout_constraintHorizontal_bias="0.5"
@@ -53,9 +54,10 @@
     <com.dobi.walkingsynth.view.impl.PickerParameterView
         android:id="@+id/interval_parameter_view"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

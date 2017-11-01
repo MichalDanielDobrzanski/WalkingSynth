@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 
 import com.dobi.walkingsynth.R;
 import com.dobi.walkingsynth.view.ParameterView;
-import com.dobi.walkingsynth.view.ParameterViewCallback;
 import com.github.shchurov.horizontalwheelview.HorizontalWheelView;
 
 public class WheelParameterView extends HorizontalWheelView implements ParameterView {
@@ -14,7 +13,7 @@ public class WheelParameterView extends HorizontalWheelView implements Parameter
 
     private String currentValue;
 
-    private ParameterViewCallback callback;
+    private ParameterView.Callback callback;
 
     public WheelParameterView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -61,7 +60,7 @@ public class WheelParameterView extends HorizontalWheelView implements Parameter
     }
 
     @Override
-    public void setCallback(ParameterViewCallback callback) {
+    public void setCallback(ParameterView.Callback callback) {
         this.callback = callback;
     }
 }

@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.dobi.walkingsynth.R;
 import com.dobi.walkingsynth.view.ParameterView;
-import com.dobi.walkingsynth.view.ParameterViewCallback;
 
 import java.util.Arrays;
 
@@ -53,7 +52,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
     }
 
     @Override
-    public void setCallback(ParameterViewCallback callback) {
+    public void setCallback(ParameterView.Callback callback) {
         recyclerViewAdapter.setCallback(callback);
     }
 
@@ -67,7 +66,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
         private LinearLayoutManager linearLayoutManager;
 
-        private ParameterViewCallback callback;
+        private ParameterView.Callback callback;
 
         public RecyclerViewAdapter(LinearLayoutManager linearLayoutManager) {
             this.linearLayoutManager = linearLayoutManager;
@@ -95,7 +94,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
             return currentValue;
         }
 
-        void setCallback(ParameterViewCallback callback) {
+        void setCallback(ParameterView.Callback callback) {
             this.callback = callback;
         }
 

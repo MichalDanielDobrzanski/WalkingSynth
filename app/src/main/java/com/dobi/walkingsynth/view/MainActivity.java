@@ -221,11 +221,16 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
     @Override
     public void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time) {
+        noteTextView.setText(note.note);
+
         notesParameterView.initialize(Note.toStringArray(), note.note);
         notesParameterView.setCallback(n -> presenter.setNote(Note.getNoteByName(n)));
 
         scalesParameterView.initialize(Scale.toStringArray(), scale.name());
-        scalesParameterView.setCallback(s -> presenter.setScale(Scale.getScaleByName(s)));
+        scalesParameterView.setCallback(s -> {
+            Log.d(TAG, "scalesParameterView callback: scale= " + s);
+            presenter.setScale(Scale.getScaleByName(s));
+        });
 
         intervalParameterView.setValue(Integer.toString(steps));
 

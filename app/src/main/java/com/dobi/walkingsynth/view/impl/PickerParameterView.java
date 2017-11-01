@@ -5,12 +5,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.dobi.walkingsynth.R;
 import com.dobi.walkingsynth.view.ParameterView;
 import com.dobi.walkingsynth.view.ParameterViewCallback;
 
@@ -20,16 +20,20 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
     public static final String TAG = PickerParameterView.class.getSimpleName();
 
+    private LinearLayoutManager linearLayoutManager;
+
     private RecyclerViewAdapter recyclerViewAdapter;
 
     public PickerParameterView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
+        setLayoutManager(linearLayoutManager);
 
-        recyclerViewAdapter = new RecyclerViewAdapter();
+        recyclerViewAdapter = new RecyclerViewAdapter(linearLayoutManager);
 
         setAdapter(recyclerViewAdapter);
+
     }
 
     @Override
@@ -49,10 +53,10 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
     @Override
     public void setCallback(ParameterViewCallback callback) {
-        // TODO
+        recyclerViewAdapter.setCallback(callback);
     }
 
-    private static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
+    private class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
 
         private String[] values;
 
@@ -60,17 +64,14 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
         private int currentIndex;
 
-        private OnItemSelectedListener localOnItemSelectedListener;
+        private LinearLayoutManager linearLayoutManager;
 
-        RecyclerViewAdapter() {
-            this.localOnItemSelectedListener = position -> {
-                Log.d(TAG, "OnPosition: " + position);
+        private ParameterViewCallback callback;
 
-                this.currentIndex = position;
-
-                notifyDataSetChanged();
-            };
+        public RecyclerViewAdapter(LinearLayoutManager linearLayoutManager) {
+            this.linearLayoutManager = linearLayoutManager;
         }
+
 
         public void initialize(String[] values, String value) {
             this.values = values;
@@ -93,6 +94,17 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
             return currentValue;
         }
 
+        void setCallback(ParameterViewCallback callback) {
+            this.callback = callback;
+        }
+
+        private void scrollToCenter(View v) {
+            int itemToScroll = getChildAdapterPosition(v);
+            int centerOfScreen = getWidth() / 2 - v.getWidth() / 2 - v.getPaddingLeft() - v.getPaddingRight();
+            // TODO implement smooth scrolling
+            linearLayoutManager.scrollToPositionWithOffset(itemToScroll, centerOfScreen);
+        }
+
         @Override
         public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView textView = new TextView(parent.getContext());
@@ -111,18 +123,16 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
             holder.textView.setText(values[position]);
             if (position == currentIndex) {
                 holder.textView.setTextSize(20f);
+                holder.textView.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
             } else {
                 holder.textView.setTextSize(14f);
+                holder.textView.setTextColor(getResources().getColor(R.color.colorAccent));
             }
         }
 
         @Override
         public int getItemCount() {
             return values.length;
-        }
-
-        interface OnItemSelectedListener {
-            void onPosition(int position);
         }
 
         class RecyclerViewHolder extends RecyclerView.ViewHolder {
@@ -133,7 +143,10 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
                 super(itemView);
                 this.textView = (TextView)itemView;
                 this.textView.setOnClickListener(v -> {
-                    localOnItemSelectedListener.onPosition(getAdapterPosition());
+                    scrollToCenter(v);
+
+                    if (callback != null)
+                        callback.notify(values[getAdapterPosition()]);
                 });
             }
         }

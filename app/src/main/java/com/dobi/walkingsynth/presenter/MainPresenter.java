@@ -77,7 +77,9 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     @Override
     public void initialize() {
         if (view != null) {
-            view.initialize(note, scale, interval, steps, tempo, time);
+            view.initialize(note, scale, interval, steps, tempo, time,
+                    audioPlayer.getStepsAnalyzer().getIntervals());
+
         }
     }
 

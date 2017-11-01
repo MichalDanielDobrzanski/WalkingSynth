@@ -31,8 +31,12 @@ public class StepsAnalyzer implements AccelerometerManager.OnStepListener {
         mStepsListeners.add(listener);
     }
 
-    public int getStepsInterval() {
+    public int getInterval() {
         return stepsInterval;
+    }
+
+    public Integer[] getIntervals() {
+        return stepIntervals;
     }
 
     @Override

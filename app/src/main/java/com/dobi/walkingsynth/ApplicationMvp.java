@@ -6,7 +6,7 @@ import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 public interface ApplicationMvp {
 
     interface View {
-        void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time);
+        void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time, Integer[] intervals);
 
         void showNote(Note note);
 
@@ -29,11 +29,9 @@ public interface ApplicationMvp {
 
         void onStop();
 
-
         void initialize();
 
         void saveState();
-
 
         Note getNote();
 

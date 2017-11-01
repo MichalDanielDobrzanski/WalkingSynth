@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,6 +121,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
         @Override
         public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+            Log.d(TAG, "onBindViewHolder()");
             holder.textView.setText(values[position]);
             if (position == currentIndex) {
                 holder.textView.setTextSize(20f);
@@ -143,10 +145,15 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
                 super(itemView);
                 this.textView = (TextView)itemView;
                 this.textView.setOnClickListener(v -> {
+                    currentIndex = getAdapterPosition();
+
                     scrollToCenter(v);
 
                     if (callback != null)
-                        callback.notify(values[getAdapterPosition()]);
+                        callback.notify(values[currentIndex]);
+
+
+                    notifyDataSetChanged();
                 });
             }
         }

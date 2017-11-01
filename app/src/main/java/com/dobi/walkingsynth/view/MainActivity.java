@@ -17,12 +17,14 @@ import com.dobi.walkingsynth.ApplicationMvp;
 import com.dobi.walkingsynth.MainApplication;
 import com.dobi.walkingsynth.R;
 import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
-import com.dobi.walkingsynth.model.musicgeneration.time.  TimeCounter;
+import com.dobi.walkingsynth.model.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
-import com.dobi.walkingsynth.presenter.MainPresenter;
 import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
+import com.dobi.walkingsynth.presenter.MainPresenter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -220,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     }
 
     @Override
-    public void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time) {
+    public void initialize(Note note, Scale scale, int interval, int steps, int tempo, String time, Integer[] intervals) {
         noteTextView.setText(note.note);
 
         notesParameterView.initialize(Note.toStringArray(), note.note);
@@ -232,13 +234,26 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
             presenter.setScale(Scale.getScaleByName(s));
         });
 
-        intervalParameterView.setValue(Integer.toString(steps));
-
         stepsTextView.setText(String.valueOf(steps));
 
         tempoTextView.setText(String.valueOf(tempo));
 
         timeTextView.setText(time);
+
+        initializeIntervals(intervals, interval);
+    }
+
+    private void initializeIntervals(Integer[] intervals, int interval) {
+        List<String> values = new ArrayList<>();
+        for (Integer i : intervals) {
+            values.add(String.valueOf(i));
+        }
+
+        intervalParameterView.initialize(values.toArray(new String[values.size()]), String.valueOf(interval));
+        intervalParameterView.setCallback(i -> {
+            Log.d(TAG, "intervalParameterView callback: " + i);
+            presenter.setInterval(Integer.valueOf(i));
+        });
     }
 
     @Override

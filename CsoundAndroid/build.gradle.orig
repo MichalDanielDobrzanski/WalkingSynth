@@ -1,0 +1,37 @@
+apply plugin: 'com.android.library'
+
+android {
+<<<<<<< HEAD
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+=======
+    compileSdkVersion 25
+    buildToolsVersion '26.0.2'
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 25
+>>>>>>> refactor-latest
+        versionCode 2
+        versionName "6.06.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+<<<<<<< HEAD
+    compile 'com.android.support:appcompat-v7:23.0.1'
+=======
+    compile 'com.android.support:appcompat-v7:25.3.1'
+>>>>>>> refactor-latest
+}

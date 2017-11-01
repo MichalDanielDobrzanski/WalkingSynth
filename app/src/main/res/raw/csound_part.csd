@@ -37,8 +37,8 @@ gaDelSendR init 0
 
 
 ;-------------------------------------------------------------------------
-; 1 - hihat closed
-; instr stime dur amplitude
+; 1 - DRUMS: hihat closed
+; instr stime dur   amplitude
 ; i1    0     0.25  0.6
 ;
 ; p4 - amplitude
@@ -50,8 +50,8 @@ outs arand, arand
 endin
 
 ;-------------------------------------------------------------------------
-; 2 - snare
-; instr stime dur amplitude
+; 2 - DRUMS: snare
+; instr stime dur   amplitude
 ; i2    0     0.26  0.6
 ;
 ; p4 - amplitude
@@ -69,7 +69,7 @@ outs a1, a1
 endin
 
 ;-------------------------------------------------------------------------
-; 3 - kick
+; 3 - DRUMS: kick
 ; instr stime freq amplitude
 ; i3    0     100  0.6
 ;
@@ -84,7 +84,7 @@ outs a1*aenv, a1*aenv
 endin
 
 ;-------------------------------------------------------------------------
-; 1st synth (i4)
+; 4 - LEAD: 1st synth (i4)
 ; goes to the reverb and delay
 ; p5 - Frequency is passed as PITCH.
 ; p6 - mod_idx [0 - 5]
@@ -121,11 +121,10 @@ endin
 
 
 ;-------------------------------------------------------------------------
-; 2nd synth (i5)
-; goes only to the reverb
-; Made from Csound Power! book
-;instr start dur amp freq
-; i5     0    2  0.6 8.04
+; 5 - LEAD: 2nd synth (i5)
+; goes only to the reverb. Made from Csound Power! book
+;   instr   start   dur     amp     freq
+;   i5      0       2       0.6     8.04
 ;-------------------------------------------------------------------------
 instr 5
 ; constants
@@ -149,13 +148,13 @@ outs aout, aout2
 endin
 
 ;-------------------------------------------------------------------------
-; Delay
+; 6 - EFFECT: Delay
 ; p4 - amplitude
 ; p5 - feedback
 ; p6 - left delay
 ; p7 - right delay
-; instr  dur end amp feed ldel rdel
-;  i99   0   30  0.7 0.3  0.5  0.75
+;   instr   dur     end     amp     feed    ldel    rdel
+;   i99     0       30      0.7     0.3     0.5     0.75
 ;-------------------------------------------------------------------------
 instr 99
 ilevel = p4
@@ -179,7 +178,7 @@ outs adeloutL,adeloutR
 endin
 
 ;-------------------------------------------------------------------------
-; Reverb
+; 7 - EFFECT: Reverb
 ;-------------------------------------------------------------------------
 instr 100
 aInL = gaRevSendL

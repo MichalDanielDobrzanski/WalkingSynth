@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">WalkingSynth</string>
+    <string name="stop_btn_text">STOP</string>
+    <string name="start_btn_text">START</string>
+
+    <string name="accel_mag">|V|</string>
+    <string name="accel_grav">\u0394g</string>
+    <string name="accel_all">ALL</string>
+    <string name="step_detect">steps</string>
+<<<<<<< HEAD
+    <string name="steps_count">Steps count:</string>
+    <string name="thresh_val">Thresh val:</string>
+    <string name="tempo_val">Tempo:</string>
+    <string name="time_val">Time:</string>
+
+    <string-array name="nav_drawer_items">
+        <item>Threshold</item>
+        <item>Info</item>
+    </string-array>
+    
+    <!--<string-array name="base_notes">-->
+        <!--<item>C</item>-->
+        <!--<item>C#</item>-->
+        <!--<item>D</item>-->
+        <!--<item>D#</item>-->
+        <!--<item>E</item>-->
+        <!--<item>F</item>-->
+        <!--<item>F#</item>-->
+        <!--<item>G</item>-->
+        <!--<item>G#</item>-->
+        <!--<item>A</item>-->
+        <!--<item>A#</item>-->
+        <!--<item>B</item>-->
+    <!--</string-array>-->
+
+    <!--<string-array name="scales">-->
+        <!--<item>Pentatonic</item>-->
+        <!--<item>Flamenco</item>-->
+    <!--</string-array>-->
+=======
+
+    <string name="steps_text">Steps count:</string>
+    <string name="tempo_text">Tempo:</string>
+    <string name="time_text">Time:</string>
+    <string name="time_text_start">00:00</string>
+
+    <string name="menu_set_threshold">Save Threshold</string>
+    <string name="menu_about">About</string>
+    <string name="menu_save_parameters">Save music parameters</string>
+
+    <string name="toast_threshold_saved">Threshold saved</string>
+    <string name="toast_parameters_saved">Parameters saved</string>
+>>>>>>> refactor-latest
+
+
+</resources>

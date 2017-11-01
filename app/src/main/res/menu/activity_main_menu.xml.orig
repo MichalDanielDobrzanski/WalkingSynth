@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<<<<<<< HEAD
+    <item android:id="@+id/action_threshold"/>
+    <item android:id="@+id/action_info"/>
+=======
+    <item android:id="@+id/action_threshold" android:title="@string/menu_set_threshold" />
+    <item android:id="@+id/action_save_parameters" android:title="@string/menu_save_parameters" />
+    <item android:id="@+id/action_info" android:title="@string/menu_about"/>
+>>>>>>> refactor-latest
+</menu>

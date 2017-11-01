@@ -62,7 +62,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
 
         private String currentValue;
 
-        private int currentIndex;
+        private int currentPosition;
 
         private LinearLayoutManager linearLayoutManager;
 
@@ -77,17 +77,19 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
             this.values = values;
 
             setValue(value);
+
+            scrollToPosition(currentPosition);
+        }
+
+        void setValue(String value) {
+            this.currentValue = value;
+            this.currentPosition = Arrays.asList(values).indexOf(value);
         }
 
         void setCurrentValue(String value) {
             setValue(value);
 
             notifyDataSetChanged();
-        }
-
-        private void setValue(String value) {
-            this.currentValue = value;
-            this.currentIndex = Arrays.asList(values).indexOf(value);
         }
 
         String getCurrentValue() {
@@ -122,7 +124,7 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
         public void onBindViewHolder(RecyclerViewHolder holder, int position) {
             Log.d(TAG, "onBindViewHolder()");
             holder.textView.setText(values[position]);
-            if (position == currentIndex) {
+            if (position == currentPosition) {
                 holder.textView.setTextSize(20f);
                 holder.textView.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
             } else {
@@ -144,12 +146,12 @@ public class PickerParameterView extends RecyclerView implements ParameterView {
                 super(itemView);
                 this.textView = (TextView)itemView;
                 this.textView.setOnClickListener(v -> {
-                    currentIndex = getAdapterPosition();
+                    currentPosition = getAdapterPosition();
 
                     scrollToCenter(v);
 
                     if (callback != null)
-                        callback.notify(values[currentIndex]);
+                        callback.notify(values[currentPosition]);
 
 
                     notifyDataSetChanged();

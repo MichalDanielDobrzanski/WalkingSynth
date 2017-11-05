@@ -11,6 +11,9 @@ import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_BASENOTE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_SCALE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_STEPS_INTERVAL_KEY;
@@ -45,6 +48,10 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     private String time;
 
     private double threshold;
+
+    private Observable<Double> thresholdObservable;
+
+    private Disposable thresholdDisposable;
 
     public MainPresenter(SharedPreferences sharedPreferences,
                          AccelerometerManager accelerometerManager,
@@ -91,7 +98,6 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
         if (view != null) {
             view.initialize(note, scale, interval, steps, tempo, time,
                     audioPlayer.getStepsAnalyzer().getIntervals());
-
         }
     }
 
@@ -114,7 +120,11 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     @Override
     public void onStop() {
         audioPlayer.destroy();
+
         accelerometerManager.stop();
+
+        if (thresholdDisposable != null && thresholdDisposable.isDisposed())
+            thresholdDisposable.dispose();
     }
 
     @Override
@@ -175,19 +185,6 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     }
 
     @Override
-    public void setThresholdFromProgress(int progress) {
-        double threshold = progressToThreshold(progress);
-        accelerometerManager.setThreshold(threshold);
-        this.threshold = threshold;
-    }
-
-    private double progressToThreshold(int progress) {
-        double res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
-        Log.d(TAG, "progressToThreshold() threshold: " + res);
-        return res;
-    }
-
-    @Override
     public int getProgressFromThreshold() {
         return thresholdToProgress(threshold);
     }
@@ -199,6 +196,23 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     }
 
     @Override
+    public void setThresholdProgressObservable(Observable<Integer> observable) {
+        thresholdDisposable = observable
+                .map(this::progressToThreshold)
+                .subscribe(t -> {
+                    Log.d(TAG, "setThresholdProgressObservable: got value + " + t);
+                    threshold = t;
+                    accelerometerManager.setThreshold(t);
+        });
+    }
+
+    private double progressToThreshold(int progress) {
+        double res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
+        Log.d(TAG, "progressToThreshold() threshold: " + res);
+        return res;
+    }
+
+    @Override
     public void onStepEvent(long milliseconds, int stepsCount) {
         this.steps = stepsCount;
 
@@ -206,9 +220,6 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
             view.showSteps(steps);
             view.showTempo(tempo);
         }
-
-        audioPlayer.getStepsAnalyzer().onStepEvent(milliseconds, stepsCount);
-        audioPlayer.getTempoAnalyzer().onStepEvent(milliseconds, stepsCount);
     }
 
     @Override

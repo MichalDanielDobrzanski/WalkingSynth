@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
 import com.dobi.walkingsynth.view.GraphView;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.ConnectableObservable;
 
 public class AccelerometerManager {
 
@@ -32,13 +34,13 @@ public class AccelerometerManager {
 
     private SensorManager sensorManager;
 
+    private AudioPlayer audioPlayer;
+
     private Sensor sensor;
 
     private List<OnStepListener> onStepListeners;
 
-    private OnThresholdChangeListener thresholdChangeListener;
-
-    private Observable<SensorEvent> accelerometerObservable;
+    private ConnectableObservable<SensorEvent> accelerometerObservable;
 
     private Disposable disposable;
 
@@ -46,13 +48,16 @@ public class AccelerometerManager {
 
     public AccelerometerManager(SensorManager sensorManager,
                                 GraphView accelerometerGraph,
-                                StepDetector stepDetector) {
+                                StepDetector stepDetector,
+                                AudioPlayer audioPlayer) {
 
         this.sensorManager = sensorManager;
 
         this.accelerometerGraph = accelerometerGraph;
 
         this.stepDetector = stepDetector;
+
+        this.audioPlayer = audioPlayer;
 
         this.accelerometerObservable = Observable.<SensorEvent>create(emitter -> {
             if (this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
@@ -78,14 +83,19 @@ public class AccelerometerManager {
             };
 
             sensorManager.registerListener(sensorEventListener, sensor, CONFIG_SENSOR);
+
             accelerometerGraph.resume();
 
             emitter.setCancellable(() -> {
                 Log.d(TAG, "AccelerometerManager: cancelling.");
+
                 sensorManager.unregisterListener(sensorEventListener);
+
                 accelerometerGraph.pause();
             });
-        });
+        }).publish(); // make it hot observable
+
+        accelerometerObservable.connect();
     }
 
     private Double getSensorValue(SensorEvent event) {
@@ -97,21 +107,19 @@ public class AccelerometerManager {
     /**
      * Gets event time. http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp
      */
-    public long getTimestamp(SensorEvent event) {
+    private long getTimestamp(SensorEvent event) {
         return (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
     }
+
     public void setThreshold(double threshold) {
         this.threshold = threshold;
-        if (thresholdChangeListener != null)
-            thresholdChangeListener.onThreshold(threshold);
-    }
 
-    public void setOnThresholdChangeListener(OnThresholdChangeListener onThresholdChangeListener) {
-        this.thresholdChangeListener = onThresholdChangeListener;
+        accelerometerGraph.onThreshold(threshold);
     }
 
     public void resume() {
         Log.d(TAG, "resume: resuming...");
+
         disposable = accelerometerObservable.subscribe(event -> {
 
             Double sensorValue = getSensorValue(event);
@@ -122,6 +130,10 @@ public class AccelerometerManager {
 
             if (stepDetector.detect(sensorValue, threshold)) {
                 Log.d(TAG, "AccelerometerManager: Detected a step");
+
+                audioPlayer.getStepsAnalyzer().onStepEvent(timeStamp, stepDetector.getStepCount());
+                audioPlayer.getTempoAnalyzer().onStepEvent(timeStamp, stepDetector.getStepCount());
+
                 updateListeners(timeStamp);
             }
         });
@@ -130,7 +142,7 @@ public class AccelerometerManager {
     }
 
     public void stop() {
-        if (!disposable.isDisposed())
+        if (disposable != null && !disposable.isDisposed())
             disposable.dispose();
 
         accelerometerGraph.pause();
@@ -146,10 +158,6 @@ public class AccelerometerManager {
         if (onStepListeners == null)
             onStepListeners = new ArrayList<>();
         onStepListeners.add(listener);
-    }
-
-    public interface OnThresholdChangeListener {
-        void onThreshold(double newValue);
     }
 
     public interface OnStepListener {

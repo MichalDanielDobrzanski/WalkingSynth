@@ -120,14 +120,15 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     }
 
     private void initializeThresholdSeekBar() {
-        Log.d(TAG, "initializeThresholdSeekBar: to : " + presenter.getProgressFromThreshold());
+        Log.d(TAG, "initializeThresholdSeekBar() to value= " + presenter.getProgressFromThreshold());
         thresholdSeekBar.setProgress(presenter.getProgressFromThreshold());
 
-        thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        presenter.setThresholdProgressObservable(Observable.<Integer>create(e ->
+                thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    presenter.setThresholdFromProgress(progress);
+                    e.onNext(progress);
                 }
             }
 
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
-        });
+        })));
     }
 
     @Override
@@ -178,8 +179,8 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     private void saveParameters() {
         presenter.saveState();
 
-        Toast.makeText(this, R.string.toast_parameters_saved + " baseNote: " + presenter.getNote() +
-                " scale: " + presenter.getScale() + " interval: " + presenter.getInterval(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.toast_parameters_saved) + "\n note: " + presenter.getNote() +
+                "\n scale: " + presenter.getScale() + "\n interval: " + presenter.getInterval(), Toast.LENGTH_SHORT).show();
     }
 
     @Override

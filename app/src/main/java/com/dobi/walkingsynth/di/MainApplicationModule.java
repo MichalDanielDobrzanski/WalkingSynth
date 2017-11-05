@@ -5,7 +5,11 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.hardware.SensorManager;
 
+import com.dobi.walkingsynth.ApplicationMvp;
+import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
 import com.dobi.walkingsynth.model.musicgeneration.time.TimeCounter;
+import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
+import com.dobi.walkingsynth.presenter.MainPresenter;
 
 import java.io.File;
 
@@ -21,6 +25,8 @@ public class MainApplicationModule {
     public static final String PREFERENCES_VALUES_THRESHOLD_KEY = "threshold";
     public static final String PREFERENCES_VALUES_SCALE_KEY = "scale";
     public static final String PREFERENCES_VALUES_STEPS_INTERVAL_KEY = "steps-interval";
+
+    public static final float THRESHOLD_INITIAL = 12.72f;
 
     private Context context;
 
@@ -64,6 +70,14 @@ public class MainApplicationModule {
     @MainApplicationScope
     SensorManager providesSensorManager() {
         return (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+    }
+
+    @Provides
+    @MainApplicationScope
+    ApplicationMvp.Presenter providesPresenter(SharedPreferences sharedPreferences,
+                                               AccelerometerManager accelerometerManager,
+                                               AudioPlayer audioPlayer) {
+        return new MainPresenter(sharedPreferences, accelerometerManager, audioPlayer);
     }
 
 }

@@ -161,7 +161,7 @@ public class AchartEngineGraphView implements GraphView {
     }
 
     @Override
-    public void onThresholdChanged(double newValue) {
+    public void onThreshold(double newValue) {
         this.currentThreshold = newValue;
     }
 }

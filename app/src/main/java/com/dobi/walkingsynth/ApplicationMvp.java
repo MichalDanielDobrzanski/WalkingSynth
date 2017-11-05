@@ -48,6 +48,10 @@ public interface ApplicationMvp {
         void setSteps(int steps);
 
         void setTime(String time);
+
+        void setThresholdFromProgress(int progress);
+
+        int getProgressFromThreshold();
     }
 
     interface Model {

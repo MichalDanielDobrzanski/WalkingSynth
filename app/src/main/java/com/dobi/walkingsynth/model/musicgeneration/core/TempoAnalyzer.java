@@ -54,8 +54,8 @@ public class TempoAnalyzer implements AccelerometerManager.OnStepListener {
     }
 
     @Override
-    public void onStepDetected(long milliseconds, int stepCount) {
-        Log.d(TAG, "onStepDetected(): " + milliseconds);
+    public void onStepEvent(long milliseconds, int stepCount) {
+        Log.d(TAG, "onStepEvent(): " + milliseconds);
 
         if (validateAndCalculateTempo(milliseconds)) {
             interPositionInterval = calculateInterPositionInterval();

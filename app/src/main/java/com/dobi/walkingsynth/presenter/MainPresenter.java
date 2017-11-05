@@ -14,11 +14,15 @@ import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_BASENOTE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_SCALE_KEY;
 import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_STEPS_INTERVAL_KEY;
+import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_THRESHOLD_KEY;
+import static com.dobi.walkingsynth.di.MainApplicationModule.THRESHOLD_INITIAL;
 
 public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerManager.OnStepListener,
         TempoAnalyzer.TempoListener {
 
     public static final String TAG = MainPresenter.class.getSimpleName();
+
+    private static final int OFFSET = 90;
 
     ApplicationMvp.View view;
 
@@ -40,18 +44,18 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
 
     private String time;
 
-    public MainPresenter(SharedPreferences sharedPreferences, AccelerometerManager accelerometerManager,
+    private double threshold;
+
+    public MainPresenter(SharedPreferences sharedPreferences,
+                         AccelerometerManager accelerometerManager,
                          AudioPlayer audioPlayer) {
         this.sharedPreferences = sharedPreferences;
 
+        readFromPreferences(sharedPreferences);
+
         this.accelerometerManager = accelerometerManager;
         this.accelerometerManager.addOnStepChangeListener(this);
-
-        this.note = Note.getNoteByName(sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name()));
-
-        this.scale = Scale.getScaleByName(sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name()));
-
-        this.interval = sharedPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, StepsAnalyzer.INITIAL_STEPS_INTERVAL);
+        this.accelerometerManager.setThreshold(threshold);
 
         this.steps = 0;
 
@@ -62,6 +66,14 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
         this.audioPlayer.initialize(note, scale, interval);
 
         this.audioPlayer.getTempoAnalyzer().addTempoListener(this);
+
+    }
+
+    private void readFromPreferences(SharedPreferences sharedPreferences) {
+        this.note = Note.getNoteByName(sharedPreferences.getString(PREFERENCES_VALUES_BASENOTE_KEY, Note.C.name()));
+        this.scale = Scale.getScaleByName(sharedPreferences.getString(PREFERENCES_VALUES_SCALE_KEY, Scale.Pentatonic.name()));
+        this.interval = sharedPreferences.getInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, StepsAnalyzer.INITIAL_STEPS_INTERVAL);
+        this.threshold = sharedPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, THRESHOLD_INITIAL);
     }
 
     @Override
@@ -89,18 +101,20 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
                 .putString(PREFERENCES_VALUES_BASENOTE_KEY, note.note)
                 .putString(PREFERENCES_VALUES_SCALE_KEY, scale.name())
                 .putInt(PREFERENCES_VALUES_STEPS_INTERVAL_KEY, interval)
+                .putFloat(PREFERENCES_VALUES_THRESHOLD_KEY, (float) threshold)
                 .apply();
     }
 
     @Override
     public void onResume() {
         audioPlayer.start();
-        accelerometerManager.resumeAccelerometerAndGraph();
+        accelerometerManager.resume();
     }
 
     @Override
     public void onStop() {
         audioPlayer.destroy();
+        accelerometerManager.stop();
     }
 
     @Override
@@ -161,7 +175,31 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     }
 
     @Override
-    public void onStepDetected(long milliseconds, int stepsCount) {
+    public void setThresholdFromProgress(int progress) {
+        double threshold = progressToThreshold(progress);
+        accelerometerManager.setThreshold(threshold);
+        this.threshold = threshold;
+    }
+
+    private double progressToThreshold(int progress) {
+        double res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
+        Log.d(TAG, "progressToThreshold() threshold: " + res);
+        return res;
+    }
+
+    @Override
+    public int getProgressFromThreshold() {
+        return thresholdToProgress(threshold);
+    }
+
+    private int thresholdToProgress(double threshold) {
+        int res = (int)(100 * threshold / THRESHOLD_INITIAL) - OFFSET;
+        Log.d(TAG, "thresholdToProgress() progress: " + res);
+        return res > 100 ? 100 : res;
+    }
+
+    @Override
+    public void onStepEvent(long milliseconds, int stepsCount) {
         this.steps = stepsCount;
 
         if (view != null) {
@@ -169,8 +207,8 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
             view.showTempo(tempo);
         }
 
-        audioPlayer.getStepsAnalyzer().onStepDetected(milliseconds, stepsCount);
-        audioPlayer.getTempoAnalyzer().onStepDetected(milliseconds, stepsCount);
+        audioPlayer.getStepsAnalyzer().onStepEvent(milliseconds, stepsCount);
+        audioPlayer.getTempoAnalyzer().onStepEvent(milliseconds, stepsCount);
     }
 
     @Override

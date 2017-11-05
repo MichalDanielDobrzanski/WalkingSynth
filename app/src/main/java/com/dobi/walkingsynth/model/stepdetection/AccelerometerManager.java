@@ -14,8 +14,10 @@ import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observables.ConnectableObservable;
+import io.reactivex.schedulers.Schedulers;
 
 public class AccelerometerManager {
 
@@ -93,7 +95,9 @@ public class AccelerometerManager {
 
                 accelerometerGraph.pause();
             });
-        }).publish(); // make it hot observable
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .publish(); // make it hot observable
 
         accelerometerObservable.connect();
     }

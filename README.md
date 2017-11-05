@@ -1,19 +1,22 @@
 # Walking synth #
 
-*Updated as for 05.11.2017* - the WalkingSynth has undergone several architectural changes in order to facilitate the latest Android design patterns and architecture suggestions. This means that the project uses:
+*Update as for date 05.11.2017* - the WalkingSynth has undergone several architectural changes in order to facilitate the latest Android design patterns and architecture suggestions. This means that the project uses:
 * Dagger2 for Dependency Injection
 * Butterknife
 * MVP pattern for sepratation
 * RxJava2 for handling accelerometer values
 * Fantastic 3d praty Horizontal Wheel View for displaying current note
 * Custom Picker Views created with the help of recycler view
+---
+**IMPORTANT!** => Csound libraries are .so libraries which are compiles for *armeabi* and *armeabi-v7A* cpu ABIs.
+
 
 ### Walking Synthesizer ###
 
 This is an Android app for playing and generating music while walking.
 It keeps track of the leg movement pace and plays music based on that.
 It counts the steps quite precisely, so this could also serve as pedometer.
-It comes with particular version of compiled Csound library as *.so file .
+It comes with particular version of compiled Csound library as *.so files.
 
 ## Tools ##
 * Mobile device's accelerometer
@@ -44,5 +47,5 @@ It comes with particular version of compiled Csound library as *.so file .
 * I explored the depths of csound language, which seems to be very poweful.
 
 
-![Screen1](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-21-49.png)
-![Screen2](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/Screenshot_2015-12-23-21-22-04.png)
+![Screen1](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/doc/screen-new.jpg)
+![Screen2](https://github.com/MichalDanielDobrzanski/WalkingSynth/blob/master/doc/screen-new-2.jpg)

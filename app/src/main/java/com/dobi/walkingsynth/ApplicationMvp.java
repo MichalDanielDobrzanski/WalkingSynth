@@ -3,6 +3,8 @@ package com.dobi.walkingsynth;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 
+import io.reactivex.Observable;
+
 public interface ApplicationMvp {
 
     interface View {
@@ -17,7 +19,6 @@ public interface ApplicationMvp {
         void showTempo(int tempo);
 
         void showTime(String time);
-
     }
 
     interface Presenter {
@@ -48,6 +49,10 @@ public interface ApplicationMvp {
         void setSteps(int steps);
 
         void setTime(String time);
+
+        int getProgressFromThreshold();
+
+        void setThresholdProgressObservable(Observable<Integer> observable);
     }
 
     interface Model {

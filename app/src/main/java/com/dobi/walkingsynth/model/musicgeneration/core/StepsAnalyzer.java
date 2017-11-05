@@ -40,7 +40,7 @@ public class StepsAnalyzer implements AccelerometerManager.OnStepListener {
     }
 
     @Override
-    public void onStepDetected(long milliseconds, int stepsCount) {
+    public void onStepEvent(long milliseconds, int stepsCount) {
         stepCount = stepsCount;
         invalidateListeners();
     }

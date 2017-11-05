@@ -8,15 +8,15 @@ public class AccelerometerManagerTest {
     public void thresholdValues_areValid() {
 //        StepDetector accelerometerProcessor = StepDetector.getInstance();
 //
-//        accelerometerProcessor.setThreshold(StepDetector.progressToThreshold(0));
+//        accelerometerProcessor.setThresholdFromProgress(StepDetector.progressToThreshold(0));
 //
-//        assertTrue(accelerometerProcessor.getThreshold() > 0);
+//        assertTrue(accelerometerProcessor.getProgressFromThreshold() > 0);
 //
-//        accelerometerProcessor.setThreshold(StepDetector.progressToThreshold(100));
-//        //System.out.println("threshold for progress 100: " + accelerometerProcessor.getThreshold());
+//        accelerometerProcessor.setThresholdFromProgress(StepDetector.progressToThreshold(100));
+//        //System.out.println("threshold for progress 100: " + accelerometerProcessor.getProgressFromThreshold());
 //
-//        assertTrue(accelerometerProcessor.getThreshold() > 0 &&
-//                accelerometerProcessor.getThreshold() < StepDetector.MAX_THRESHOLD);
+//        assertTrue(accelerometerProcessor.getProgressFromThreshold() > 0 &&
+//                accelerometerProcessor.getProgressFromThreshold() < StepDetector.MAX_THRESHOLD);
     }
 
     @Test

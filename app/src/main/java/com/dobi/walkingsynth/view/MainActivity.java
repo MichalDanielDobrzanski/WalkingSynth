@@ -23,14 +23,13 @@ import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
 import com.dobi.walkingsynth.presenter.MainPresenter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 
 /**
  * TODO: refactor to MVP
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     AccelerometerManager accelerometerManager;
 
     @Inject
-    AudioPlayer audioController;
+    AudioPlayer audioPlayer;
 
     private ApplicationMvp.Presenter presenter;
 
@@ -114,20 +113,22 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     private void attachPresenter() {
         presenter = (ApplicationMvp.Presenter) getLastCustomNonConfigurationInstance();
         if (presenter == null) {
-            presenter = new MainPresenter(sharedPreferences, accelerometerManager, audioController);
+            presenter = new MainPresenter(sharedPreferences, accelerometerManager, audioPlayer);
         }
         Log.d(TAG, "attachPresenter: hashCode= " + presenter.hashCode());
         presenter.attachView(this);
     }
 
-    private void initializeThresholdSeekBar(double thr) {
-        thresholdSeekBar.setProgress(AccelerometerManager.thresholdToProgress(thr));
+    private void initializeThresholdSeekBar() {
+        Log.d(TAG, "initializeThresholdSeekBar() to value= " + presenter.getProgressFromThreshold());
+        thresholdSeekBar.setProgress(presenter.getProgressFromThreshold());
 
-        thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        presenter.setThresholdProgressObservable(Observable.<Integer>create(e ->
+                thresholdSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    accelerometerManager.setThreshold(AccelerometerManager.progressToThreshold(progress));
+                    e.onNext(progress);
                 }
             }
 
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
-        });
+        })));
     }
 
     @Override
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
 
     private void saveThreshold() {
-        accelerometerManager.saveThreshold();
+        presenter.saveState();
 
         Toast.makeText(this, R.string.toast_threshold_saved, Toast.LENGTH_SHORT).show();
     }
@@ -178,41 +179,27 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     private void saveParameters() {
         presenter.saveState();
 
-        Toast.makeText(this, R.string.toast_parameters_saved + " baseNote: " + presenter.getNote() +
-                " scale: " + presenter.getScale() + " interval: " + presenter.getInterval(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.toast_parameters_saved) + "\n note: " + presenter.getNote() +
+                "\n scale: " + presenter.getScale() + "\n interval: " + presenter.getInterval(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        initializeThresholdSeekBar(accelerometerManager.getThreshold());
-
         presenter.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        accelerometerManager.pauseAccelerometerAndGraph();
-
-        super.onPause();
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop()");
-
         presenter.onStop();
-
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy()");
-
         presenter.detachView();
-
         super.onDestroy();
     }
 
@@ -241,15 +228,18 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
         timeTextView.setText(time);
 
         initializeIntervals(intervals, interval);
+
+        initializeThresholdSeekBar();
     }
 
     private void initializeIntervals(Integer[] intervals, int interval) {
-        List<String> values = new ArrayList<>();
-        for (Integer i : intervals) {
-            values.add(String.valueOf(i));
-        }
+        Observable.fromArray(intervals)
+                .map(String::valueOf)
+                .toList()
+                .subscribe(strings -> intervalParameterView.initialize(strings.toArray(
+                        new String[intervals.length]), String.valueOf(interval)))
+                .dispose();
 
-        intervalParameterView.initialize(values.toArray(new String[values.size()]), String.valueOf(interval));
         intervalParameterView.setCallback(i -> {
             Log.d(TAG, "intervalParameterView callback: " + i);
             presenter.setInterval(Integer.valueOf(i));

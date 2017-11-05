@@ -3,9 +3,7 @@ package com.dobi.walkingsynth.view;
 import android.content.Context;
 import android.view.View;
 
-import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
-
-public interface GraphView extends AccelerometerManager.OnThresholdChangeListener {
+public interface GraphView {
 
     void invalidate(long time, double accelerometerValue, double threshold);
 
@@ -14,5 +12,7 @@ public interface GraphView extends AccelerometerManager.OnThresholdChangeListene
     void pause();
 
     View createView(Context context);
+
+    void onThreshold(double newValue);
 }
 

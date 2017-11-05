@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth.di;
 
-import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 
 import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
@@ -29,12 +28,10 @@ public class AccelerometerModule {
 
     @Provides
     @MainApplicationScope
-    AccelerometerManager providesAccelerometerManager(SharedPreferences sharedPreferences, SensorManager sensorManager,
-                                                      GraphView accelerometerGraph, StepDetector stepDetector,
-                                                      AudioPlayer audioController) {
-        AccelerometerManager accelerometerManager = new AccelerometerManager(sharedPreferences,
-                sensorManager, accelerometerGraph, stepDetector, audioController);
-        accelerometerManager.setOnThresholdChangeListener(accelerometerGraph);
-        return accelerometerManager;
+    AccelerometerManager providesAccelerometerManager(SensorManager sensorManager,
+                                                      GraphView accelerometerGraph,
+                                                      StepDetector stepDetector,
+                                                      AudioPlayer audioPlayer) {
+        return new AccelerometerManager(sensorManager, accelerometerGraph, stepDetector, audioPlayer);
     }
 }

@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth.model.stepdetection;
 
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,19 +10,16 @@ import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
 import com.dobi.walkingsynth.view.GraphView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import static com.dobi.walkingsynth.di.MainApplicationModule.PREFERENCES_VALUES_THRESHOLD_KEY;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.ConnectableObservable;
 
-public class AccelerometerManager implements SensorEventListener {
+public class AccelerometerManager {
 
     private static final String TAG = AccelerometerManager.class.getSimpleName();
-
-    private static final float THRESHOLD_INITIAL = 12.72f;
-
-    public static final float MAX_THRESHOLD = 25f;
-
-    private static final int OFFSET = 90;
 
     /**
      * Suggested periods:
@@ -32,120 +28,130 @@ public class AccelerometerManager implements SensorEventListener {
      */
     private static final int CONFIG_SENSOR = SensorManager.SENSOR_DELAY_GAME;
 
-    private final SharedPreferences sharedPreferences;
-
-    private final AudioPlayer audioPlayer;
-
     private GraphView accelerometerGraph;
 
     private StepDetector stepDetector;
 
     private SensorManager sensorManager;
 
+    private AudioPlayer audioPlayer;
+
     private Sensor sensor;
 
     private List<OnStepListener> onStepListeners;
 
+    private ConnectableObservable<SensorEvent> accelerometerObservable;
+
+    private Disposable disposable;
+
     private double threshold;
 
-    private OnThresholdChangeListener thresholdChangeListener;
-
-    public AccelerometerManager(SharedPreferences sharedPreferences, SensorManager sensorManager,
-                                GraphView accelerometerGraph, StepDetector stepDetector,
-                                AudioPlayer audioController) {
-        this.sharedPreferences = sharedPreferences;
-
-        this.audioPlayer = audioController;
-
-        restoreThreshold();
+    public AccelerometerManager(SensorManager sensorManager,
+                                GraphView accelerometerGraph,
+                                StepDetector stepDetector,
+                                AudioPlayer audioPlayer) {
 
         this.sensorManager = sensorManager;
-        initalizeAccelerometer();
 
         this.accelerometerGraph = accelerometerGraph;
 
         this.stepDetector = stepDetector;
+
+        this.audioPlayer = audioPlayer;
+
+        this.accelerometerObservable = Observable.<SensorEvent>create(emitter -> {
+            if (this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
+                sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                Log.d(TAG, "Success! There's a accelerometer. Resolution:" + sensor.getResolution()
+                        + " Max range: " + sensor.getMaximumRange()
+                        + "\n Time interval: " + sensor.getMinDelay() / 1000 + "ms.");
+            } else {
+                Log.e(TAG, "Failure! No accelerometer.");
+                emitter.onError(new Throwable());
+            }
+
+            SensorEventListener sensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    emitter.onNext(event);
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                }
+            };
+
+            sensorManager.registerListener(sensorEventListener, sensor, CONFIG_SENSOR);
+
+            accelerometerGraph.resume();
+
+            emitter.setCancellable(() -> {
+                Log.d(TAG, "AccelerometerManager: cancelling.");
+
+                sensorManager.unregisterListener(sensorEventListener);
+
+                accelerometerGraph.pause();
+            });
+        }).publish(); // make it hot observable
+
+        accelerometerObservable.connect();
     }
 
-    private void initalizeAccelerometer() {
-        if (this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-            sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Log.d(TAG, "Success! There's a accelerometer. Resolution:" + sensor.getResolution()
-                    + " Max range: " + sensor.getMaximumRange()
-                    + "\n Time interval: " + sensor.getMinDelay() / 1000 + "ms.");
-        } else {
-            Log.d(TAG, "Failure! No accelerometer.");
-        }
+    private Double getSensorValue(SensorEvent event) {
+        return Math.sqrt(event.values[0] * event.values[0] +
+                        event.values[1] * event.values[1] +
+                        event.values[2] * event.values[2]);
     }
 
-    private void restoreThreshold() {
-        this.threshold = sharedPreferences.getFloat(PREFERENCES_VALUES_THRESHOLD_KEY, THRESHOLD_INITIAL);
-    }
-
-    public void saveThreshold() {
-        sharedPreferences.edit().putFloat(PREFERENCES_VALUES_THRESHOLD_KEY, (float)getThreshold()).apply();
-    }
-
-    public double getThreshold() {
-        return threshold;
+    /**
+     * Gets event time. http://stackoverflow.com/questions/5500765/accelerometer-sensorevent-timestamp
+     */
+    private long getTimestamp(SensorEvent event) {
+        return (new Date()).getTime() + (event.timestamp - System.nanoTime()) / 1000000L;
     }
 
     public void setThreshold(double threshold) {
-        Log.d(TAG, "setThreshold: to " + threshold);
         this.threshold = threshold;
-        if (thresholdChangeListener != null)
-            thresholdChangeListener.onThresholdChanged(threshold);
+
+        accelerometerGraph.onThreshold(threshold);
     }
 
-    public void setOnThresholdChangeListener(OnThresholdChangeListener onThresholdChangeListener) {
-        this.thresholdChangeListener = onThresholdChangeListener;
-    }
+    public void resume() {
+        Log.d(TAG, "resume: resuming...");
 
-    public void resumeAccelerometerAndGraph() {
-        if (!sensorManager.registerListener(this, sensor, CONFIG_SENSOR)) {
-            Log.d(TAG,"The sensor is not supported and unsuccessfully enabled.");
-        }
+        disposable = accelerometerObservable.subscribe(event -> {
+
+            Double sensorValue = getSensorValue(event);
+
+            long timeStamp = getTimestamp(event);
+
+            accelerometerGraph.invalidate(timeStamp, sensorValue, threshold);
+
+            if (stepDetector.detect(sensorValue, threshold)) {
+                Log.d(TAG, "AccelerometerManager: Detected a step");
+
+                audioPlayer.getStepsAnalyzer().onStepEvent(timeStamp, stepDetector.getStepCount());
+                audioPlayer.getTempoAnalyzer().onStepEvent(timeStamp, stepDetector.getStepCount());
+
+                updateListeners(timeStamp);
+            }
+        });
 
         accelerometerGraph.resume();
     }
 
-    public void pauseAccelerometerAndGraph() {
-        sensorManager.unregisterListener(this, sensor);
+    public void stop() {
+        if (disposable != null && !disposable.isDisposed())
+            disposable.dispose();
 
         accelerometerGraph.pause();
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        stepDetector.invalidate(event);
-
-        final long eventTime = stepDetector.getTimestamp();
-        accelerometerGraph.invalidate(eventTime, stepDetector.getCurrentValue(), threshold);
-
-        if (stepDetector.detect(threshold)) {
-            updateListeners(eventTime);
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { }
-
     private void updateListeners(long eventTime) {
         for (OnStepListener listener : onStepListeners) {
-            listener.onStepDetected(eventTime, stepDetector.getStepCount());
+            listener.onStepEvent(eventTime, stepDetector.getStepCount());
         }
-    }
-
-    public static double progressToThreshold(int progress) {
-        double res = THRESHOLD_INITIAL * (progress + OFFSET) / 100F;
-        Log.d(TAG, "progressToThreshold() threshold: " + res);
-        return res;
-    }
-
-    public static int thresholdToProgress(double threshold) {
-        int res = (int)(100 * threshold / THRESHOLD_INITIAL) - OFFSET;
-        Log.d(TAG, "thresholdToProgress() progress: " + res);
-        return res > 100 ? 100 : res;
     }
 
     public void addOnStepChangeListener(OnStepListener listener) {
@@ -154,11 +160,7 @@ public class AccelerometerManager implements SensorEventListener {
         onStepListeners.add(listener);
     }
 
-    public interface OnThresholdChangeListener {
-        void onThresholdChanged(double newValue);
-    }
-
     public interface OnStepListener {
-        void onStepDetected(long milliseconds, int stepsCount);
+        void onStepEvent(long milliseconds, int stepsCount);
     }
 }

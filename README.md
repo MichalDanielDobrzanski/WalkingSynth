@@ -9,7 +9,7 @@
 * Custom Picker Views created with the help of recycler view
 ---
 **IMPORTANT!** => Csound libraries are .so libraries which are compiled binaries for *armeabi* and *armeabi-v7A* cpu ABIs.
----
+
 
 ### The Walking Synthesizer ###
 

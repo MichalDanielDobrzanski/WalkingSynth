@@ -15,6 +15,8 @@ import java.io.File;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 @Module
 public class MainApplicationModule {
@@ -61,9 +63,7 @@ public class MainApplicationModule {
     @Provides
     @MainApplicationScope
     TimeCounter providesTimeCounter() {
-        TimeCounter timeCounter = new TimeCounter();
-        timeCounter.startTimer();
-        return timeCounter;
+        return new TimeCounter(Schedulers.io(), AndroidSchedulers.mainThread());
     }
 
     @Provides
@@ -76,8 +76,9 @@ public class MainApplicationModule {
     @MainApplicationScope
     ApplicationMvp.Presenter providesPresenter(SharedPreferences sharedPreferences,
                                                AccelerometerManager accelerometerManager,
-                                               AudioPlayer audioPlayer) {
-        return new MainPresenter(sharedPreferences, accelerometerManager, audioPlayer);
+                                               AudioPlayer audioPlayer,
+                                               TimeCounter timeCounter) {
+        return new MainPresenter(sharedPreferences, accelerometerManager, audioPlayer, timeCounter);
     }
 
 }

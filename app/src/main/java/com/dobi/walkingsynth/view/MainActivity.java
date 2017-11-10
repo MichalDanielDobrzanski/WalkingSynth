@@ -1,6 +1,5 @@
 package com.dobi.walkingsynth.view;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,12 +15,8 @@ import android.widget.Toast;
 import com.dobi.walkingsynth.ApplicationMvp;
 import com.dobi.walkingsynth.MainApplication;
 import com.dobi.walkingsynth.R;
-import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
-import com.dobi.walkingsynth.model.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
-import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
-import com.dobi.walkingsynth.presenter.MainPresenter;
 
 import java.util.Locale;
 
@@ -71,21 +66,10 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     SeekBar thresholdSeekBar;
 
     @Inject
-    SharedPreferences sharedPreferences;
-
-    @Inject
-    TimeCounter timeCounter;
-
-    @Inject
     GraphView accelerometerGraph;
 
     @Inject
-    AccelerometerManager accelerometerManager;
-
-    @Inject
-    AudioPlayer audioPlayer;
-
-    private ApplicationMvp.Presenter presenter;
+    ApplicationMvp.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,22 +85,11 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
 
         ((MainApplication) getApplication()).getApplicationComponent().inject(this);
 
-        attachPresenter();
+        presenter.attachView(this);
 
         presenter.initialize();
 
-        timeCounter.setView(timeTextView);
-
         graphFrameLayout.addView(accelerometerGraph.createView(this));
-    }
-
-    private void attachPresenter() {
-        presenter = (ApplicationMvp.Presenter) getLastCustomNonConfigurationInstance();
-        if (presenter == null) {
-            presenter = new MainPresenter(sharedPreferences, accelerometerManager, audioPlayer);
-        }
-        Log.d(TAG, "attachPresenter: hashCode= " + presenter.hashCode());
-        presenter.attachView(this);
     }
 
     private void initializeThresholdSeekBar() {
@@ -199,13 +172,8 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy()");
-        presenter.detachView();
+        presenter.onDestroy();
         super.onDestroy();
-    }
-
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        return presenter;
     }
 
     @Override
@@ -269,5 +237,10 @@ public class MainActivity extends AppCompatActivity implements ApplicationMvp.Vi
     @Override
     public void showTime(String time) {
         // TODO: move  Timer to Model. Presenter would handle it.
+    }
+
+    @Override
+    public TextView getTimeView() {
+        return timeTextView;
     }
 }

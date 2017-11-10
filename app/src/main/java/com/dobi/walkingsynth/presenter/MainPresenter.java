@@ -7,6 +7,7 @@ import com.dobi.walkingsynth.ApplicationMvp;
 import com.dobi.walkingsynth.model.musicgeneration.core.AudioPlayer;
 import com.dobi.walkingsynth.model.musicgeneration.core.StepsAnalyzer;
 import com.dobi.walkingsynth.model.musicgeneration.core.TempoAnalyzer;
+import com.dobi.walkingsynth.model.musicgeneration.time.TimeCounter;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 import com.dobi.walkingsynth.model.stepdetection.AccelerometerManager;
@@ -27,13 +28,15 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
 
     private static final int OFFSET = 90;
 
-    ApplicationMvp.View view;
+    private ApplicationMvp.View view;
 
     private final AudioPlayer audioPlayer;
 
     private final SharedPreferences sharedPreferences;
 
     private final AccelerometerManager accelerometerManager;
+
+    private final TimeCounter timeCounter;
 
     private Note note;
 
@@ -45,17 +48,13 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
 
     private int tempo;
 
-    private String time;
-
     private double threshold;
-
-    private Observable<Double> thresholdObservable;
 
     private Disposable thresholdDisposable;
 
     public MainPresenter(SharedPreferences sharedPreferences,
                          AccelerometerManager accelerometerManager,
-                         AudioPlayer audioPlayer) {
+                         AudioPlayer audioPlayer, TimeCounter timeCounter) {
         this.sharedPreferences = sharedPreferences;
 
         readFromPreferences(sharedPreferences);
@@ -74,6 +73,7 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
 
         this.audioPlayer.getTempoAnalyzer().addTempoListener(this);
 
+        this.timeCounter = timeCounter;
     }
 
     private void readFromPreferences(SharedPreferences sharedPreferences) {
@@ -86,17 +86,14 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     @Override
     public void attachView(ApplicationMvp.View view) {
         this.view = view;
-    }
-
-    @Override
-    public void detachView() {
-        this.view = null;
+        this.timeCounter.setView(view.getTimeView());
     }
 
     @Override
     public void initialize() {
         if (view != null) {
-            view.initialize(note, scale, interval, steps, tempo, time,
+            view.initialize(note, scale, interval, steps, tempo,
+                    timeCounter.getTime(),
                     audioPlayer.getStepsAnalyzer().getIntervals());
         }
     }
@@ -114,6 +111,9 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     @Override
     public void onResume() {
         audioPlayer.start();
+
+        timeCounter.resume();
+
         accelerometerManager.resume();
     }
 
@@ -121,10 +121,17 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
     public void onStop() {
         audioPlayer.destroy();
 
+        timeCounter.stop();
+
         accelerometerManager.stop();
 
         if (thresholdDisposable != null && thresholdDisposable.isDisposed())
             thresholdDisposable.dispose();
+    }
+
+    @Override
+    public void onDestroy() {
+        this.view = null;
     }
 
     @Override
@@ -174,14 +181,6 @@ public class MainPresenter implements ApplicationMvp.Presenter, AccelerometerMan
 
         if (view != null)
             view.showSteps(steps);
-    }
-
-    @Override
-    public void setTime(String time) {
-        this.time = time;
-
-        if (view != null)
-            view.showTime(time);
     }
 
     @Override

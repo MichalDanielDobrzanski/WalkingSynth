@@ -1,5 +1,7 @@
 package com.dobi.walkingsynth;
 
+import android.widget.TextView;
+
 import com.dobi.walkingsynth.model.musicgeneration.utils.Note;
 import com.dobi.walkingsynth.model.musicgeneration.utils.Scale;
 
@@ -19,12 +21,14 @@ public interface ApplicationMvp {
         void showTempo(int tempo);
 
         void showTime(String time);
+
+        TextView getTimeView();
     }
 
     interface Presenter {
         void attachView(View view);
 
-        void detachView();
+        void onDestroy();
 
         void onResume();
 
@@ -47,8 +51,6 @@ public interface ApplicationMvp {
         void setInterval(int interval);
 
         void setSteps(int steps);
-
-        void setTime(String time);
 
         int getProgressFromThreshold();
 
